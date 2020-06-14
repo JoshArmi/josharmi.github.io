@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="theme-color" content="#494f5c">
+	<meta name="msapplication-TileColor" content="#494f5c">
+<meta itemprop="name" content="">
+<meta itemprop="description" content="AWS Step Functions in June 2020 Warning!! For brevity&rsquo;s sake, the IAM roles included here are overly permissive, and should be locked down before you use this for anything real.
+What&rsquo;s Changed Recently there&rsquo;s been a few awesome announcements about step functions:
+ Step Functions have been added to SAM Step Functions have been added to CodePipeline  Having been looking for an excuse to learn SAM and try something new with CodePipeline I set about tying these two together.">
+
+<meta itemprop="wordCount" content="1072">
+
+
+
+<meta itemprop="keywords" content="" /><meta property="og:title" content="" />
+<meta property="og:description" content="AWS Step Functions in June 2020 Warning!! For brevity&rsquo;s sake, the IAM roles included here are overly permissive, and should be locked down before you use this for anything real.
+What&rsquo;s Changed Recently there&rsquo;s been a few awesome announcements about step functions:
+ Step Functions have been added to SAM Step Functions have been added to CodePipeline  Having been looking for an excuse to learn SAM and try something new with CodePipeline I set about tying these two together." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://josharmi.github.io/posts/step-functions/" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content=""/>
+<meta name="twitter:description" content="AWS Step Functions in June 2020 Warning!! For brevity&rsquo;s sake, the IAM roles included here are overly permissive, and should be locked down before you use this for anything real.
+What&rsquo;s Changed Recently there&rsquo;s been a few awesome announcements about step functions:
+ Step Functions have been added to SAM Step Functions have been added to CodePipeline  Having been looking for an excuse to learn SAM and try something new with CodePipeline I set about tying these two together."/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title></title>
+	<link rel="stylesheet" href="https://josharmi.github.io/css/style.min.657bcb7af31123e4156b1a3d2ff60a636717e54ead74f882136b5114cf72b55e.css" integrity="sha256-ZXvLevMRI+QVaxo9L/YKY2cX5U6tdPiCE2tRFM9ytV4=" crossorigin="anonymous">
+	
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp faster">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="https://josharmi.github.io">Josh Armitage</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="https://josharmi.github.io/posts/">Posts</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="https://twitter.com/josharmi" target="_blank" rel="noopener me" title="Twitter"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a><a href="https://linkedin.com/in/josh-armitage-b7825a41" target="_blank" rel="noopener me" title="Linkedin"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a><a href="https://github.com/josharmi" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title="Menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="https://josharmi.github.io/posts/">Posts</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner animated fadeIn faster">
+		<article class="thin">
+			<header class="post-header">
+				<div class="post-meta"><span>Jan 1, 0001</span></div>
+				<h1></h1>
+			</header>
+			<div class="content">
+				<h1 id="aws-step-functions-in-june-2020">AWS Step Functions in June 2020<a href="#aws-step-functions-in-june-2020" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h1>
+<h2 id="warning">Warning!!<a href="#warning" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>For brevity&rsquo;s sake, the IAM roles included here are overly permissive, and should be locked down before you use this for anything real.</p>
+<h2 id="whats-changed">What&rsquo;s Changed<a href="#whats-changed" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Recently there&rsquo;s been a few awesome announcements about step functions:</p>
+<ol>
+<li><a href="https://aws.amazon.com/blogs/compute/simplifying-application-orchestration-with-aws-step-functions-and-aws-sam/">Step Functions have been added to SAM</a></li>
+<li><a href="https://aws.amazon.com/about-aws/whats-new/2020/05/codepipeline-supports-invoking-step-functions-with-a-new-action-type/">Step Functions have been added to CodePipeline</a></li>
+</ol>
+<p>Having been looking for an excuse to learn SAM and try something new with CodePipeline I set about tying these two together.</p>
+<h2 id="where-well-be-at-the-end">Where we&rsquo;ll be at the end<a href="#where-well-be-at-the-end" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<ol>
+<li>We&rsquo;ll have a CodePipeline that:
+<ol>
+<li>Self-manages</li>
+<li>Deploys a step function</li>
+<li>Executes the deployed step function</li>
+</ol>
+</li>
+<li>A correction for the AWS documentation</li>
+<li>Hopefully some ideas about Step Functions can solve difficult business problems</li>
+</ol>
+<h2 id="pre-requisites">Pre-requisites<a href="#pre-requisites" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<ol>
+<li><a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html">AWS SAM CLI Installed</a></li>
+<li><a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html">AWS CLI Installed</a></li>
+</ol>
+<h2 id="step-functions-with-codepipeline">Step Functions with CodePipeline<a href="#step-functions-with-codepipeline" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Step Functions allows us to handle complicated workflows with ease, allowing for visual tracking of progress.</p>
+<p>CodePipeline allows us to have a codified path to production.</p>
+<p>Historically, CodePipeline has gone hand in glove with CloudFormation, declaratively stating your intent for your infrastructure and allowing the engine to figure out what&rsquo;s required. What has been harder in a pipeline is handling the bespoke processes that tie to your business, or handling AWS resources that are not possible with CloudFormation.</p>
+<p>A few examples where Step Functions could come in useful:</p>
+<ul>
+<li>Deploying SCPs out to your AWS Organization</li>
+<li>Codifying and integrating with your company&rsquo;s change management process</li>
+<li>Allowing for teams to pull infrastructure into their environment</li>
+</ul>
+<p>With those in mind, let&rsquo;s see how we can bring this together.</p>
+<h2 id="trials-with-step-function-in-sam">Trials with Step Function in SAM<a href="#trials-with-step-function-in-sam" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Setting up Step Functions in SAM, is nicely simple, taken from the AWS documentation we have:</p>
+<pre><code>AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  SimpleStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Definition:
+        StartAt: Single State
+        States:
+          Single State:
+            Type: Pass
+            End: true
+      Policies:
+        - CloudWatchPutMetricPolicy: {}
+</code></pre><h3 id="step-function-templates">Step Function Templates<a href="#step-function-templates" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>What the documentation promises you is that you can take your state definition template out into a separate file and reference it like this:</p>
+<pre><code>AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  SimpleStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: state-machine.asl.json
+      Policies:
+        - CloudWatchPutMetricPolicy: {}
+</code></pre><p>But as of the first on June, this does not work, instead it expects a S3 reference like so:</p>
+<pre><code>AWSTemplateFormatVersion: &quot;2010-09-09&quot;
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  SimpleStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri:
+        Bucket: ${BUCKET_NAME}
+        Key: state-machine.asl.json
+      Policies:
+        - CloudWatchPutMetricPolicy: {}
+</code></pre><p>So rather than the normal, <code>sam build</code> -&gt; <code>sam deploy</code> we need an extra step, so a deployment script would look something of the form:</p>
+<pre><code>aws s3 cp state-machine.asl.json s3://${BUCKET_NAME}/
+sam build
+sam deploy
+</code></pre><h3 id="wheres-the-bucket">Where&rsquo;s the Bucket?<a href="#wheres-the-bucket" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>So we have a bucket we need to use as a storage mechanism for the step function definition, we just so happen to need one as artifact storage for our pipeline, so waste not want not let&rsquo;s see how we can use the same bucket for both.</p>
+<p>So let&rsquo;s set up a basic pipeline:</p>
+<ol>
+<li>
+<p>Create a new folder for storing the code and enter it</p>
+</li>
+<li>
+<p>Copy the below template into a <code>pipeline.yaml</code> file</p>
+<pre><code>Parameters:
+PipelineName:
+    Type: String
+    Default: Pipeline
+
+Resources:
+ArtifactStore:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+        AccessControl: Private
+
+PipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+    Path: &quot;/&quot;
+    AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+            Principal:
+            Service: &quot;codepipeline.amazonaws.com&quot;
+            Action: &quot;sts:AssumeRole&quot;
+    Policies:
+        - PolicyName: &quot;root&quot;
+        PolicyDocument:
+            Version: &quot;2012-10-17&quot;
+            Statement:
+            - Effect: &quot;Allow&quot;
+                Action: &quot;*&quot;
+                Resource: &quot;*&quot;
+
+DeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+    Path: &quot;/&quot;
+    AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+            Principal:
+            Service: &quot;cloudformation.amazonaws.com&quot;
+            Action: &quot;sts:AssumeRole&quot;
+    Policies:
+        - PolicyName: &quot;root&quot;
+        PolicyDocument:
+            Version: &quot;2012-10-17&quot;
+            Statement:
+            - Effect: &quot;Allow&quot;
+                Action: &quot;*&quot;
+                Resource: &quot;*&quot;
+
+Repository:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+    RepositoryName: PipelineRepo
+
+Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+    ArtifactStore:
+        Location: !Ref ArtifactStore
+        Type: S3
+    Name: !Ref PipelineName
+    RestartExecutionOnUpdate: True
+    RoleArn: !GetAtt PipelineRole.Arn
+    Stages:
+        - Name: &quot;Source&quot;
+        Actions:
+            - InputArtifacts: []
+            Name: &quot;Source&quot;
+            ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: &quot;1&quot;
+                Provider: CodeCommit
+            OutputArtifacts:
+                - Name: &quot;CodeCommitSource&quot;
+            Configuration:
+                BranchName: &quot;master&quot;
+                RepositoryName: !GetAtt Repository.Name
+        - Name: &quot;AdministerPipeline&quot;
+        Actions:
+            - Name: &quot;AdministerPipeline&quot;
+            ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: &quot;1&quot;
+            Configuration:
+                ActionMode: REPLACE_ON_FAILURE
+                Capabilities: CAPABILITY_NAMED_IAM
+                RoleArn: !GetAtt DeployRole.Arn
+                StackName: !Ref PipelineName
+                TemplatePath: &quot;CodeCommitSource::pipeline.yaml&quot;
+            InputArtifacts:
+                - Name: &quot;CodeCommitSource&quot;
+            RunOrder: 1
+
+Outputs:
+BucketName:
+    Description: Pipeline Bucket Name
+    Value: !Ref ArtifactStore
+    Export:
+        Name: PipelineBucketName
+</code></pre></li>
+<li>
+<p>Run <code>aws cloudformation deploy --stack-name Pipeline --template-file pipeline.yaml --capabilities CAPABILITY_IAM</code></p>
+</li>
+<li>
+<p>Run <code>git init</code> to set up the folder as a Git repository</p>
+</li>
+<li>
+<p><a href="https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up.html">Add CodeCommit as the remote for the folder</a>, one day this will be easy</p>
+</li>
+<li>
+<p>Run <code>git add . &amp;&amp; git commit -m &quot;Initial commit&quot; &amp;&amp; git push -u origin master</code></p>
+</li>
+</ol>
+<h3 id="inception-pipelines">Inception Pipelines<a href="#inception-pipelines" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>This starting pipeline has two stages, one sourcing from CodeCommit and the second actually manages the pipeline itself so now everytime we push to master the pipeline will update itself and rerun.</p>
+<p>So now our pipeline edits will be done through commits and we can have the pipeline live alongside the code we&rsquo;re trying to deliver.</p>
+<p>For more information on inception pipelines, check out <a href="https://github.com/MechanicalRock/InceptionPipeline">this repo</a></p>
+<h3 id="where-are-we-now">Where are we now<a href="#where-are-we-now" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>We now have a pipeline, with a bucket that we can reuse for our Step Function definition. Now we can create the SAM template as:</p>
+<p><code>template.yaml</code></p>
+<pre><code>AWSTemplateFormatVersion: &quot;2010-09-09&quot;
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  SimpleStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri:
+        Bucket: !ImportValue PipelineBucketName
+        Key: statemachine.asl.json
+      Policies:
+        - CloudWatchPutMetricPolicy: {}
+</code></pre><p>To build the SAM Application we need CodeBuild, so let&rsquo;s add that to our pipeline:</p>
+<p>In the resources section of <code>pipeline.yaml</code> add:</p>
+<pre><code>SAMAppRole:
+    Type: AWS::IAM::Role
+    Properties:
+        Path: &quot;/&quot;
+        AssumeRolePolicyDocument:
+        Statement:
+            - Effect: Allow
+            Principal:
+                Service: &quot;codebuild.amazonaws.com&quot;
+            Action: &quot;sts:AssumeRole&quot;
+        Policies:
+        - PolicyName: &quot;root&quot;
+            PolicyDocument:
+            Version: &quot;2012-10-17&quot;
+            Statement:
+                - Effect: &quot;Allow&quot;
+                Action: &quot;*&quot;
+                Resource: &quot;*&quot;
+
+SAMAppProject:
+    Type: &quot;AWS::CodeBuild::Project&quot;
+    Properties:
+        Artifacts:
+            Packaging: ZIP
+            Type: CODEPIPELINE
+        Description: Deploy SAM App
+        Environment:
+            ComputeType: BUILD_GENERAL1_SMALL
+            EnvironmentVariables:
+                - Name: UPLOAD_BUCKET
+                Type: PLAINTEXT
+                Value: !Ref ArtifactStore
+            Image: aws/codebuild/standard:2.0
+            PrivilegedMode: false
+            Type: LINUX_CONTAINER
+        Name: &quot;DeploySAMApp&quot;
+        ServiceRole: !GetAtt SAMAppRole.Arn
+        Source: 
+            BuildSpec: &quot;buildspec.yaml&quot;
+            Type: CODEPIPELINE
+        TimeoutInMinutes: 10
+</code></pre><p>And now we need to add a new stage to the pipeline, so in the stages section of the pipeline definition add:</p>
+<pre><code>- Name: &quot;Deploy&quot;
+    Actions:
+    - Name: &quot;SAMApp&quot;
+        ActionTypeId:
+            Category: Build
+            Owner: AWS
+            Version: &quot;1&quot;
+            Provider: CodeBuild
+        Configuration:
+            ProjectName: !Ref SAMAppProject
+        InputArtifacts:
+            - Name: &quot;CodeCommitSource&quot;
+        OutputArtifacts:
+            - Name: &quot;Ignored&quot;
+        RunOrder: 1
+</code></pre><p>And lastly we need to have a buildspec to run in our CodeBuild project, so create a file <code>buildspec.yaml</code> and copy in:</p>
+<pre><code>version: 0.2
+
+phases:
+    install:
+        runtime-versions:
+            python: 3.7
+        commands:
+            - pip install aws-sam-cli
+
+    build:
+        commands:
+            - aws s3 cp statemachine.asl.json s3://$UPLOAD_BUCKET/
+            - sam build
+            - sam deploy --no-fail-on-empty-changeset
+</code></pre><p>Now create and push a new commit</p>
+<p>In the console go and have a look at the pipeline executed, we should be at all green and now miraculously the stage we just added is now part of the pipeline.</p>
+
+			</div>
+			<hr class="post-end">
+			<footer class="post-info">
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>1072 Words</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>0000-12-31 23:58 -0001</p>
+			</footer>
+		</article>
+		<div class="post-nav thin">
+			<a class="next-post" href="https://josharmi.github.io/posts/scaling-security/">
+				<span class="post-nav-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>&nbsp;Newer</span><br><span>Scaling Security</span>
+			</a>
+		</div>
+		<div id="comments" class="thin">
+</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2020 <a href="https://josharmi.github.io">Josh Armitage</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://josharmi.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="https://josharmi.github.io/js/bundle.min.4a9a0ac3d2217822c7865b4161e6c2a71de1d70492264337755427898dd718f6.js" integrity="sha256-SpoKw9IheCLHhltBYebCpx3h1wSSJkM3dVQniY3XGPY=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>

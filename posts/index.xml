@@ -6,8 +6,133 @@
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
 		<copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-		<lastBuildDate>Fri, 01 Nov 2019 00:00:00 +0000</lastBuildDate>
+		<lastBuildDate>Sun, 14 Jun 2020 00:00:00 +0000</lastBuildDate>
 		<atom:link href="https://josharmi.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+		
+		<item>
+			<title>Scalable DNS with EventBridge</title>
+			<link>https://josharmi.github.io/posts/scalable-dns-with-eventbridge/</link>
+			<pubDate>Sun, 14 Jun 2020 00:00:00 +0000</pubDate>
+			
+			<guid>https://josharmi.github.io/posts/scalable-dns-with-eventbridge/</guid>
+			<description>The Problem DNS, the source of all network problems, can be frustrating to implement at scale. Helpfully, AWS have released this guide on doing multi-account DNS. As with most things multi-account, automating the process is more involved than we would like, nevertheless we persevere and in this case show how AWS EventBridge can be the glue by which we stick together infrastructure at scale.
+The Outcome By the end of this you should have:</description>
+			<content type="html"><![CDATA[<h2 id="the-problem">The Problem</h2>
+<p>DNS, the source of all network problems, can be frustrating to implement at scale.
+Helpfully, AWS have released <a href="https://aws.amazon.com/blogs/security/simplify-dns-management-in-a-multiaccount-environment-with-route-53-resolver/">this guide</a> on doing multi-account DNS. As with most things multi-account, automating the process is more involved than we would like, nevertheless we persevere and in this case show how <a href="https://aws.amazon.com/eventbridge/">AWS EventBridge</a> can be the glue by which we stick together infrastructure at scale.</p>
+<h2 id="the-outcome">The Outcome</h2>
+<p>By the end of this you should have:</p>
+<ul>
+<li>One central DNS VPC account</li>
+<li>Two child accounts that can resolve each others Private Hosted Zone</li>
+<li>A CloudFormation template and pattern to enroll new accounts into the DNS web</li>
+</ul>
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>Three AWS accounts under an organisation</li>
+<li>Have the ARN of your organization handy</li>
+<li>The GitHub repository <a href="https://www.github.com/josharmi/Private-Hosted-Zone">https://www.github.com/josharmi/Private-Hosted-Zone</a> cloned locally</li>
+</ul>
+<h2 id="the-core-dns-account">The Core DNS Account</h2>
+<h3 id="setting-up-the-dns-vpc">Setting up the DNS VPC</h3>
+<p>As you can see in the high level architecture diagram in the AWS documentation:</p>
+<p><img src="/images/high-level-arch.jpg" alt="High Level Architecture" title="High Level Architecture"></p>
+<p>We need a centralised VPC to act as our DNS hub. To set that up:</p>
+<ol>
+<li>Assume a role in your designated central DNS account</li>
+<li>Update the <code>dns-parameters.json</code> file with your Organization ARN.</li>
+<li>Run: <code>aws cloudformation create-stack --stack-name DNSVPC --template-file dns-vpc.yaml --parameters file://dns-parameters.json</code></li>
+</ol>
+<p>Now let&rsquo;s quickly look at what we deployed:</p>
+<ol>
+<li>We have the world&rsquo;s simplest VPC, nothing interesting there</li>
+<li>We have an outbound endpoint, which we need for the resolver rule</li>
+<li>We have an inbound endpoint, which we manually set the IP addresses for as CloudFormation doesn&rsquo;t return them as attributes</li>
+<li>We have the parent private hosted zone that we&rsquo;re going to subdomain off for the child accounts</li>
+<li>We have a resolver rule that is the magic sauce, that directs all traffic for our hosted zone to this VPC via the outbound endpoint</li>
+<li>We have a share via AWS RAM that shares said resolver rule with your organization</li>
+</ol>
+<h3 id="adding-eventbridge">Adding EventBridge</h3>
+<p>The next step is configuring EventBridge on the DNS account so we can accept events from the child accounts:</p>
+<ol>
+<li>Update the <code>master-parameters.json</code> file with your Organization Id
+1 Run <code>aws cloudformation create-stack --stack-name EventBus --template-body file://event-bus-master.yaml --parameters file://master-parameters.json --capabilities CAPABILITY_IAM</code></li>
+</ol>
+<p>Let&rsquo;s quickly look at what we have deployed now:</p>
+<ol>
+<li>We have an EventBridge policy that allows all accounts in our Organization to push events into the account</li>
+<li>We have a lambda function to associate new Private Hosted Zones with the DNS VPC</li>
+<li>We have a rule that based on an event source triggers the lambda function</li>
+</ol>
+<h2 id="the-first-child-account">The First Child Account</h2>
+<p>Before we start provisioning resources in the child accounts we need to get a few details from the master account.</p>
+<ol>
+<li>Run <code>aws cloudformation describe-stacks --stack-name DNSVPC</code></li>
+<li>Grab the outputs for the ResolverRuleId and DNSVPCId and copy them into <code>client-parameters-1.json</code> and <code>client-parameters-2.json</code></li>
+</ol>
+<p>Now we&rsquo;re ready to deploy into the child accounts</p>
+<ol>
+<li>Assume a role in the child account</li>
+<li>Run <code>aws cloudformation create-stack --stack-name EventBus --template-body file://event-bus-client.yaml --parameters file://client-parameters-1.json --capabilities CAPABILITY_IAM</code></li>
+</ol>
+<p>And we have deployed:</p>
+<ol>
+<li>Another simple VPC with just enough configuration</li>
+<li>A private hosted zone subdomain</li>
+<li>A custom resource to associate the private hosted zone with the DNS VPC</li>
+<li>A custom resource to fire a custom event to the account default event bus</li>
+<li>An EventBridge rule to fire said event over to the DNS master account</li>
+<li>A record set for testing the inter-account DNS</li>
+</ol>
+<h2 id="the-second-child-account">The Second Child Account</h2>
+<p>Now we can set up the other child:</p>
+<ol>
+<li>Assume a role in the child account</li>
+<li>Run <code>aws cloudformation create-stack --stack-name EventBus --template-body file://event-bus-client.yaml --parameters file://client-parameters-2.json --capabilities CAPABILITY_IAM</code></li>
+</ol>
+<p>And we have deployed the same resources as in the first child, but under a different subdomain and CIDR.</p>
+<h2 id="testing-what-weve-built">Testing What We&rsquo;ve Built</h2>
+<p>The simplest test is to create an EC2 machine in either of the child accounts.</p>
+<h3 id="in-the-second-account">In the second account</h3>
+<ol>
+<li>
+<p>Set up an EC2 machine with a public IP and a known key pair.</p>
+</li>
+<li>
+<p>SSH onto the machine</p>
+</li>
+<li>
+<p>Run <code>nslookup test.beta.cloud.private</code></p>
+<p>You should see:</p>
+<pre><code>[ec2-user@ip-10-0-2-124 ~]$ nslookup test.beta.cloud.private
+Server:		10.0.2.2
+Address:	10.0.2.2#53
+
+Non-authoritative answer:
+Name:	test.beta.cloud.private
+Address: 10.0.1.10
+</code></pre></li>
+</ol>
+<h3 id="success"><strong>!!SUCCESS!!</strong></h3>
+<h2 id="reviewing-what-we-did">Reviewing What We Did</h2>
+<ol>
+<li>We deployed a central DNS VPC</li>
+<li>We deployed Route 53 infrastructure to share across the organization</li>
+<li>We set up EventBridge to automatically enroll new Private Hosted Zones</li>
+<li>We configured private hosted zones in two child accounts</li>
+<li>We tested that we now could resolve hostnames between accounts</li>
+</ol>
+<h2 id="next-steps">Next Steps</h2>
+<p>Now we are in a position where we can continue to enroll more accounts, VPCs and private hosted zones. However, the templates are already feeling somewhat unwieldly.</p>
+<h3 id="refactoring">Refactoring</h3>
+<ul>
+<li>Making a private resource to act as an EventBridge event emitter</li>
+<li>Breaking the Custom Resource Definitions out into a separate, potentially nested, templates</li>
+<li>Extracting out the EventBridge policy in the DNS account into a separate template</li>
+<li>Potentially Serverless Framework could reduce the amount of code to maintain</li>
+</ul>
+]]></content>
+		</item>
 		
 		<item>
 			<title>Scaling Security</title>
@@ -17,47 +142,344 @@
 			<guid>https://josharmi.github.io/posts/scaling-security/</guid>
 			<description>The Scene You&amp;rsquo;re a new CISO at a rapidly scaling technology company with 50 engineers, looking to double engineering within 12 months. The company is trying to maintain its agility and rapid delivery, but you&amp;rsquo;re hitting a point where the security cowboy nature has presented too great a risk to be ignored any longer.
 Tasked with imporving the security posture across the board, you&amp;rsquo;re worried that the developers and product owners don&amp;rsquo;t care about security.</description>
-			<content type="html"><![CDATA[
-
-<h2 id="the-scene">The Scene</h2>
-
+			<content type="html"><![CDATA[<h2 id="the-scene">The Scene</h2>
 <p>You&rsquo;re a new CISO at a rapidly scaling technology company with 50 engineers, looking to double engineering within 12 months. The company is trying to maintain its agility and rapid delivery, but you&rsquo;re hitting a point where the security cowboy nature has presented too great a risk to be ignored any longer.</p>
-
 <p>Tasked with imporving the security posture across the board, you&rsquo;re worried that the developers and product owners don&rsquo;t care about security. You haven&rsquo;t quite won an <a href="https://duckduckgo.com/?q=s3+bucket+negligence+award&amp;t=ffab&amp;atb=v1-1&amp;ia=web">S3 bucket negligence award</a> but after reviewing the AWS setup, you&rsquo;re worried that it&rsquo;s a matter of when not if.</p>
-
 <p>What options do you have to instill good practice throughout the company in a way that is both effective and cost efficient? How can you shift security left and deliver secure software without compromising velocity?</p>
-
-<h2 id="option-1-grow-the-security-team">Option 1 - Grow the Security Team</h2>
-
+<h2 id="option-1---grow-the-security-team">Option 1 - Grow the Security Team</h2>
 <p>The development teams are using scrum, they have the ceremonies you would expect, e.g. daily standups, fortnightly showcases and retrospectives. If you grow the team you can have security personnel attending these ceremonies, looking to bring a security point of view to the proceedings. You can drop tickets into Jira, push for them to get prioritised, and see some progress being made.</p>
-
 <p>However, your goals are orthogonal to that of the product owner and the development team, they&rsquo;re trying to maximise reward, you&rsquo;re trying to minimise risk. You can look to source <code>Security Champions</code> as a scaling mechanism, have them be the voice and face of the security movement, and this will make some headway towards your goal.</p>
-
 <p>But there is an upper bound to the effectiveness of this approach, you are reliant on finding motivated employees to carry your message, when push comes to shove security will often lose out in a battle for prioritisation. In this model, doing things securely is not the default modus operandi, it&rsquo;s extra effort, time and money. Security mandate is something that comes down from on high, from people who have very little skin in the game as the developer sees it.</p>
-
 <p>How can we change the game such that security is the default? Make it the simplest, easiest and fastest choice?</p>
-
-<h2 id="option-2-add-development-capability-to-security">Option 2 - Add Development Capability To Security</h2>
-
+<h2 id="option-2---add-development-capability-to-security">Option 2 - Add Development Capability To Security</h2>
 <p>Google scaled their operations through <a href="https://landing.google.com/sre/books/">SRE</a>, you must do the same with security. Software is the force multiplier of the 21st century. Hyperscaling startups, for all their faults, show how you can have huge impact per person through code. With this leverage you can scale security in a more effective and more cost efficient way than growing the security team with non-coders ever could.</p>
-
 <h3 id="devsecops-pipelines">DevSecOps Pipelines</h3>
-
 <p>DevSecOps is the natural evolution of DevOps, but unfortunately the effort of adding security tools to pipelines is non-zero, which means it falls into the good old fashioned priority queue. CircleCI has a great template with <a href="https://circleci.com/orbs/">orbs</a>, making it trivially easy for people to add extra capabilities to their pipelines. The security team can bring reusable templates to the build pipelines across the organisation by doing the complex work up front, reducing the barrier to entry for development teams and expediting adoption.</p>
-
 <p>Another benefit is giving the security a way of uniformly building standards across the whole swathe of development. As a new standard are mint, you can add a capability to warn development teams that they&rsquo;re in breach, and actually cause failed builds if the concerns are not addressed in time. By building in a rapid and consistent feedback loop into the process, better security behaviours will result.</p>
-
 <h3 id="improved-base-infrastructure">Improved Base Infrastructure</h3>
-
 <p>Infrastructure in the cloud is a composition of foundational components, and for better or worse the default posture on most resources is open. Historically, building secure cloud applications was something that took significant expertise and the paying of something akin to a blood-debt to unlock the arcanery of YAML templating. However, we now have the tools to enable secure by default and to empower all developers to deliver fit for purpose architectures.</p>
-
 <p>Through constructing a repository of secure by default components, the security team can change the underlying foundation of all architectures. By enabling the delivery teams to frictionlessly adopt secure components, the security posture will organically improve as the delivery teams are better served by the provided templates.</p>
-
 <h2 id="the-decision">The Decision</h2>
-
 <p>Given a blank slate, both options will be beneficial to an organisation. By adopting option 1 you will bring greater security awareness and will hopefully build up champions within the development team to drive secure practices. However, this approach maintains silos and can potentially result in high levels of animosity between development and security.</p>
-
 <p>By adopting option 2 along with the advocacy portion of option 1, you have a solution where security outputs drive engineering outcomes, which drive security outcomes. This flow provides a more consistent adoption curve and promotes sybmiosis over silos.</p>
+]]></content>
+		</item>
+		
+		<item>
+			<title></title>
+			<link>https://josharmi.github.io/posts/step-functions/</link>
+			<pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+			
+			<guid>https://josharmi.github.io/posts/step-functions/</guid>
+			<description>AWS Step Functions in June 2020 Warning!! For brevity&amp;rsquo;s sake, the IAM roles included here are overly permissive, and should be locked down before you use this for anything real.
+What&amp;rsquo;s Changed Recently there&amp;rsquo;s been a few awesome announcements about step functions:
+ Step Functions have been added to SAM Step Functions have been added to CodePipeline  Having been looking for an excuse to learn SAM and try something new with CodePipeline I set about tying these two together.</description>
+			<content type="html"><![CDATA[<h1 id="aws-step-functions-in-june-2020">AWS Step Functions in June 2020</h1>
+<h2 id="warning">Warning!!</h2>
+<p>For brevity&rsquo;s sake, the IAM roles included here are overly permissive, and should be locked down before you use this for anything real.</p>
+<h2 id="whats-changed">What&rsquo;s Changed</h2>
+<p>Recently there&rsquo;s been a few awesome announcements about step functions:</p>
+<ol>
+<li><a href="https://aws.amazon.com/blogs/compute/simplifying-application-orchestration-with-aws-step-functions-and-aws-sam/">Step Functions have been added to SAM</a></li>
+<li><a href="https://aws.amazon.com/about-aws/whats-new/2020/05/codepipeline-supports-invoking-step-functions-with-a-new-action-type/">Step Functions have been added to CodePipeline</a></li>
+</ol>
+<p>Having been looking for an excuse to learn SAM and try something new with CodePipeline I set about tying these two together.</p>
+<h2 id="where-well-be-at-the-end">Where we&rsquo;ll be at the end</h2>
+<ol>
+<li>We&rsquo;ll have a CodePipeline that:
+<ol>
+<li>Self-manages</li>
+<li>Deploys a step function</li>
+<li>Executes the deployed step function</li>
+</ol>
+</li>
+<li>A correction for the AWS documentation</li>
+<li>Hopefully some ideas about Step Functions can solve difficult business problems</li>
+</ol>
+<h2 id="pre-requisites">Pre-requisites</h2>
+<ol>
+<li><a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html">AWS SAM CLI Installed</a></li>
+<li><a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html">AWS CLI Installed</a></li>
+</ol>
+<h2 id="step-functions-with-codepipeline">Step Functions with CodePipeline</h2>
+<p>Step Functions allows us to handle complicated workflows with ease, allowing for visual tracking of progress.</p>
+<p>CodePipeline allows us to have a codified path to production.</p>
+<p>Historically, CodePipeline has gone hand in glove with CloudFormation, declaratively stating your intent for your infrastructure and allowing the engine to figure out what&rsquo;s required. What has been harder in a pipeline is handling the bespoke processes that tie to your business, or handling AWS resources that are not possible with CloudFormation.</p>
+<p>A few examples where Step Functions could come in useful:</p>
+<ul>
+<li>Deploying SCPs out to your AWS Organization</li>
+<li>Codifying and integrating with your company&rsquo;s change management process</li>
+<li>Allowing for teams to pull infrastructure into their environment</li>
+</ul>
+<p>With those in mind, let&rsquo;s see how we can bring this together.</p>
+<h2 id="trials-with-step-function-in-sam">Trials with Step Function in SAM</h2>
+<p>Setting up Step Functions in SAM, is nicely simple, taken from the AWS documentation we have:</p>
+<pre><code>AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  SimpleStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Definition:
+        StartAt: Single State
+        States:
+          Single State:
+            Type: Pass
+            End: true
+      Policies:
+        - CloudWatchPutMetricPolicy: {}
+</code></pre><h3 id="step-function-templates">Step Function Templates</h3>
+<p>What the documentation promises you is that you can take your state definition template out into a separate file and reference it like this:</p>
+<pre><code>AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  SimpleStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: state-machine.asl.json
+      Policies:
+        - CloudWatchPutMetricPolicy: {}
+</code></pre><p>But as of the first on June, this does not work, instead it expects a S3 reference like so:</p>
+<pre><code>AWSTemplateFormatVersion: &quot;2010-09-09&quot;
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  SimpleStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri:
+        Bucket: ${BUCKET_NAME}
+        Key: state-machine.asl.json
+      Policies:
+        - CloudWatchPutMetricPolicy: {}
+</code></pre><p>So rather than the normal, <code>sam build</code> -&gt; <code>sam deploy</code> we need an extra step, so a deployment script would look something of the form:</p>
+<pre><code>aws s3 cp state-machine.asl.json s3://${BUCKET_NAME}/
+sam build
+sam deploy
+</code></pre><h3 id="wheres-the-bucket">Where&rsquo;s the Bucket?</h3>
+<p>So we have a bucket we need to use as a storage mechanism for the step function definition, we just so happen to need one as artifact storage for our pipeline, so waste not want not let&rsquo;s see how we can use the same bucket for both.</p>
+<p>So let&rsquo;s set up a basic pipeline:</p>
+<ol>
+<li>
+<p>Create a new folder for storing the code and enter it</p>
+</li>
+<li>
+<p>Copy the below template into a <code>pipeline.yaml</code> file</p>
+<pre><code>Parameters:
+PipelineName:
+    Type: String
+    Default: Pipeline
+
+Resources:
+ArtifactStore:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+        AccessControl: Private
+
+PipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+    Path: &quot;/&quot;
+    AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+            Principal:
+            Service: &quot;codepipeline.amazonaws.com&quot;
+            Action: &quot;sts:AssumeRole&quot;
+    Policies:
+        - PolicyName: &quot;root&quot;
+        PolicyDocument:
+            Version: &quot;2012-10-17&quot;
+            Statement:
+            - Effect: &quot;Allow&quot;
+                Action: &quot;*&quot;
+                Resource: &quot;*&quot;
+
+DeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+    Path: &quot;/&quot;
+    AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+            Principal:
+            Service: &quot;cloudformation.amazonaws.com&quot;
+            Action: &quot;sts:AssumeRole&quot;
+    Policies:
+        - PolicyName: &quot;root&quot;
+        PolicyDocument:
+            Version: &quot;2012-10-17&quot;
+            Statement:
+            - Effect: &quot;Allow&quot;
+                Action: &quot;*&quot;
+                Resource: &quot;*&quot;
+
+Repository:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+    RepositoryName: PipelineRepo
+
+Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+    ArtifactStore:
+        Location: !Ref ArtifactStore
+        Type: S3
+    Name: !Ref PipelineName
+    RestartExecutionOnUpdate: True
+    RoleArn: !GetAtt PipelineRole.Arn
+    Stages:
+        - Name: &quot;Source&quot;
+        Actions:
+            - InputArtifacts: []
+            Name: &quot;Source&quot;
+            ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: &quot;1&quot;
+                Provider: CodeCommit
+            OutputArtifacts:
+                - Name: &quot;CodeCommitSource&quot;
+            Configuration:
+                BranchName: &quot;master&quot;
+                RepositoryName: !GetAtt Repository.Name
+        - Name: &quot;AdministerPipeline&quot;
+        Actions:
+            - Name: &quot;AdministerPipeline&quot;
+            ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: &quot;1&quot;
+            Configuration:
+                ActionMode: REPLACE_ON_FAILURE
+                Capabilities: CAPABILITY_NAMED_IAM
+                RoleArn: !GetAtt DeployRole.Arn
+                StackName: !Ref PipelineName
+                TemplatePath: &quot;CodeCommitSource::pipeline.yaml&quot;
+            InputArtifacts:
+                - Name: &quot;CodeCommitSource&quot;
+            RunOrder: 1
+
+Outputs:
+BucketName:
+    Description: Pipeline Bucket Name
+    Value: !Ref ArtifactStore
+    Export:
+        Name: PipelineBucketName
+</code></pre></li>
+<li>
+<p>Run <code>aws cloudformation deploy --stack-name Pipeline --template-file pipeline.yaml --capabilities CAPABILITY_IAM</code></p>
+</li>
+<li>
+<p>Run <code>git init</code> to set up the folder as a Git repository</p>
+</li>
+<li>
+<p><a href="https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up.html">Add CodeCommit as the remote for the folder</a>, one day this will be easy</p>
+</li>
+<li>
+<p>Run <code>git add . &amp;&amp; git commit -m &quot;Initial commit&quot; &amp;&amp; git push -u origin master</code></p>
+</li>
+</ol>
+<h3 id="inception-pipelines">Inception Pipelines</h3>
+<p>This starting pipeline has two stages, one sourcing from CodeCommit and the second actually manages the pipeline itself so now everytime we push to master the pipeline will update itself and rerun.</p>
+<p>So now our pipeline edits will be done through commits and we can have the pipeline live alongside the code we&rsquo;re trying to deliver.</p>
+<p>For more information on inception pipelines, check out <a href="https://github.com/MechanicalRock/InceptionPipeline">this repo</a></p>
+<h3 id="where-are-we-now">Where are we now</h3>
+<p>We now have a pipeline, with a bucket that we can reuse for our Step Function definition. Now we can create the SAM template as:</p>
+<p><code>template.yaml</code></p>
+<pre><code>AWSTemplateFormatVersion: &quot;2010-09-09&quot;
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  SimpleStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri:
+        Bucket: !ImportValue PipelineBucketName
+        Key: statemachine.asl.json
+      Policies:
+        - CloudWatchPutMetricPolicy: {}
+</code></pre><p>To build the SAM Application we need CodeBuild, so let&rsquo;s add that to our pipeline:</p>
+<p>In the resources section of <code>pipeline.yaml</code> add:</p>
+<pre><code>SAMAppRole:
+    Type: AWS::IAM::Role
+    Properties:
+        Path: &quot;/&quot;
+        AssumeRolePolicyDocument:
+        Statement:
+            - Effect: Allow
+            Principal:
+                Service: &quot;codebuild.amazonaws.com&quot;
+            Action: &quot;sts:AssumeRole&quot;
+        Policies:
+        - PolicyName: &quot;root&quot;
+            PolicyDocument:
+            Version: &quot;2012-10-17&quot;
+            Statement:
+                - Effect: &quot;Allow&quot;
+                Action: &quot;*&quot;
+                Resource: &quot;*&quot;
+
+SAMAppProject:
+    Type: &quot;AWS::CodeBuild::Project&quot;
+    Properties:
+        Artifacts:
+            Packaging: ZIP
+            Type: CODEPIPELINE
+        Description: Deploy SAM App
+        Environment:
+            ComputeType: BUILD_GENERAL1_SMALL
+            EnvironmentVariables:
+                - Name: UPLOAD_BUCKET
+                Type: PLAINTEXT
+                Value: !Ref ArtifactStore
+            Image: aws/codebuild/standard:2.0
+            PrivilegedMode: false
+            Type: LINUX_CONTAINER
+        Name: &quot;DeploySAMApp&quot;
+        ServiceRole: !GetAtt SAMAppRole.Arn
+        Source: 
+            BuildSpec: &quot;buildspec.yaml&quot;
+            Type: CODEPIPELINE
+        TimeoutInMinutes: 10
+</code></pre><p>And now we need to add a new stage to the pipeline, so in the stages section of the pipeline definition add:</p>
+<pre><code>- Name: &quot;Deploy&quot;
+    Actions:
+    - Name: &quot;SAMApp&quot;
+        ActionTypeId:
+            Category: Build
+            Owner: AWS
+            Version: &quot;1&quot;
+            Provider: CodeBuild
+        Configuration:
+            ProjectName: !Ref SAMAppProject
+        InputArtifacts:
+            - Name: &quot;CodeCommitSource&quot;
+        OutputArtifacts:
+            - Name: &quot;Ignored&quot;
+        RunOrder: 1
+</code></pre><p>And lastly we need to have a buildspec to run in our CodeBuild project, so create a file <code>buildspec.yaml</code> and copy in:</p>
+<pre><code>version: 0.2
+
+phases:
+    install:
+        runtime-versions:
+            python: 3.7
+        commands:
+            - pip install aws-sam-cli
+
+    build:
+        commands:
+            - aws s3 cp statemachine.asl.json s3://$UPLOAD_BUCKET/
+            - sam build
+            - sam deploy --no-fail-on-empty-changeset
+</code></pre><p>Now create and push a new commit</p>
+<p>In the console go and have a look at the pipeline executed, we should be at all green and now miraculously the stage we just added is now part of the pipeline.</p>
 ]]></content>
 		</item>
 		

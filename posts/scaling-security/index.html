@@ -10,16 +10,13 @@
 <meta itemprop="name" content="Scaling Security">
 <meta itemprop="description" content="The Scene You&rsquo;re a new CISO at a rapidly scaling technology company with 50 engineers, looking to double engineering within 12 months. The company is trying to maintain its agility and rapid delivery, but you&rsquo;re hitting a point where the security cowboy nature has presented too great a risk to be ignored any longer.
 Tasked with imporving the security posture across the board, you&rsquo;re worried that the developers and product owners don&rsquo;t care about security.">
-
-
 <meta itemprop="datePublished" content="2019-11-01T00:00:00&#43;00:00" />
 <meta itemprop="dateModified" content="2019-11-01T00:00:00&#43;00:00" />
 <meta itemprop="wordCount" content="801">
 
 
 
-<meta itemprop="keywords" content="Cloud,Security,Scaling," />
-<meta property="og:title" content="Scaling Security" />
+<meta itemprop="keywords" content="Cloud,Security,Scaling," /><meta property="og:title" content="Scaling Security" />
 <meta property="og:description" content="The Scene You&rsquo;re a new CISO at a rapidly scaling technology company with 50 engineers, looking to double engineering within 12 months. The company is trying to maintain its agility and rapid delivery, but you&rsquo;re hitting a point where the security cowboy nature has presented too great a risk to be ignored any longer.
 Tasked with imporving the security posture across the board, you&rsquo;re worried that the developers and product owners don&rsquo;t care about security." />
 <meta property="og:type" content="article" />
@@ -76,46 +73,25 @@ Tasked with imporving the security posture across the board, you&rsquo;re worrie
 				<h1>Scaling Security</h1>
 			</header>
 			<div class="content">
-				
-
-<h2 id="the-scene">The Scene<a href="#the-scene" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
-
+				<h2 id="the-scene">The Scene<a href="#the-scene" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
 <p>You&rsquo;re a new CISO at a rapidly scaling technology company with 50 engineers, looking to double engineering within 12 months. The company is trying to maintain its agility and rapid delivery, but you&rsquo;re hitting a point where the security cowboy nature has presented too great a risk to be ignored any longer.</p>
-
 <p>Tasked with imporving the security posture across the board, you&rsquo;re worried that the developers and product owners don&rsquo;t care about security. You haven&rsquo;t quite won an <a href="https://duckduckgo.com/?q=s3+bucket+negligence+award&amp;t=ffab&amp;atb=v1-1&amp;ia=web">S3 bucket negligence award</a> but after reviewing the AWS setup, you&rsquo;re worried that it&rsquo;s a matter of when not if.</p>
-
 <p>What options do you have to instill good practice throughout the company in a way that is both effective and cost efficient? How can you shift security left and deliver secure software without compromising velocity?</p>
-
-<h2 id="option-1-grow-the-security-team">Option 1 - Grow the Security Team<a href="#option-1-grow-the-security-team" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
-
+<h2 id="option-1---grow-the-security-team">Option 1 - Grow the Security Team<a href="#option-1---grow-the-security-team" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
 <p>The development teams are using scrum, they have the ceremonies you would expect, e.g. daily standups, fortnightly showcases and retrospectives. If you grow the team you can have security personnel attending these ceremonies, looking to bring a security point of view to the proceedings. You can drop tickets into Jira, push for them to get prioritised, and see some progress being made.</p>
-
 <p>However, your goals are orthogonal to that of the product owner and the development team, they&rsquo;re trying to maximise reward, you&rsquo;re trying to minimise risk. You can look to source <code>Security Champions</code> as a scaling mechanism, have them be the voice and face of the security movement, and this will make some headway towards your goal.</p>
-
 <p>But there is an upper bound to the effectiveness of this approach, you are reliant on finding motivated employees to carry your message, when push comes to shove security will often lose out in a battle for prioritisation. In this model, doing things securely is not the default modus operandi, it&rsquo;s extra effort, time and money. Security mandate is something that comes down from on high, from people who have very little skin in the game as the developer sees it.</p>
-
 <p>How can we change the game such that security is the default? Make it the simplest, easiest and fastest choice?</p>
-
-<h2 id="option-2-add-development-capability-to-security">Option 2 - Add Development Capability To Security<a href="#option-2-add-development-capability-to-security" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
-
+<h2 id="option-2---add-development-capability-to-security">Option 2 - Add Development Capability To Security<a href="#option-2---add-development-capability-to-security" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
 <p>Google scaled their operations through <a href="https://landing.google.com/sre/books/">SRE</a>, you must do the same with security. Software is the force multiplier of the 21st century. Hyperscaling startups, for all their faults, show how you can have huge impact per person through code. With this leverage you can scale security in a more effective and more cost efficient way than growing the security team with non-coders ever could.</p>
-
 <h3 id="devsecops-pipelines">DevSecOps Pipelines<a href="#devsecops-pipelines" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
-
 <p>DevSecOps is the natural evolution of DevOps, but unfortunately the effort of adding security tools to pipelines is non-zero, which means it falls into the good old fashioned priority queue. CircleCI has a great template with <a href="https://circleci.com/orbs/">orbs</a>, making it trivially easy for people to add extra capabilities to their pipelines. The security team can bring reusable templates to the build pipelines across the organisation by doing the complex work up front, reducing the barrier to entry for development teams and expediting adoption.</p>
-
 <p>Another benefit is giving the security a way of uniformly building standards across the whole swathe of development. As a new standard are mint, you can add a capability to warn development teams that they&rsquo;re in breach, and actually cause failed builds if the concerns are not addressed in time. By building in a rapid and consistent feedback loop into the process, better security behaviours will result.</p>
-
 <h3 id="improved-base-infrastructure">Improved Base Infrastructure<a href="#improved-base-infrastructure" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
-
 <p>Infrastructure in the cloud is a composition of foundational components, and for better or worse the default posture on most resources is open. Historically, building secure cloud applications was something that took significant expertise and the paying of something akin to a blood-debt to unlock the arcanery of YAML templating. However, we now have the tools to enable secure by default and to empower all developers to deliver fit for purpose architectures.</p>
-
 <p>Through constructing a repository of secure by default components, the security team can change the underlying foundation of all architectures. By enabling the delivery teams to frictionlessly adopt secure components, the security posture will organically improve as the delivery teams are better served by the provided templates.</p>
-
 <h2 id="the-decision">The Decision<a href="#the-decision" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
-
 <p>Given a blank slate, both options will be beneficial to an organisation. By adopting option 1 you will bring greater security awareness and will hopefully build up champions within the development team to drive secure practices. However, this approach maintains silos and can potentially result in high levels of animosity between development and security.</p>
-
 <p>By adopting option 2 along with the advocacy portion of option 1, you have a solution where security outputs drive engineering outcomes, which drive security outcomes. This flow provides a more consistent adoption curve and promotes sybmiosis over silos.</p>
 
 			</div>
@@ -126,17 +102,23 @@ Tasked with imporving the security posture across the board, you&rsquo;re worrie
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg><span class="tag"><a href="https://josharmi.github.io/tags/cloud">Cloud</a></span><span class="tag"><a href="https://josharmi.github.io/tags/security">Security</a></span><span class="tag"><a href="https://josharmi.github.io/tags/scaling">Scaling</a></span>
 				</p>
 				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>801 Words</p>
-				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2019-11-01 08:00 &#43;0800</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2019-11-01 00:00 &#43;0000</p>
 			</footer>
 		</article>
 		<div class="post-nav thin">
+			<a class="next-post" href="https://josharmi.github.io/posts/scalable-dns-with-eventbridge/">
+				<span class="post-nav-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>&nbsp;Newer</span><br><span>Scalable DNS with EventBridge</span>
+			</a>
+			<a class="prev-post" href="https://josharmi.github.io/posts/step-functions/">
+				<span class="post-nav-label">Older&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span></span>
+			</a>
 		</div>
 		<div id="comments" class="thin">
 </div>
 	</main>
 
 	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
-		<p>&copy; 2019 <a href="https://josharmi.github.io">Josh Armitage</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>&copy; 2020 <a href="https://josharmi.github.io">Josh Armitage</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
 		<p>
 			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://josharmi.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
 		</p>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="theme-color" content="#494f5c">
+	<meta name="msapplication-TileColor" content="#494f5c">
+<meta itemprop="name" content="Scalable DNS with EventBridge">
+<meta itemprop="description" content="The Problem DNS, the source of all network problems, can be frustrating to implement at scale. Helpfully, AWS have released this guide on doing multi-account DNS. As with most things multi-account, automating the process is more involved than we would like, nevertheless we persevere and in this case show how AWS EventBridge can be the glue by which we stick together infrastructure at scale.
+The Outcome By the end of this you should have:">
+<meta itemprop="datePublished" content="2020-06-14T00:00:00&#43;00:00" />
+<meta itemprop="dateModified" content="2020-06-14T00:00:00&#43;00:00" />
+<meta itemprop="wordCount" content="768">
+
+
+
+<meta itemprop="keywords" content="Cloud,EventBridge,AWS,DNS," /><meta property="og:title" content="Scalable DNS with EventBridge" />
+<meta property="og:description" content="The Problem DNS, the source of all network problems, can be frustrating to implement at scale. Helpfully, AWS have released this guide on doing multi-account DNS. As with most things multi-account, automating the process is more involved than we would like, nevertheless we persevere and in this case show how AWS EventBridge can be the glue by which we stick together infrastructure at scale.
+The Outcome By the end of this you should have:" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://josharmi.github.io/posts/scalable-dns-with-eventbridge/" />
+<meta property="article:published_time" content="2020-06-14T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-06-14T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Scalable DNS with EventBridge"/>
+<meta name="twitter:description" content="The Problem DNS, the source of all network problems, can be frustrating to implement at scale. Helpfully, AWS have released this guide on doing multi-account DNS. As with most things multi-account, automating the process is more involved than we would like, nevertheless we persevere and in this case show how AWS EventBridge can be the glue by which we stick together infrastructure at scale.
+The Outcome By the end of this you should have:"/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title>Scalable DNS with EventBridge</title>
+	<link rel="stylesheet" href="https://josharmi.github.io/css/style.min.657bcb7af31123e4156b1a3d2ff60a636717e54ead74f882136b5114cf72b55e.css" integrity="sha256-ZXvLevMRI+QVaxo9L/YKY2cX5U6tdPiCE2tRFM9ytV4=" crossorigin="anonymous">
+	
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp faster">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="https://josharmi.github.io">Josh Armitage</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="https://josharmi.github.io/posts/">Posts</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="https://twitter.com/josharmi" target="_blank" rel="noopener me" title="Twitter"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a><a href="https://linkedin.com/in/josh-armitage-b7825a41" target="_blank" rel="noopener me" title="Linkedin"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a><a href="https://github.com/josharmi" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title="Menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="https://josharmi.github.io/posts/">Posts</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner animated fadeIn faster">
+		<article class="thin">
+			<header class="post-header">
+				<div class="post-meta"><span>Jun 14, 2020</span></div>
+				<h1>Scalable DNS with EventBridge</h1>
+			</header>
+			<div class="content">
+				<h2 id="the-problem">The Problem<a href="#the-problem" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>DNS, the source of all network problems, can be frustrating to implement at scale.
+Helpfully, AWS have released <a href="https://aws.amazon.com/blogs/security/simplify-dns-management-in-a-multiaccount-environment-with-route-53-resolver/">this guide</a> on doing multi-account DNS. As with most things multi-account, automating the process is more involved than we would like, nevertheless we persevere and in this case show how <a href="https://aws.amazon.com/eventbridge/">AWS EventBridge</a> can be the glue by which we stick together infrastructure at scale.</p>
+<h2 id="the-outcome">The Outcome<a href="#the-outcome" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>By the end of this you should have:</p>
+<ul>
+<li>One central DNS VPC account</li>
+<li>Two child accounts that can resolve each others Private Hosted Zone</li>
+<li>A CloudFormation template and pattern to enroll new accounts into the DNS web</li>
+</ul>
+<h2 id="prerequisites">Prerequisites<a href="#prerequisites" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<ul>
+<li>Three AWS accounts under an organisation</li>
+<li>Have the ARN of your organization handy</li>
+<li>The GitHub repository <a href="https://www.github.com/josharmi/Private-Hosted-Zone">https://www.github.com/josharmi/Private-Hosted-Zone</a> cloned locally</li>
+</ul>
+<h2 id="the-core-dns-account">The Core DNS Account<a href="#the-core-dns-account" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<h3 id="setting-up-the-dns-vpc">Setting up the DNS VPC<a href="#setting-up-the-dns-vpc" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>As you can see in the high level architecture diagram in the AWS documentation:</p>
+<p><img src="/images/high-level-arch.jpg" alt="High Level Architecture" title="High Level Architecture"></p>
+<p>We need a centralised VPC to act as our DNS hub. To set that up:</p>
+<ol>
+<li>Assume a role in your designated central DNS account</li>
+<li>Update the <code>dns-parameters.json</code> file with your Organization ARN.</li>
+<li>Run: <code>aws cloudformation create-stack --stack-name DNSVPC --template-file dns-vpc.yaml --parameters file://dns-parameters.json</code></li>
+</ol>
+<p>Now let&rsquo;s quickly look at what we deployed:</p>
+<ol>
+<li>We have the world&rsquo;s simplest VPC, nothing interesting there</li>
+<li>We have an outbound endpoint, which we need for the resolver rule</li>
+<li>We have an inbound endpoint, which we manually set the IP addresses for as CloudFormation doesn&rsquo;t return them as attributes</li>
+<li>We have the parent private hosted zone that we&rsquo;re going to subdomain off for the child accounts</li>
+<li>We have a resolver rule that is the magic sauce, that directs all traffic for our hosted zone to this VPC via the outbound endpoint</li>
+<li>We have a share via AWS RAM that shares said resolver rule with your organization</li>
+</ol>
+<h3 id="adding-eventbridge">Adding EventBridge<a href="#adding-eventbridge" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>The next step is configuring EventBridge on the DNS account so we can accept events from the child accounts:</p>
+<ol>
+<li>Update the <code>master-parameters.json</code> file with your Organization Id
+1 Run <code>aws cloudformation create-stack --stack-name EventBus --template-body file://event-bus-master.yaml --parameters file://master-parameters.json --capabilities CAPABILITY_IAM</code></li>
+</ol>
+<p>Let&rsquo;s quickly look at what we have deployed now:</p>
+<ol>
+<li>We have an EventBridge policy that allows all accounts in our Organization to push events into the account</li>
+<li>We have a lambda function to associate new Private Hosted Zones with the DNS VPC</li>
+<li>We have a rule that based on an event source triggers the lambda function</li>
+</ol>
+<h2 id="the-first-child-account">The First Child Account<a href="#the-first-child-account" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Before we start provisioning resources in the child accounts we need to get a few details from the master account.</p>
+<ol>
+<li>Run <code>aws cloudformation describe-stacks --stack-name DNSVPC</code></li>
+<li>Grab the outputs for the ResolverRuleId and DNSVPCId and copy them into <code>client-parameters-1.json</code> and <code>client-parameters-2.json</code></li>
+</ol>
+<p>Now we&rsquo;re ready to deploy into the child accounts</p>
+<ol>
+<li>Assume a role in the child account</li>
+<li>Run <code>aws cloudformation create-stack --stack-name EventBus --template-body file://event-bus-client.yaml --parameters file://client-parameters-1.json --capabilities CAPABILITY_IAM</code></li>
+</ol>
+<p>And we have deployed:</p>
+<ol>
+<li>Another simple VPC with just enough configuration</li>
+<li>A private hosted zone subdomain</li>
+<li>A custom resource to associate the private hosted zone with the DNS VPC</li>
+<li>A custom resource to fire a custom event to the account default event bus</li>
+<li>An EventBridge rule to fire said event over to the DNS master account</li>
+<li>A record set for testing the inter-account DNS</li>
+</ol>
+<h2 id="the-second-child-account">The Second Child Account<a href="#the-second-child-account" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Now we can set up the other child:</p>
+<ol>
+<li>Assume a role in the child account</li>
+<li>Run <code>aws cloudformation create-stack --stack-name EventBus --template-body file://event-bus-client.yaml --parameters file://client-parameters-2.json --capabilities CAPABILITY_IAM</code></li>
+</ol>
+<p>And we have deployed the same resources as in the first child, but under a different subdomain and CIDR.</p>
+<h2 id="testing-what-weve-built">Testing What We&rsquo;ve Built<a href="#testing-what-weve-built" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>The simplest test is to create an EC2 machine in either of the child accounts.</p>
+<h3 id="in-the-second-account">In the second account<a href="#in-the-second-account" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<ol>
+<li>
+<p>Set up an EC2 machine with a public IP and a known key pair.</p>
+</li>
+<li>
+<p>SSH onto the machine</p>
+</li>
+<li>
+<p>Run <code>nslookup test.beta.cloud.private</code></p>
+<p>You should see:</p>
+<pre><code>[ec2-user@ip-10-0-2-124 ~]$ nslookup test.beta.cloud.private
+Server:		10.0.2.2
+Address:	10.0.2.2#53
+
+Non-authoritative answer:
+Name:	test.beta.cloud.private
+Address: 10.0.1.10
+</code></pre></li>
+</ol>
+<h3 id="success"><strong>!!SUCCESS!!</strong><a href="#success" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<h2 id="reviewing-what-we-did">Reviewing What We Did<a href="#reviewing-what-we-did" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<ol>
+<li>We deployed a central DNS VPC</li>
+<li>We deployed Route 53 infrastructure to share across the organization</li>
+<li>We set up EventBridge to automatically enroll new Private Hosted Zones</li>
+<li>We configured private hosted zones in two child accounts</li>
+<li>We tested that we now could resolve hostnames between accounts</li>
+</ol>
+<h2 id="next-steps">Next Steps<a href="#next-steps" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Now we are in a position where we can continue to enroll more accounts, VPCs and private hosted zones. However, the templates are already feeling somewhat unwieldly.</p>
+<h3 id="refactoring">Refactoring<a href="#refactoring" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<ul>
+<li>Making a private resource to act as an EventBridge event emitter</li>
+<li>Breaking the Custom Resource Definitions out into a separate, potentially nested, templates</li>
+<li>Extracting out the EventBridge policy in the DNS account into a separate template</li>
+<li>Potentially Serverless Framework could reduce the amount of code to maintain</li>
+</ul>
+
+			</div>
+			<hr class="post-end">
+			<footer class="post-info">
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-feather"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>Josh Armitage</p>
+				<p>
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg><span class="tag"><a href="https://josharmi.github.io/tags/cloud">Cloud</a></span><span class="tag"><a href="https://josharmi.github.io/tags/eventbridge">EventBridge</a></span><span class="tag"><a href="https://josharmi.github.io/tags/aws">AWS</a></span><span class="tag"><a href="https://josharmi.github.io/tags/dns">DNS</a></span>
+				</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>768 Words</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2020-06-14 01:00 &#43;0100</p>
+			</footer>
+		</article>
+		<div class="post-nav thin">
+			<a class="prev-post" href="https://josharmi.github.io/posts/scaling-security/">
+				<span class="post-nav-label">Older&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>Scaling Security</span>
+			</a>
+		</div>
+		<div id="comments" class="thin">
+</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2020 <a href="https://josharmi.github.io">Josh Armitage</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://josharmi.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="https://josharmi.github.io/js/bundle.min.4a9a0ac3d2217822c7865b4161e6c2a71de1d70492264337755427898dd718f6.js" integrity="sha256-SpoKw9IheCLHhltBYebCpx3h1wSSJkM3dVQniY3XGPY=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>
