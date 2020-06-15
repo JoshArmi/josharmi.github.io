@@ -32,16 +32,5 @@ The Outcome By the end of this you should have:</description>
 Tasked with imporving the security posture across the board, you&amp;rsquo;re worried that the developers and product owners don&amp;rsquo;t care about security.</description>
     </item>
     
-    <item>
-      <title></title>
-      <link>https://josharmi.github.io/posts/step-functions/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/posts/step-functions/</guid>
-      <description>AWS Step Functions in June 2020 Warning!! For brevity&amp;rsquo;s sake, the IAM roles included here are overly permissive, and should be locked down before you use this for anything real.
-What&amp;rsquo;s Changed Recently there&amp;rsquo;s been a few awesome announcements about step functions:
- Step Functions have been added to SAM Step Functions have been added to CodePipeline  Having been looking for an excuse to learn SAM and try something new with CodePipeline I set about tying these two together.</description>
-    </item>
-    
   </channel>
 </rss>
