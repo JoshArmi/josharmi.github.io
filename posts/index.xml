@@ -36,7 +36,7 @@ Helpfully, AWS have released <a href="https://aws.amazon.com/blogs/security/simp
 <h2 id="the-core-dns-account">The Core DNS Account</h2>
 <h3 id="setting-up-the-dns-vpc">Setting up the DNS VPC</h3>
 <p>As you can see in the high level architecture diagram in the AWS documentation:</p>
-<p><img src="/images/high-level-arch.jpg" alt="High Level Architecture" title="High Level Architecture"></p>
+<p><img src="/static/images/high-level-arch.jpg" alt="High Level Architecture" title="High Level Architecture"></p>
 <p>We need a centralised VPC to act as our DNS hub. To set that up:</p>
 <ol>
 <li>Assume a role in your designated central DNS account</li>
