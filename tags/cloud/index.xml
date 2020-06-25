@@ -32,5 +32,15 @@ The Outcome By the end of this you should have:</description>
 Tasked with imporving the security posture across the board, you&amp;rsquo;re worried that the developers and product owners don&amp;rsquo;t care about security.</description>
     </item>
     
+    <item>
+      <title>DIY StackSets with Step Functions</title>
+      <link>https://josharmi.github.io/posts/diy-stacksets/</link>
+      <pubDate>Sat, 22 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/diy-stacksets/</guid>
+      <description>DIY StackSets with Step Functions Why Recreate StackSets Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the documentation, the minimum permissions to operate StackSets are:
+{ &amp;quot;Version&amp;quot;: &amp;quot;2012-10-17&amp;quot;, &amp;quot;Statement&amp;quot;: [ { &amp;quot;Effect&amp;quot;: &amp;quot;Allow&amp;quot;, &amp;quot;Action&amp;quot;: [ &amp;quot;cloudformation:*&amp;quot;, &amp;quot;s3:*&amp;quot;, &amp;quot;sns:*&amp;quot; ], &amp;quot;Resource&amp;quot;: &amp;quot;*&amp;quot; } ] } Having full S3, CloudFormation and SNS access cross account into production does feel like something we want to avoid.</description>
+    </item>
+    
   </channel>
 </rss>

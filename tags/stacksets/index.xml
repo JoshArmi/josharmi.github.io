@@ -1,26 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>AWS on Josh Armitage</title>
-    <link>https://josharmi.github.io/tags/aws/</link>
-    <description>Recent content in AWS on Josh Armitage</description>
+    <title>StackSets on Josh Armitage</title>
+    <link>https://josharmi.github.io/tags/stacksets/</link>
+    <description>Recent content in StackSets on Josh Armitage</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Sun, 14 Jun 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 22 Jun 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://josharmi.github.io/tags/aws/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://josharmi.github.io/tags/stacksets/index.xml" rel="self" type="application/rss+xml" />
     
-    
-    <item>
-      <title>Scalable DNS with EventBridge</title>
-      <link>https://josharmi.github.io/posts/scalable-dns-with-eventbridge/</link>
-      <pubDate>Sun, 14 Jun 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/posts/scalable-dns-with-eventbridge/</guid>
-      <description>The Problem DNS, the source of all network problems, can be frustrating to implement at scale. Helpfully, AWS have released this guide on doing multi-account DNS. As with most things multi-account, automating the process is more involved than we would like, nevertheless we persevere and in this case show how AWS EventBridge can be the glue by which we stick together infrastructure at scale.
-The Outcome By the end of this you should have:</description>
-    </item>
     
     <item>
       <title>DIY StackSets with Step Functions</title>
