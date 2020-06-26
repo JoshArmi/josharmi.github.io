@@ -8,25 +8,25 @@
 	<meta name="theme-color" content="#494f5c">
 	<meta name="msapplication-TileColor" content="#494f5c">
 <meta itemprop="name" content="DIY StackSets with Step Functions">
-<meta itemprop="description" content="DIY StackSets with Step Functions Why Recreate StackSets Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the documentation, the minimum permissions to operate StackSets are:
-{ &quot;Version&quot;: &quot;2012-10-17&quot;, &quot;Statement&quot;: [ { &quot;Effect&quot;: &quot;Allow&quot;, &quot;Action&quot;: [ &quot;cloudformation:*&quot;, &quot;s3:*&quot;, &quot;sns:*&quot; ], &quot;Resource&quot;: &quot;*&quot; } ] } Having full S3, CloudFormation and SNS access cross account into production does feel like something we want to avoid.">
-<meta itemprop="datePublished" content="2019-06-22T00:00:00&#43;00:00" />
-<meta itemprop="dateModified" content="2019-06-22T00:00:00&#43;00:00" />
-<meta itemprop="wordCount" content="1046">
+<meta itemprop="description" content="Why Recreate StackSets Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the documentation, the minimum permissions to operate StackSets are:
+{ &quot;Version&quot;: &quot;2012-10-17&quot;, &quot;Statement&quot;: [ { &quot;Effect&quot;: &quot;Allow&quot;, &quot;Action&quot;: [ &quot;cloudformation:*&quot;, &quot;s3:*&quot;, &quot;sns:*&quot; ], &quot;Resource&quot;: &quot;*&quot; } ] } Having full S3, CloudFormation and SNS access cross account into production does feel like something we want to avoid. But StackSets give us a highly efficient and useful way to deploy stacks across large swathes of the estate, how much effort is it to build something that gives us some of the same functionality with much more restricted permissions.">
+<meta itemprop="datePublished" content="2020-06-26T00:00:00&#43;00:00" />
+<meta itemprop="dateModified" content="2020-06-26T00:00:00&#43;00:00" />
+<meta itemprop="wordCount" content="1106">
 
 
 
 <meta itemprop="keywords" content="Cloud,StackSets,AWS,Step Functions," /><meta property="og:title" content="DIY StackSets with Step Functions" />
-<meta property="og:description" content="DIY StackSets with Step Functions Why Recreate StackSets Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the documentation, the minimum permissions to operate StackSets are:
-{ &quot;Version&quot;: &quot;2012-10-17&quot;, &quot;Statement&quot;: [ { &quot;Effect&quot;: &quot;Allow&quot;, &quot;Action&quot;: [ &quot;cloudformation:*&quot;, &quot;s3:*&quot;, &quot;sns:*&quot; ], &quot;Resource&quot;: &quot;*&quot; } ] } Having full S3, CloudFormation and SNS access cross account into production does feel like something we want to avoid." />
+<meta property="og:description" content="Why Recreate StackSets Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the documentation, the minimum permissions to operate StackSets are:
+{ &quot;Version&quot;: &quot;2012-10-17&quot;, &quot;Statement&quot;: [ { &quot;Effect&quot;: &quot;Allow&quot;, &quot;Action&quot;: [ &quot;cloudformation:*&quot;, &quot;s3:*&quot;, &quot;sns:*&quot; ], &quot;Resource&quot;: &quot;*&quot; } ] } Having full S3, CloudFormation and SNS access cross account into production does feel like something we want to avoid. But StackSets give us a highly efficient and useful way to deploy stacks across large swathes of the estate, how much effort is it to build something that gives us some of the same functionality with much more restricted permissions." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://josharmi.github.io/posts/diy-stacksets/" />
-<meta property="article:published_time" content="2019-06-22T00:00:00+00:00" />
-<meta property="article:modified_time" content="2019-06-22T00:00:00+00:00" />
+<meta property="article:published_time" content="2020-06-26T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-06-26T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="DIY StackSets with Step Functions"/>
-<meta name="twitter:description" content="DIY StackSets with Step Functions Why Recreate StackSets Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the documentation, the minimum permissions to operate StackSets are:
-{ &quot;Version&quot;: &quot;2012-10-17&quot;, &quot;Statement&quot;: [ { &quot;Effect&quot;: &quot;Allow&quot;, &quot;Action&quot;: [ &quot;cloudformation:*&quot;, &quot;s3:*&quot;, &quot;sns:*&quot; ], &quot;Resource&quot;: &quot;*&quot; } ] } Having full S3, CloudFormation and SNS access cross account into production does feel like something we want to avoid."/>
+<meta name="twitter:description" content="Why Recreate StackSets Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the documentation, the minimum permissions to operate StackSets are:
+{ &quot;Version&quot;: &quot;2012-10-17&quot;, &quot;Statement&quot;: [ { &quot;Effect&quot;: &quot;Allow&quot;, &quot;Action&quot;: [ &quot;cloudformation:*&quot;, &quot;s3:*&quot;, &quot;sns:*&quot; ], &quot;Resource&quot;: &quot;*&quot; } ] } Having full S3, CloudFormation and SNS access cross account into production does feel like something we want to avoid. But StackSets give us a highly efficient and useful way to deploy stacks across large swathes of the estate, how much effort is it to build something that gives us some of the same functionality with much more restricted permissions."/>
 
 	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -69,12 +69,11 @@
 	<main class="site-main section-inner animated fadeIn faster">
 		<article class="thin">
 			<header class="post-header">
-				<div class="post-meta"><span>Jun 22, 2019</span></div>
+				<div class="post-meta"><span>Jun 26, 2020</span></div>
 				<h1>DIY StackSets with Step Functions</h1>
 			</header>
 			<div class="content">
-				<h1 id="diy-stacksets-with-step-functions">DIY StackSets with Step Functions<a href="#diy-stacksets-with-step-functions" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h1>
-<h2 id="why-recreate-stacksets">Why Recreate StackSets<a href="#why-recreate-stacksets" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+				<h2 id="why-recreate-stacksets">Why Recreate StackSets<a href="#why-recreate-stacksets" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
 <p>Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html#stacksets-prereqs-accountsetup">documentation</a>, the minimum permissions to operate StackSets are:</p>
 <pre><code>{
     &quot;Version&quot;: &quot;2012-10-17&quot;,
@@ -139,8 +138,9 @@ But StackSets give us a highly efficient and useful way to deploy stacks across 
 <li>Note the token somewhere</li>
 </ol>
 </li>
+<li>Once the repo successfully imports, make sure there are 7 remote branches</li>
 <li>Clone the imported repository locally and checkout branch <code>main</code></li>
-<li>Run <code>git merge part1</code></li>
+<li>Run <code>git merge origin/part1</code></li>
 <li>Update the values in <code>pipeline-parameters.json</code></li>
 <li>Update the values in <code>seed-parameters.json</code></li>
 <li>Add, Commit and Push the changes in <code>pipeline-parameters.json</code> and <code>seed-parameters.json</code></li>
@@ -163,7 +163,7 @@ But StackSets give us a highly efficient and useful way to deploy stacks across 
 <h2 id="adding-the-step-function">Adding The Step Function<a href="#adding-the-step-function" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
 <p>First up we&rsquo;re going to deploy the world&rsquo;s simplest step function, then we&rsquo;ll look at how to automatically execute the step function after deploying it.</p>
 <ol>
-<li>Run <code>git merge part2</code></li>
+<li>Run <code>git merge origin/part2</code></li>
 <li>Run <code>git push</code></li>
 </ol>
 <p>Let&rsquo;s look at what changes we&rsquo;ve made:</p>
@@ -173,20 +173,22 @@ But StackSets give us a highly efficient and useful way to deploy stacks across 
 <li>The SAM app creates a step function per the ASL file with a single task</li>
 <li>The single task is a new Lambda function which just exits</li>
 </ul>
+<p>Once the pipeline finishes executing it should look something like:</p>
+<p><img src="/static/images/pipeline-1.jpg" alt="Stage 1 Pipeline" title="Stage 1 Pipeline"></p>
 <p>Now the pipeline should successfully deploy the step function and now we can add an execution stage by:</p>
 <ol>
-<li>Run <code>git merge part3</code></li>
+<li>Run <code>git merge origin/part3</code></li>
 <li>Run <code>git push</code></li>
 </ol>
 <p>Now when we look at the pipeline we should see four stages, with the last being a successful execution of the step function.</p>
 <h3 id="recap-of-where-we-are">Recap of where we are<a href="#recap-of-where-we-are" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
 <p>So we have a pipeline that deploys and executes a step function, which is a placeholder. Which looks something like:</p>
-<p><img src="" alt=""></p>
+<p><img src="/static/images/pipeline-2.jpg" alt="Stage 2 Pipeline" title="Stage 2 Pipeline"></p>
 <p>We need to make the step function do something useful.</p>
 <h2 id="stepping-into-something-useful">Stepping Into Something Useful<a href="#stepping-into-something-useful" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
 <p>Now we&rsquo;ll bring in a step function that actually purports to do something, so:</p>
 <ol>
-<li>Run <code>git merge part4</code></li>
+<li>Run <code>git merge origin/part4</code></li>
 <li>Update the parameter defaults of <code>template.yaml</code></li>
 <li>Add, Commit and Push the changes</li>
 <li>Accept the email confirming the SNS subscription</li>
@@ -194,7 +196,7 @@ But StackSets give us a highly efficient and useful way to deploy stacks across 
 <p>Looking at the Lambda function code, we can see that currently the functions do not have sufficient permissions to undertake their tasks.</p>
 <p>So let&rsquo;s look at fixing that:</p>
 <ol>
-<li>Run <code>git merge part5</code></li>
+<li>Run <code>git merge origin/part5</code></li>
 <li>Assume a role in your billing account
 <ol>
 <li>Run <code>aws cloudformation deploy --stack-name AccountLister --template-file master-role.yaml --capabilities CAPABILITY_NAMED_IAM</code></li>
@@ -219,7 +221,7 @@ But StackSets give us a highly efficient and useful way to deploy stacks across 
 <h2 id="success">Success?<a href="#success" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
 <p>If you go and look in all accounts where you deployed the <em><strong>CrossDeployRole</strong></em>, you should now have a CloudFormation stack called <strong>Bucket</strong>.</p>
 <p>With the goal being to replace StackSets at this point we have a <em><strong>Proof of Concept</strong></em> that shows that we can build a system for pushing CloudFormation out without needing the same level of permissions as StackSets.</p>
-<p>However the code as it stands only covers the <em><strong>happy path</strong></em> when it comes to handling CloudFormation stacks, we can extend the code but the amount of complexity we have to handle starts to increase.</p>
+<p>However the code as it stands only covers the <em><strong>happy path</strong></em> when it comes to handling CloudFormation stacks, we can extend the code but the amount of complexity we have to handle starts to increase. Currently we&rsquo;re only accounting for the 3 most common out of about 25 possible CloudFormation states.</p>
 <p>Step functions do provide a visual way to understand the complexity, and it does seem achievable to build a deployment mechanism that is both robust and maintainable.</p>
 <h2 id="cleanup">Cleanup<a href="#cleanup" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
 <p>To destroy all resources created:</p>
@@ -257,6 +259,8 @@ But StackSets give us a highly efficient and useful way to deploy stacks across 
 <li>Collapsing errors down to one summary email</li>
 <li>Emailing a summary of all successful deployments</li>
 </ul>
+<h2 id="thoughts">Thoughts?<a href="#thoughts" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Reach out to me on Twitter or LinkedIn, I&rsquo;d love to hear what people&rsquo;s opinions of StackSets are, and whether they&rsquo;ve journeyed down a similar path.</p>
 
 			</div>
 			<hr class="post-end">
@@ -265,13 +269,13 @@ But StackSets give us a highly efficient and useful way to deploy stacks across 
 				<p>
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg><span class="tag"><a href="https://josharmi.github.io/tags/cloud">Cloud</a></span><span class="tag"><a href="https://josharmi.github.io/tags/stacksets">StackSets</a></span><span class="tag"><a href="https://josharmi.github.io/tags/aws">AWS</a></span><span class="tag"><a href="https://josharmi.github.io/tags/step-functions">Step Functions</a></span>
 				</p>
-				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>1046 Words</p>
-				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2019-06-22 01:00 &#43;0100</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>1106 Words</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2020-06-26 01:00 &#43;0100</p>
 			</footer>
 		</article>
 		<div class="post-nav thin">
-			<a class="next-post" href="https://josharmi.github.io/posts/scaling-security/">
-				<span class="post-nav-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>&nbsp;Newer</span><br><span>Scaling Security</span>
+			<a class="prev-post" href="https://josharmi.github.io/posts/scalable-dns-with-eventbridge/">
+				<span class="post-nav-label">Older&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>Scalable DNS with EventBridge</span>
 			</a>
 		</div>
 		<div id="comments" class="thin">

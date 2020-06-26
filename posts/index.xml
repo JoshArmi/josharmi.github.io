@@ -6,8 +6,207 @@
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
 		<copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-		<lastBuildDate>Sun, 14 Jun 2020 00:00:00 +0000</lastBuildDate>
+		<lastBuildDate>Fri, 26 Jun 2020 00:00:00 +0000</lastBuildDate>
 		<atom:link href="https://josharmi.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+		
+		<item>
+			<title>DIY StackSets with Step Functions</title>
+			<link>https://josharmi.github.io/posts/diy-stacksets/</link>
+			<pubDate>Fri, 26 Jun 2020 00:00:00 +0000</pubDate>
+			
+			<guid>https://josharmi.github.io/posts/diy-stacksets/</guid>
+			<description>Why Recreate StackSets Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the documentation, the minimum permissions to operate StackSets are:
+{ &amp;quot;Version&amp;quot;: &amp;quot;2012-10-17&amp;quot;, &amp;quot;Statement&amp;quot;: [ { &amp;quot;Effect&amp;quot;: &amp;quot;Allow&amp;quot;, &amp;quot;Action&amp;quot;: [ &amp;quot;cloudformation:*&amp;quot;, &amp;quot;s3:*&amp;quot;, &amp;quot;sns:*&amp;quot; ], &amp;quot;Resource&amp;quot;: &amp;quot;*&amp;quot; } ] } Having full S3, CloudFormation and SNS access cross account into production does feel like something we want to avoid. But StackSets give us a highly efficient and useful way to deploy stacks across large swathes of the estate, how much effort is it to build something that gives us some of the same functionality with much more restricted permissions.</description>
+			<content type="html"><![CDATA[<h2 id="why-recreate-stacksets">Why Recreate StackSets</h2>
+<p>Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html#stacksets-prereqs-accountsetup">documentation</a>, the minimum permissions to operate StackSets are:</p>
+<pre><code>{
+    &quot;Version&quot;: &quot;2012-10-17&quot;,
+    &quot;Statement&quot;: [
+        {
+            &quot;Effect&quot;: &quot;Allow&quot;,
+            &quot;Action&quot;: 
+               [
+                 &quot;cloudformation:*&quot;,
+                 &quot;s3:*&quot;,
+                 &quot;sns:*&quot;
+               ],
+            &quot;Resource&quot;: &quot;*&quot;
+        }
+      ]
+}
+</code></pre><p>Having <em>full</em> <strong>S3</strong>, <strong>CloudFormation</strong> and <strong>SNS</strong> access cross account into production does feel like something we want to avoid.
+But StackSets give us a highly efficient and useful way to deploy stacks across large swathes of the estate, how much effort is it to build something that gives us some of the same functionality with much more restricted permissions.</p>
+<h2 id="step-functions-to-the-rescue">Step Functions to the Rescue?</h2>
+<p>With the new Step Functions releases:</p>
+<ol>
+<li>Step Functions can now be invoked diretly from CodePipeline</li>
+<li>Step Functions have been added to AWS SAM</li>
+</ol>
+<p>They seems like a good reason to use step functions to build StackSets-lite, so here we go&hellip;</p>
+<h2 id="the-end-goal">The End Goal</h2>
+<p>By the end of the post we should have:</p>
+<ul>
+<li>A DIY StackSet Proof of Concept consisting of:
+<ol>
+<li>A pipeline that deploys and executes a step function</li>
+<li>A step function that deploys a template out to all accounts in an organization</li>
+<li>Cross accounts roles that stay true to the principle of least privilege</li>
+</ol>
+</li>
+</ul>
+<h2 id="prerequisites">Prerequisites</h2>
+<ol>
+<li>An AWS organization set up</li>
+<li>The AWS CLI installed</li>
+<li>Git installed</li>
+<li>A GitHub account</li>
+</ol>
+<h2 id="pipeline-set-up">Pipeline Set Up</h2>
+<p>The pipeline we have here is currently predicated on the source code being in GitHub, so let&rsquo;s set that up:</p>
+<ol>
+<li>Import the example repo in GitHub
+<ol>
+<li>Go to <a href="https://github.com/new/import">https://github.com/new/import</a></li>
+<li>Enter the url <code>https://github.com/JoshArmi/sam-pipeline</code></li>
+<li>Name the repository</li>
+<li>Begin the import</li>
+</ol>
+</li>
+<li>Create an OAuth token for the pipeline
+<ol>
+<li>Go to <a href="https://github.com/settings/tokens">https://github.com/settings/tokens</a></li>
+<li>Click <code>Personal access tokens</code></li>
+<li>Click <code>Generate new token</code></li>
+<li>Give it full <code>repo</code> and full <code>admin:repo_hook</code> permissions</li>
+<li>Generate the token</li>
+<li>Note the token somewhere</li>
+</ol>
+</li>
+<li>Once the repo successfully imports, make sure there are 7 remote branches</li>
+<li>Clone the imported repository locally and checkout branch <code>main</code></li>
+<li>Run <code>git merge origin/part1</code></li>
+<li>Update the values in <code>pipeline-parameters.json</code></li>
+<li>Update the values in <code>seed-parameters.json</code></li>
+<li>Add, Commit and Push the changes in <code>pipeline-parameters.json</code> and <code>seed-parameters.json</code></li>
+<li>Assume a role in the <strong>pipeline account</strong></li>
+<li>Push your GitHub token into the AWS account
+<ol>
+<li>Run <code>aws cloudformation create-stack --stack-name GitHubOAuthSecret --template-body file://secret.yaml</code></li>
+<li>Run <code>aws secretsmanager put-secret-value --secret-id GitHubOAuthToken --secret-string &quot;{\&quot;token\&quot;:\&quot;YOUR_GITHUB_TOKEN\&quot;}&quot;</code></li>
+</ol>
+</li>
+<li>Run <code>aws cloudformation create-stack --stack-name Pipeline --template-body file://pipeline.yaml --parameters file://seed-parameters.json --capabilities CAPABILITY_NAMED_IAM</code></li>
+</ol>
+<h3 id="pit-stop">Pit Stop</h3>
+<p>OK let&rsquo;s review where we&rsquo;re at currently:</p>
+<ul>
+<li>If you look in the console we should have a pipeline that looks like this:</li>
+</ul>
+<p><img src="" alt=""></p>
+<p>Now as this pipeline redeploys itself, we can work through the rest of the post by constantly pushing to our repository.</p>
+<h2 id="adding-the-step-function">Adding The Step Function</h2>
+<p>First up we&rsquo;re going to deploy the world&rsquo;s simplest step function, then we&rsquo;ll look at how to automatically execute the step function after deploying it.</p>
+<ol>
+<li>Run <code>git merge origin/part2</code></li>
+<li>Run <code>git push</code></li>
+</ol>
+<p>Let&rsquo;s look at what changes we&rsquo;ve made:</p>
+<ul>
+<li>The pipeline now has a deployment stage executing the <code>buildspec.yaml</code> file</li>
+<li>The buildspec deploys the SAM app contained in <code>template.yaml</code></li>
+<li>The SAM app creates a step function per the ASL file with a single task</li>
+<li>The single task is a new Lambda function which just exits</li>
+</ul>
+<p>Once the pipeline finishes executing it should look something like:</p>
+<p><img src="/static/images/pipeline-1.jpg" alt="Stage 1 Pipeline" title="Stage 1 Pipeline"></p>
+<p>Now the pipeline should successfully deploy the step function and now we can add an execution stage by:</p>
+<ol>
+<li>Run <code>git merge origin/part3</code></li>
+<li>Run <code>git push</code></li>
+</ol>
+<p>Now when we look at the pipeline we should see four stages, with the last being a successful execution of the step function.</p>
+<h3 id="recap-of-where-we-are">Recap of where we are</h3>
+<p>So we have a pipeline that deploys and executes a step function, which is a placeholder. Which looks something like:</p>
+<p><img src="/static/images/pipeline-2.jpg" alt="Stage 2 Pipeline" title="Stage 2 Pipeline"></p>
+<p>We need to make the step function do something useful.</p>
+<h2 id="stepping-into-something-useful">Stepping Into Something Useful</h2>
+<p>Now we&rsquo;ll bring in a step function that actually purports to do something, so:</p>
+<ol>
+<li>Run <code>git merge origin/part4</code></li>
+<li>Update the parameter defaults of <code>template.yaml</code></li>
+<li>Add, Commit and Push the changes</li>
+<li>Accept the email confirming the SNS subscription</li>
+</ol>
+<p>Looking at the Lambda function code, we can see that currently the functions do not have sufficient permissions to undertake their tasks.</p>
+<p>So let&rsquo;s look at fixing that:</p>
+<ol>
+<li>Run <code>git merge origin/part5</code></li>
+<li>Assume a role in your billing account
+<ol>
+<li>Run <code>aws cloudformation deploy --stack-name AccountLister --template-file master-role.yaml --capabilities CAPABILITY_NAMED_IAM</code></li>
+<li>Run <code>aws cloudformation deploy --stack-name CrossAccountDeploy --template-file client-role.yaml --capabilities CAPABILITY_NAMED_IAM</code></li>
+</ol>
+</li>
+<li>For each other account in your organisation, including the pipeline account:
+<ol>
+<li>Run <code>aws cloudformation deploy --stack-name CrossAccountDeploy --template-file client-role.yaml --capabilities CAPABILITY_NAMED_IAM</code></li>
+</ol>
+</li>
+<li>Run <code>git push</code></li>
+</ol>
+<p>We&rsquo;ve now deployed with the last push:</p>
+<ul>
+<li>A role in the billing account allowing us to look up all accounts under the organisation</li>
+<li>A role in every account that allows us to deploy tagged CloudFormation stacks and S3 buckets</li>
+<li>Another pipeline extension that pushes <code>templates/template.yaml</code> into an S3 bucket to deploy into the accounts</li>
+<li>We have deployed a bucket into every account in the organization as per <code>./templates/template.yaml</code></li>
+<li>Failed deployments trigger an email being sent to a preset email address</li>
+</ul>
+<h2 id="success">Success?</h2>
+<p>If you go and look in all accounts where you deployed the <em><strong>CrossDeployRole</strong></em>, you should now have a CloudFormation stack called <strong>Bucket</strong>.</p>
+<p>With the goal being to replace StackSets at this point we have a <em><strong>Proof of Concept</strong></em> that shows that we can build a system for pushing CloudFormation out without needing the same level of permissions as StackSets.</p>
+<p>However the code as it stands only covers the <em><strong>happy path</strong></em> when it comes to handling CloudFormation stacks, we can extend the code but the amount of complexity we have to handle starts to increase. Currently we&rsquo;re only accounting for the 3 most common out of about 25 possible CloudFormation states.</p>
+<p>Step functions do provide a visual way to understand the complexity, and it does seem achievable to build a deployment mechanism that is both robust and maintainable.</p>
+<h2 id="cleanup">Cleanup</h2>
+<p>To destroy all resources created:</p>
+<ol>
+<li>In the pipeline account
+<ol>
+<li>Delete the Pipeline stack</li>
+<li>Delete the sam-app stack</li>
+<li>Delete the CrossAccountDeploy stack</li>
+<li>Delete the bucket created by the Bucket stack</li>
+<li>Delete the Bucket stack</li>
+</ol>
+</li>
+<li>In the billing account
+<ol>
+<li>Delete the AccountLister stack</li>
+<li>Delete the CrossAccountDeploy stack</li>
+<li>Delete the bucket created by the Bucket stack</li>
+<li>Delete the Bucket stack</li>
+</ol>
+</li>
+<li>In all other accounts
+<ol>
+<li>Delete the CrossAccountDeploy stack</li>
+<li>Delete the bucket created by the Bucket stack</li>
+<li>Delete the Bucket stack</li>
+</ol>
+</li>
+</ol>
+<h2 id="next-steps">Next Steps</h2>
+<p>There are a variety of options for the next system extension, including:</p>
+<ul>
+<li>Allowing for deploying to stages of accounts to minimise blast radius</li>
+<li>Handling more CloudFormation stack states</li>
+<li>Collapsing errors down to one summary email</li>
+<li>Emailing a summary of all successful deployments</li>
+</ul>
+<h2 id="thoughts">Thoughts?</h2>
+<p>Reach out to me on Twitter or LinkedIn, I&rsquo;d love to hear what people&rsquo;s opinions of StackSets are, and whether they&rsquo;ve journeyed down a similar path.</p>
+]]></content>
+		</item>
 		
 		<item>
 			<title>Scalable DNS with EventBridge</title>
@@ -162,201 +361,6 @@ Tasked with imporving the security posture across the board, you&amp;rsquo;re wo
 <h2 id="the-decision">The Decision</h2>
 <p>Given a blank slate, both options will be beneficial to an organisation. By adopting option 1 you will bring greater security awareness and will hopefully build up champions within the development team to drive secure practices. However, this approach maintains silos and can potentially result in high levels of animosity between development and security.</p>
 <p>By adopting option 2 along with the advocacy portion of option 1, you have a solution where security outputs drive engineering outcomes, which drive security outcomes. This flow provides a more consistent adoption curve and promotes sybmiosis over silos.</p>
-]]></content>
-		</item>
-		
-		<item>
-			<title>DIY StackSets with Step Functions</title>
-			<link>https://josharmi.github.io/posts/diy-stacksets/</link>
-			<pubDate>Sat, 22 Jun 2019 00:00:00 +0000</pubDate>
-			
-			<guid>https://josharmi.github.io/posts/diy-stacksets/</guid>
-			<description>DIY StackSets with Step Functions Why Recreate StackSets Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the documentation, the minimum permissions to operate StackSets are:
-{ &amp;quot;Version&amp;quot;: &amp;quot;2012-10-17&amp;quot;, &amp;quot;Statement&amp;quot;: [ { &amp;quot;Effect&amp;quot;: &amp;quot;Allow&amp;quot;, &amp;quot;Action&amp;quot;: [ &amp;quot;cloudformation:*&amp;quot;, &amp;quot;s3:*&amp;quot;, &amp;quot;sns:*&amp;quot; ], &amp;quot;Resource&amp;quot;: &amp;quot;*&amp;quot; } ] } Having full S3, CloudFormation and SNS access cross account into production does feel like something we want to avoid.</description>
-			<content type="html"><![CDATA[<h1 id="diy-stacksets-with-step-functions">DIY StackSets with Step Functions</h1>
-<h2 id="why-recreate-stacksets">Why Recreate StackSets</h2>
-<p>Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-prereqs-self-managed.html#stacksets-prereqs-accountsetup">documentation</a>, the minimum permissions to operate StackSets are:</p>
-<pre><code>{
-    &quot;Version&quot;: &quot;2012-10-17&quot;,
-    &quot;Statement&quot;: [
-        {
-            &quot;Effect&quot;: &quot;Allow&quot;,
-            &quot;Action&quot;: 
-               [
-                 &quot;cloudformation:*&quot;,
-                 &quot;s3:*&quot;,
-                 &quot;sns:*&quot;
-               ],
-            &quot;Resource&quot;: &quot;*&quot;
-        }
-      ]
-}
-</code></pre><p>Having <em>full</em> <strong>S3</strong>, <strong>CloudFormation</strong> and <strong>SNS</strong> access cross account into production does feel like something we want to avoid.
-But StackSets give us a highly efficient and useful way to deploy stacks across large swathes of the estate, how much effort is it to build something that gives us some of the same functionality with much more restricted permissions.</p>
-<h2 id="step-functions-to-the-rescue">Step Functions to the Rescue?</h2>
-<p>With the new Step Functions releases:</p>
-<ol>
-<li>Step Functions can now be invoked diretly from CodePipeline</li>
-<li>Step Functions have been added to AWS SAM</li>
-</ol>
-<p>They seems like a good reason to use step functions to build StackSets-lite, so here we go&hellip;</p>
-<h2 id="the-end-goal">The End Goal</h2>
-<p>By the end of the post we should have:</p>
-<ul>
-<li>A DIY StackSet Proof of Concept consisting of:
-<ol>
-<li>A pipeline that deploys and executes a step function</li>
-<li>A step function that deploys a template out to all accounts in an organization</li>
-<li>Cross accounts roles that stay true to the principle of least privilege</li>
-</ol>
-</li>
-</ul>
-<h2 id="prerequisites">Prerequisites</h2>
-<ol>
-<li>An AWS organization set up</li>
-<li>The AWS CLI installed</li>
-<li>Git installed</li>
-<li>A GitHub account</li>
-</ol>
-<h2 id="pipeline-set-up">Pipeline Set Up</h2>
-<p>The pipeline we have here is currently predicated on the source code being in GitHub, so let&rsquo;s set that up:</p>
-<ol>
-<li>Import the example repo in GitHub
-<ol>
-<li>Go to <a href="https://github.com/new/import">https://github.com/new/import</a></li>
-<li>Enter the url <code>https://github.com/JoshArmi/sam-pipeline</code></li>
-<li>Name the repository</li>
-<li>Begin the import</li>
-</ol>
-</li>
-<li>Create an OAuth token for the pipeline
-<ol>
-<li>Go to <a href="https://github.com/settings/tokens">https://github.com/settings/tokens</a></li>
-<li>Click <code>Personal access tokens</code></li>
-<li>Click <code>Generate new token</code></li>
-<li>Give it full <code>repo</code> and full <code>admin:repo_hook</code> permissions</li>
-<li>Generate the token</li>
-<li>Note the token somewhere</li>
-</ol>
-</li>
-<li>Clone the imported repository locally and checkout branch <code>main</code></li>
-<li>Run <code>git merge part1</code></li>
-<li>Update the values in <code>pipeline-parameters.json</code></li>
-<li>Update the values in <code>seed-parameters.json</code></li>
-<li>Add, Commit and Push the changes in <code>pipeline-parameters.json</code> and <code>seed-parameters.json</code></li>
-<li>Assume a role in the <strong>pipeline account</strong></li>
-<li>Push your GitHub token into the AWS account
-<ol>
-<li>Run <code>aws cloudformation create-stack --stack-name GitHubOAuthSecret --template-body file://secret.yaml</code></li>
-<li>Run <code>aws secretsmanager put-secret-value --secret-id GitHubOAuthToken --secret-string &quot;{\&quot;token\&quot;:\&quot;YOUR_GITHUB_TOKEN\&quot;}&quot;</code></li>
-</ol>
-</li>
-<li>Run <code>aws cloudformation create-stack --stack-name Pipeline --template-body file://pipeline.yaml --parameters file://seed-parameters.json --capabilities CAPABILITY_NAMED_IAM</code></li>
-</ol>
-<h3 id="pit-stop">Pit Stop</h3>
-<p>OK let&rsquo;s review where we&rsquo;re at currently:</p>
-<ul>
-<li>If you look in the console we should have a pipeline that looks like this:</li>
-</ul>
-<p><img src="" alt=""></p>
-<p>Now as this pipeline redeploys itself, we can work through the rest of the post by constantly pushing to our repository.</p>
-<h2 id="adding-the-step-function">Adding The Step Function</h2>
-<p>First up we&rsquo;re going to deploy the world&rsquo;s simplest step function, then we&rsquo;ll look at how to automatically execute the step function after deploying it.</p>
-<ol>
-<li>Run <code>git merge part2</code></li>
-<li>Run <code>git push</code></li>
-</ol>
-<p>Let&rsquo;s look at what changes we&rsquo;ve made:</p>
-<ul>
-<li>The pipeline now has a deployment stage executing the <code>buildspec.yaml</code> file</li>
-<li>The buildspec deploys the SAM app contained in <code>template.yaml</code></li>
-<li>The SAM app creates a step function per the ASL file with a single task</li>
-<li>The single task is a new Lambda function which just exits</li>
-</ul>
-<p>Now the pipeline should successfully deploy the step function and now we can add an execution stage by:</p>
-<ol>
-<li>Run <code>git merge part3</code></li>
-<li>Run <code>git push</code></li>
-</ol>
-<p>Now when we look at the pipeline we should see four stages, with the last being a successful execution of the step function.</p>
-<h3 id="recap-of-where-we-are">Recap of where we are</h3>
-<p>So we have a pipeline that deploys and executes a step function, which is a placeholder. Which looks something like:</p>
-<p><img src="" alt=""></p>
-<p>We need to make the step function do something useful.</p>
-<h2 id="stepping-into-something-useful">Stepping Into Something Useful</h2>
-<p>Now we&rsquo;ll bring in a step function that actually purports to do something, so:</p>
-<ol>
-<li>Run <code>git merge part4</code></li>
-<li>Update the parameter defaults of <code>template.yaml</code></li>
-<li>Add, Commit and Push the changes</li>
-<li>Accept the email confirming the SNS subscription</li>
-</ol>
-<p>Looking at the Lambda function code, we can see that currently the functions do not have sufficient permissions to undertake their tasks.</p>
-<p>So let&rsquo;s look at fixing that:</p>
-<ol>
-<li>Run <code>git merge part5</code></li>
-<li>Assume a role in your billing account
-<ol>
-<li>Run <code>aws cloudformation deploy --stack-name AccountLister --template-file master-role.yaml --capabilities CAPABILITY_NAMED_IAM</code></li>
-<li>Run <code>aws cloudformation deploy --stack-name CrossAccountDeploy --template-file client-role.yaml --capabilities CAPABILITY_NAMED_IAM</code></li>
-</ol>
-</li>
-<li>For each other account in your organisation, including the pipeline account:
-<ol>
-<li>Run <code>aws cloudformation deploy --stack-name CrossAccountDeploy --template-file client-role.yaml --capabilities CAPABILITY_NAMED_IAM</code></li>
-</ol>
-</li>
-<li>Run <code>git push</code></li>
-</ol>
-<p>We&rsquo;ve now deployed with the last push:</p>
-<ul>
-<li>A role in the billing account allowing us to look up all accounts under the organisation</li>
-<li>A role in every account that allows us to deploy tagged CloudFormation stacks and S3 buckets</li>
-<li>Another pipeline extension that pushes <code>templates/template.yaml</code> into an S3 bucket to deploy into the accounts</li>
-<li>We have deployed a bucket into every account in the organization as per <code>./templates/template.yaml</code></li>
-<li>Failed deployments trigger an email being sent to a preset email address</li>
-</ul>
-<h2 id="success">Success?</h2>
-<p>If you go and look in all accounts where you deployed the <em><strong>CrossDeployRole</strong></em>, you should now have a CloudFormation stack called <strong>Bucket</strong>.</p>
-<p>With the goal being to replace StackSets at this point we have a <em><strong>Proof of Concept</strong></em> that shows that we can build a system for pushing CloudFormation out without needing the same level of permissions as StackSets.</p>
-<p>However the code as it stands only covers the <em><strong>happy path</strong></em> when it comes to handling CloudFormation stacks, we can extend the code but the amount of complexity we have to handle starts to increase.</p>
-<p>Step functions do provide a visual way to understand the complexity, and it does seem achievable to build a deployment mechanism that is both robust and maintainable.</p>
-<h2 id="cleanup">Cleanup</h2>
-<p>To destroy all resources created:</p>
-<ol>
-<li>In the pipeline account
-<ol>
-<li>Delete the Pipeline stack</li>
-<li>Delete the sam-app stack</li>
-<li>Delete the CrossAccountDeploy stack</li>
-<li>Delete the bucket created by the Bucket stack</li>
-<li>Delete the Bucket stack</li>
-</ol>
-</li>
-<li>In the billing account
-<ol>
-<li>Delete the AccountLister stack</li>
-<li>Delete the CrossAccountDeploy stack</li>
-<li>Delete the bucket created by the Bucket stack</li>
-<li>Delete the Bucket stack</li>
-</ol>
-</li>
-<li>In all other accounts
-<ol>
-<li>Delete the CrossAccountDeploy stack</li>
-<li>Delete the bucket created by the Bucket stack</li>
-<li>Delete the Bucket stack</li>
-</ol>
-</li>
-</ol>
-<h2 id="next-steps">Next Steps</h2>
-<p>There are a variety of options for the next system extension, including:</p>
-<ul>
-<li>Allowing for deploying to stages of accounts to minimise blast radius</li>
-<li>Handling more CloudFormation stack states</li>
-<li>Collapsing errors down to one summary email</li>
-<li>Emailing a summary of all successful deployments</li>
-</ul>
 ]]></content>
 		</item>
 		

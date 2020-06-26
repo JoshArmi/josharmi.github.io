@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Sun, 14 Jun 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 26 Jun 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://josharmi.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,7 +15,7 @@
     <item>
       <title>AWS</title>
       <link>https://josharmi.github.io/tags/aws/</link>
-      <pubDate>Sun, 14 Jun 2020 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 26 Jun 2020 00:00:00 +0000</pubDate>
       
       <guid>https://josharmi.github.io/tags/aws/</guid>
       <description></description>
@@ -24,9 +24,27 @@
     <item>
       <title>Cloud</title>
       <link>https://josharmi.github.io/tags/cloud/</link>
-      <pubDate>Sun, 14 Jun 2020 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 26 Jun 2020 00:00:00 +0000</pubDate>
       
       <guid>https://josharmi.github.io/tags/cloud/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>StackSets</title>
+      <link>https://josharmi.github.io/tags/stacksets/</link>
+      <pubDate>Fri, 26 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/tags/stacksets/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Step Functions</title>
+      <link>https://josharmi.github.io/tags/step-functions/</link>
+      <pubDate>Fri, 26 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/tags/step-functions/</guid>
       <description></description>
     </item>
     
@@ -63,24 +81,6 @@
       <pubDate>Fri, 01 Nov 2019 00:00:00 +0000</pubDate>
       
       <guid>https://josharmi.github.io/tags/security/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>StackSets</title>
-      <link>https://josharmi.github.io/tags/stacksets/</link>
-      <pubDate>Sat, 22 Jun 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/tags/stacksets/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Step Functions</title>
-      <link>https://josharmi.github.io/tags/step-functions/</link>
-      <pubDate>Sat, 22 Jun 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/tags/step-functions/</guid>
       <description></description>
     </item>
     

@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Sat, 22 Jun 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 26 Jun 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://josharmi.github.io/tags/step-functions/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,11 +15,11 @@
     <item>
       <title>DIY StackSets with Step Functions</title>
       <link>https://josharmi.github.io/posts/diy-stacksets/</link>
-      <pubDate>Sat, 22 Jun 2019 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 26 Jun 2020 00:00:00 +0000</pubDate>
       
       <guid>https://josharmi.github.io/posts/diy-stacksets/</guid>
-      <description>DIY StackSets with Step Functions Why Recreate StackSets Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the documentation, the minimum permissions to operate StackSets are:
-{ &amp;quot;Version&amp;quot;: &amp;quot;2012-10-17&amp;quot;, &amp;quot;Statement&amp;quot;: [ { &amp;quot;Effect&amp;quot;: &amp;quot;Allow&amp;quot;, &amp;quot;Action&amp;quot;: [ &amp;quot;cloudformation:*&amp;quot;, &amp;quot;s3:*&amp;quot;, &amp;quot;sns:*&amp;quot; ], &amp;quot;Resource&amp;quot;: &amp;quot;*&amp;quot; } ] } Having full S3, CloudFormation and SNS access cross account into production does feel like something we want to avoid.</description>
+      <description>Why Recreate StackSets Currently in order to leverage StackSets in any way you need fairly substantial permissions in the target account, as per the documentation, the minimum permissions to operate StackSets are:
+{ &amp;quot;Version&amp;quot;: &amp;quot;2012-10-17&amp;quot;, &amp;quot;Statement&amp;quot;: [ { &amp;quot;Effect&amp;quot;: &amp;quot;Allow&amp;quot;, &amp;quot;Action&amp;quot;: [ &amp;quot;cloudformation:*&amp;quot;, &amp;quot;s3:*&amp;quot;, &amp;quot;sns:*&amp;quot; ], &amp;quot;Resource&amp;quot;: &amp;quot;*&amp;quot; } ] } Having full S3, CloudFormation and SNS access cross account into production does feel like something we want to avoid. But StackSets give us a highly efficient and useful way to deploy stacks across large swathes of the estate, how much effort is it to build something that gives us some of the same functionality with much more restricted permissions.</description>
     </item>
     
   </channel>
