@@ -118,7 +118,7 @@ But StackSets give us a highly efficient and useful way to deploy stacks across 
 <li>The single task is a new Lambda function which just exits</li>
 </ul>
 <p>Once the pipeline finishes executing it should look something like:</p>
-<p><img src="/static/images/pipeline-1.jpg" alt="Stage 1 Pipeline" title="Stage 1 Pipeline"></p>
+<p><img src="/static/images/pipeline-1.png" alt="Stage 1 Pipeline" title="Stage 1 Pipeline"></p>
 <p>Now the pipeline should successfully deploy the step function and now we can add an execution stage by:</p>
 <ol>
 <li>Run <code>git merge origin/part3</code></li>
@@ -127,7 +127,7 @@ But StackSets give us a highly efficient and useful way to deploy stacks across 
 <p>Now when we look at the pipeline we should see four stages, with the last being a successful execution of the step function.</p>
 <h3 id="recap-of-where-we-are">Recap of where we are</h3>
 <p>So we have a pipeline that deploys and executes a step function, which is a placeholder. Which looks something like:</p>
-<p><img src="/static/images/pipeline-2.jpg" alt="Stage 2 Pipeline" title="Stage 2 Pipeline"></p>
+<p><img src="/static/images/pipeline-2.png" alt="Stage 2 Pipeline" title="Stage 2 Pipeline"></p>
 <p>We need to make the step function do something useful.</p>
 <h2 id="stepping-into-something-useful">Stepping Into Something Useful</h2>
 <p>Now we&rsquo;ll bring in a step function that actually purports to do something, so:</p>
