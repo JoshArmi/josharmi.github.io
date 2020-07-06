@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Security on Josh Armitage</title>
-    <link>https://josharmi.github.io/tags/security/</link>
-    <description>Recent content in Security on Josh Armitage</description>
+    <title>IAM on Josh Armitage</title>
+    <link>https://josharmi.github.io/tags/iam/</link>
+    <description>Recent content in IAM on Josh Armitage</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
     <lastBuildDate>Mon, 06 Jul 2020 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://josharmi.github.io/tags/security/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://josharmi.github.io/tags/iam/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -20,16 +20,6 @@
       <guid>https://josharmi.github.io/posts/conditional-iam-roles/</guid>
       <description>Giving Consuming Teams A Choice Generally IAM roles are all-or-nothing deals, you either accept or reject the policies in their entirety. Here we look at leveraging CloudFormation conditions to build a configurable IAM role, that results in a more configurable and testable method for controlling role scope.
 Where Might This Be Useful When controlling IAM roles within our sphere of control we follow the principle of least privilege, deploying exactly what is required to perform our tasks, which is relatively simple.</description>
-    </item>
-    
-    <item>
-      <title>Scaling Security</title>
-      <link>https://josharmi.github.io/posts/scaling-security/</link>
-      <pubDate>Fri, 01 Nov 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/posts/scaling-security/</guid>
-      <description>The Scene You&amp;rsquo;re a new CISO at a rapidly scaling technology company with 50 engineers, looking to double engineering within 12 months. The company is trying to maintain its agility and rapid delivery, but you&amp;rsquo;re hitting a point where the security cowboy nature has presented too great a risk to be ignored any longer.
-Tasked with imporving the security posture across the board, you&amp;rsquo;re worried that the developers and product owners don&amp;rsquo;t care about security.</description>
     </item>
     
   </channel>

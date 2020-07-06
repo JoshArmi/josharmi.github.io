@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="theme-color" content="#494f5c">
+	<meta name="msapplication-TileColor" content="#494f5c">
+<meta itemprop="name" content="Conditional IAM Roles">
+<meta itemprop="description" content="Giving Consuming Teams A Choice Generally IAM roles are all-or-nothing deals, you either accept or reject the policies in their entirety. Here we look at leveraging CloudFormation conditions to build a configurable IAM role, that results in a more configurable and testable method for controlling role scope.
+Where Might This Be Useful When controlling IAM roles within our sphere of control we follow the principle of least privilege, deploying exactly what is required to perform our tasks, which is relatively simple.">
+<meta itemprop="datePublished" content="2020-07-06T00:00:00&#43;00:00" />
+<meta itemprop="dateModified" content="2020-07-06T00:00:00&#43;00:00" />
+<meta itemprop="wordCount" content="915">
+
+
+
+<meta itemprop="keywords" content="Cloud,AWS,IAM,Security,Compliance," /><meta property="og:title" content="Conditional IAM Roles" />
+<meta property="og:description" content="Giving Consuming Teams A Choice Generally IAM roles are all-or-nothing deals, you either accept or reject the policies in their entirety. Here we look at leveraging CloudFormation conditions to build a configurable IAM role, that results in a more configurable and testable method for controlling role scope.
+Where Might This Be Useful When controlling IAM roles within our sphere of control we follow the principle of least privilege, deploying exactly what is required to perform our tasks, which is relatively simple." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://josharmi.github.io/posts/conditional-iam-roles/" />
+<meta property="article:published_time" content="2020-07-06T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-07-06T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Conditional IAM Roles"/>
+<meta name="twitter:description" content="Giving Consuming Teams A Choice Generally IAM roles are all-or-nothing deals, you either accept or reject the policies in their entirety. Here we look at leveraging CloudFormation conditions to build a configurable IAM role, that results in a more configurable and testable method for controlling role scope.
+Where Might This Be Useful When controlling IAM roles within our sphere of control we follow the principle of least privilege, deploying exactly what is required to perform our tasks, which is relatively simple."/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title>Conditional IAM Roles</title>
+	<link rel="stylesheet" href="https://josharmi.github.io/css/style.min.657bcb7af31123e4156b1a3d2ff60a636717e54ead74f882136b5114cf72b55e.css" integrity="sha256-ZXvLevMRI+QVaxo9L/YKY2cX5U6tdPiCE2tRFM9ytV4=" crossorigin="anonymous">
+	
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp faster">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="https://josharmi.github.io">Josh Armitage</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="https://josharmi.github.io/posts/">Posts</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="https://twitter.com/josharmi" target="_blank" rel="noopener me" title="Twitter"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a><a href="https://linkedin.com/in/josh-armitage-b7825a41" target="_blank" rel="noopener me" title="Linkedin"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a><a href="https://github.com/josharmi" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title="Menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="https://josharmi.github.io/posts/">Posts</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner animated fadeIn faster">
+		<article class="thin">
+			<header class="post-header">
+				<div class="post-meta"><span>Jul 6, 2020</span></div>
+				<h1>Conditional IAM Roles</h1>
+			</header>
+			<div class="content">
+				<h2 id="giving-consuming-teams-a-choice">Giving Consuming Teams A Choice<a href="#giving-consuming-teams-a-choice" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Generally IAM roles are all-or-nothing deals, you either accept or reject the policies in their entirety. Here we look at leveraging CloudFormation conditions to build a configurable IAM role, that results in a more configurable and testable method for controlling role scope.</p>
+<h3 id="where-might-this-be-useful">Where Might This Be Useful<a href="#where-might-this-be-useful" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>When controlling IAM roles within our sphere of control we follow the principle of least privilege, deploying exactly what is required to perform our tasks, which is relatively simple. When we tread over into our sphere of influence it becomes far harder.</p>
+<p>Take the example of wanting to enforce compliance standards across a large estate, as you build up trust with the team they may allow you to selectively enable automatic controls to remediate non-compliant resources. These can be things like automatically shutting down public S3 buckets, ensuring VPC flow logs are on, or deleting default VPCs. But as a delivery team with existing resources, I need to be able to slow bleed such actions into my environments, but how can I do that autonomously and with control?</p>
+<p>Potentially the disparate permissions could be split into many roles deployed individually, but that starts to confer an ever increasing maintenance burden, and significantly complicates matters for the compliance team. From their perspective I want to deploy one standard resource into all environments, and let the delivery team autonomously decide what is enabled.</p>
+<h3 id="onwards-to-a-solution">Onwards To A Solution<a href="#onwards-to-a-solution" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<h4 id="cloudformation-conditions">CloudFormation Conditions<a href="#cloudformation-conditions" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>One of the lesser known CloudFormation options, Conditions allow us to selectively deploy resources. Let&rsquo;s look at a simple example:</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">Parameters</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">MasterAccount</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>String<span class="w">
+</span><span class="w">  </span><span class="k">BlockPublicRDP</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>String<span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">Conditions</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">ShouldBlockPublicRDP</span><span class="p">:</span><span class="w"> </span>!Equals<span class="w"> </span><span class="p">[</span>!Ref<span class="w"> </span>BlockPublicRDP<span class="p">,</span><span class="w"> </span><span class="s2">&#34;Enabled&#34;</span><span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">Resources</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">CrossAccountRole</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>AWS<span class="p">::</span>IAM<span class="p">::</span>Role<span class="w">
+</span><span class="w">    </span><span class="k">Properties</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">RoleName</span><span class="p">:</span><span class="w"> </span>CrossAccountRole<span class="w">
+</span><span class="w">      </span><span class="k">AssumeRolePolicyDocument</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="k">Version</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;2012-10-17&#34;</span><span class="w">
+</span><span class="w">        </span><span class="k">Statement</span><span class="p">:</span><span class="w">
+</span><span class="w">          </span>- <span class="k">Effect</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Allow&#34;</span><span class="w">
+</span><span class="w">            </span><span class="k">Principal</span><span class="p">:</span><span class="w">
+</span><span class="w">              </span><span class="k">AWS</span><span class="p">:</span><span class="w">
+</span><span class="w">                </span>- !Sub<span class="w"> </span><span class="s2">&#34;arn:aws:iam::${MasterAccount}:root&#34;</span><span class="w">
+</span><span class="w">            </span><span class="k">Action</span><span class="p">:</span><span class="w">
+</span><span class="w">              </span>- <span class="s2">&#34;sts:AssumeRole&#34;</span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span><span class="k">BlockPublicRDPPolicy</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">Condition</span><span class="p">:</span><span class="w"> </span>ShouldBlockPublicRDP<span class="w">
+</span><span class="w">    </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>AWS<span class="p">::</span>IAM<span class="p">::</span>ManagedPolicy<span class="w">
+</span><span class="w">    </span><span class="k">Properties</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">ManagedPolicyName</span><span class="p">:</span><span class="w"> </span>BlockPublicRDP<span class="w">
+</span><span class="w">      </span><span class="k">Roles</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span>- !Ref<span class="w"> </span>CrossAccountRole<span class="w">
+</span><span class="w">      </span><span class="k">PolicyDocument</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="k">Version</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;2012-10-17&#34;</span><span class="w">
+</span><span class="w">        </span><span class="k">Statement</span><span class="p">:</span><span class="w">
+</span><span class="w">          </span>- <span class="k">Effect</span><span class="p">:</span><span class="w"> </span>Allow<span class="w">
+</span><span class="w">            </span><span class="k">Action</span><span class="p">:</span><span class="w">
+</span><span class="w">              </span>- <span class="s2">&#34;ec2:RevokeSecurityGroupEgress&#34;</span><span class="w">
+</span><span class="w">              </span>- <span class="s2">&#34;ec2:RevokeSecurityGroupIngress&#34;</span><span class="w">
+</span><span class="w">            </span><span class="k">Resource</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;*&#34;</span><span class="w">
+</span></code></pre></div><ul>
+<li>We have a parameter <code>BlockPublicRDP</code> which gets compared against &ldquo;Enabled&rdquo;</li>
+<li>If true, we deploy the <code>BlockPublicRDPPolicy</code> resource</li>
+</ul>
+<h4 id="tuning-up-the-parameters">Tuning Up The Parameters<a href="#tuning-up-the-parameters" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>The above code although simple, is somewhat naive. We can improve it already by applying some constraints to the parameters.</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">Parameters</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">MasterAccount</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">AllowedPattern</span><span class="p">:</span><span class="w"> </span>^\d{<span class="m">12</span>}$<span class="w">
+</span><span class="w">    </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>String<span class="w">
+</span><span class="w">  </span><span class="k">BlockPublicRDP</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">AllowedValues</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;Enabled&#34;</span><span class="p">,</span><span class="w"> </span><span class="s2">&#34;Disabled&#34;</span><span class="p">]</span><span class="w">
+</span><span class="w">    </span><span class="k">ConstraintDescription</span><span class="p">:</span><span class="w"> </span>Must<span class="w"> </span>be<span class="w"> </span>Enabled<span class="w"> </span>or<span class="w"> </span>Disabled<span class="w">
+</span><span class="w">    </span><span class="k">Default</span><span class="p">:</span><span class="w"> </span>Disabled<span class="w">
+</span><span class="w">    </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>String<span class="w">
+</span></code></pre></div><ul>
+<li>The regex on master account locks it down to valid AWS account Ids</li>
+<li>By adding a Disabled default we make our policies opt-in for safety</li>
+<li>By setting allowed values we will explicitly only handle Enabled or Disabled</li>
+</ul>
+<h4 id="scalably-passing-parameters">Scalably Passing Parameters<a href="#scalably-passing-parameters" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>Anyone that&rsquo;s passed parameters over the CLI will understand how unwieldly it becomes. The scalable way to pass parameters is with a <code>json</code> file committed into source control. To that end let&rsquo;s look at the files are formatted:</p>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&#34;ParameterKey&#34;</span><span class="p">:</span> <span class="s2">&#34;MasterAccount&#34;</span><span class="p">,</span>
+        <span class="nt">&#34;ParameterValue&#34;</span><span class="p">:</span> <span class="s2">&#34;111122223333&#34;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&#34;ParameterKey&#34;</span><span class="p">:</span> <span class="s2">&#34;BlockPublicRDP&#34;</span><span class="p">,</span>
+        <span class="nt">&#34;ParameterValue&#34;</span><span class="p">:</span> <span class="s2">&#34;Enabled&#34;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div><p>Now we can deploy the template with commands of the form:</p>
+<p><code>aws cloudformation create/update-stack --stack-name ConditionalRole --template-body file://role.yaml --parameters file://parameters.json --capabilities CAPABILITY_NAMED_IAM</code></p>
+<h4 id="cloudformation-conditions-for-iam-conditions">CloudFormation Conditions for IAM Conditions<a href="#cloudformation-conditions-for-iam-conditions" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>One of the lesser used be more interesting parts of IAM policies are the condition statements that can be applied. Taking our above example a step further, what if we wanted to lock down what security groups we could edit by tag. In the policy we need to extend the statement to include a condition stanza so it looks like:</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">BlockPublicRDPPolicy</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">Condition</span><span class="p">:</span><span class="w"> </span>ShouldBlockPublicRDP<span class="w">
+</span><span class="w">  </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>AWS<span class="p">::</span>IAM<span class="p">::</span>ManagedPolicy<span class="w">
+</span><span class="w">  </span><span class="k">Properties</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">ManagedPolicyName</span><span class="p">:</span><span class="w"> </span>BlockPublicRDP<span class="w">
+</span><span class="w">    </span><span class="k">Roles</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- !Ref<span class="w"> </span>CrossAccountRole<span class="w">
+</span><span class="w">    </span><span class="k">PolicyDocument</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">Version</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;2012-10-17&#34;</span><span class="w">
+</span><span class="w">      </span><span class="k">Statement</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span>- <span class="k">Effect</span><span class="p">:</span><span class="w"> </span>Allow<span class="w">
+</span><span class="w">          </span><span class="k">Action</span><span class="p">:</span><span class="w">
+</span><span class="w">            </span>- <span class="s2">&#34;ec2:RevokeSecurityGroupEgress&#34;</span><span class="w">
+</span><span class="w">            </span>- <span class="s2">&#34;ec2:RevokeSecurityGroupIngress&#34;</span><span class="w">
+</span><span class="w">          </span><span class="k">Resource</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;*&#34;</span><span class="w">
+</span><span class="w">          </span><span class="k">Condition</span><span class="p">:</span><span class="w">
+</span><span class="w">            </span><span class="k">StringEquals</span><span class="p">:</span><span class="w">
+</span><span class="w">              </span><span class="k">&#34;ec2:ResourceTag/Owner&#34;: </span>!Ref<span class="w"> </span>SecurityGroupTagValue<span class="w">
+</span></code></pre></div><p>Now we can pass in an extra parameter to lock down the policy, but we need to maintain the ability to open it up to acting on all security groups. So let&rsquo;s add another condition to control out condition&hellip;</p>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&#34;ParameterKey&#34;</span><span class="p">:</span> <span class="s2">&#34;MasterAccount&#34;</span><span class="p">,</span>
+        <span class="nt">&#34;ParameterValue&#34;</span><span class="p">:</span> <span class="s2">&#34;111122223333&#34;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&#34;ParameterKey&#34;</span><span class="p">:</span> <span class="s2">&#34;BlockPublicRDP&#34;</span><span class="p">,</span>
+        <span class="nt">&#34;ParameterValue&#34;</span><span class="p">:</span> <span class="s2">&#34;Enabled&#34;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&#34;ParameterKey&#34;</span><span class="p">:</span> <span class="s2">&#34;SecurityTagRestriction&#34;</span><span class="p">,</span>
+        <span class="nt">&#34;ParameterValue&#34;</span><span class="p">:</span> <span class="s2">&#34;Enabled&#34;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&#34;ParameterKey&#34;</span><span class="p">:</span> <span class="s2">&#34;SecurityGroupTagValue&#34;</span><span class="p">,</span>
+        <span class="nt">&#34;ParameterValue&#34;</span><span class="p">:</span> <span class="s2">&#34;JoshArmi&#34;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">Parameters</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">MasterAccount</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">AllowedPattern</span><span class="p">:</span><span class="w"> </span>^\d{<span class="m">12</span>}$<span class="w">
+</span><span class="w">    </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>String<span class="w">
+</span><span class="w">  </span><span class="k">BlockPublicRDP</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">AllowedValues</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;Enabled&#34;</span><span class="p">,</span><span class="w"> </span><span class="s2">&#34;Disabled&#34;</span><span class="p">]</span><span class="w">
+</span><span class="w">    </span><span class="k">ConstraintDescription</span><span class="p">:</span><span class="w"> </span>Must<span class="w"> </span>be<span class="w"> </span>Enabled<span class="w"> </span>or<span class="w"> </span>Disabled<span class="w">
+</span><span class="w">    </span><span class="k">Default</span><span class="p">:</span><span class="w"> </span>Disabled<span class="w">
+</span><span class="w">    </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>String<span class="w">
+</span><span class="w">  </span><span class="k">SecurityTagRestriction</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">AllowedValues</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;Enabled&#34;</span><span class="p">,</span><span class="w"> </span><span class="s2">&#34;Disabled&#34;</span><span class="p">]</span><span class="w">
+</span><span class="w">    </span><span class="k">ConstraintDescription</span><span class="p">:</span><span class="w"> </span>Must<span class="w"> </span>be<span class="w"> </span>Enabled<span class="w"> </span>or<span class="w"> </span>Disabled<span class="w">
+</span><span class="w">    </span><span class="k">Default</span><span class="p">:</span><span class="w"> </span>Disabled<span class="w">
+</span><span class="w">    </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>String<span class="w">
+</span><span class="w">  </span><span class="k">SecurityGroupTagValue</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>String<span class="w">
+</span><span class="w">    </span><span class="k">Default</span><span class="p">:</span><span class="w"> </span>Disabled<span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">Conditions</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">ShouldBlockPublicRDP</span><span class="p">:</span><span class="w"> </span>!Equals<span class="w"> </span><span class="p">[</span>!Ref<span class="w"> </span>BlockPublicRDP<span class="p">,</span><span class="w"> </span><span class="s2">&#34;Enabled&#34;</span><span class="p">]</span><span class="w">
+</span><span class="w">  </span><span class="k">RestrictedByTags</span><span class="p">:</span><span class="w"> </span>!Equals<span class="w"> </span><span class="p">[</span>!Ref<span class="w"> </span>SecurityTagRestriction<span class="p">,</span><span class="w"> </span><span class="s2">&#34;Enabled&#34;</span><span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">Resources</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">CrossAccountRole</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>AWS<span class="p">::</span>IAM<span class="p">::</span>Role<span class="w">
+</span><span class="w">    </span><span class="k">Properties</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">RoleName</span><span class="p">:</span><span class="w"> </span>CrossAccountRole<span class="w">
+</span><span class="w">      </span><span class="k">AssumeRolePolicyDocument</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="k">Version</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;2012-10-17&#34;</span><span class="w">
+</span><span class="w">        </span><span class="k">Statement</span><span class="p">:</span><span class="w">
+</span><span class="w">          </span>- <span class="k">Effect</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Allow&#34;</span><span class="w">
+</span><span class="w">            </span><span class="k">Principal</span><span class="p">:</span><span class="w">
+</span><span class="w">              </span><span class="k">AWS</span><span class="p">:</span><span class="w">
+</span><span class="w">                </span>- !Sub<span class="w"> </span><span class="s2">&#34;arn:aws:iam::${MasterAccount}:root&#34;</span><span class="w">
+</span><span class="w">            </span><span class="k">Action</span><span class="p">:</span><span class="w">
+</span><span class="w">              </span>- <span class="s2">&#34;sts:AssumeRole&#34;</span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span><span class="k">BlockPublicRDPPolicy</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">Condition</span><span class="p">:</span><span class="w"> </span>ShouldBlockPublicRDP<span class="w">
+</span><span class="w">    </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>AWS<span class="p">::</span>IAM<span class="p">::</span>ManagedPolicy<span class="w">
+</span><span class="w">    </span><span class="k">Properties</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">ManagedPolicyName</span><span class="p">:</span><span class="w"> </span>BlockPublicRDP<span class="w">
+</span><span class="w">      </span><span class="k">Roles</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span>- !Ref<span class="w"> </span>CrossAccountRole<span class="w">
+</span><span class="w">      </span><span class="k">PolicyDocument</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="k">Version</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;2012-10-17&#34;</span><span class="w">
+</span><span class="w">        </span><span class="k">Statement</span><span class="p">:</span><span class="w">
+</span><span class="w">          </span>- <span class="k">Effect</span><span class="p">:</span><span class="w"> </span>Allow<span class="w">
+</span><span class="w">            </span><span class="k">Action</span><span class="p">:</span><span class="w">
+</span><span class="w">              </span>- <span class="s2">&#34;ec2:RevokeSecurityGroupEgress&#34;</span><span class="w">
+</span><span class="w">              </span>- <span class="s2">&#34;ec2:RevokeSecurityGroupIngress&#34;</span><span class="w">
+</span><span class="w">            </span><span class="k">Resource</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;*&#34;</span><span class="w">
+</span><span class="w">            </span><span class="k">Condition</span><span class="p">:</span><span class="w"> </span>!If<span class="w">
+</span><span class="w">              </span>- RestrictedByTags<span class="w">
+</span><span class="w">              </span>- <span class="k">StringEquals</span><span class="p">:</span><span class="w">
+</span><span class="w">                  </span><span class="k">ec2:ResourceTag/Owner</span><span class="p">:</span><span class="w"> </span>!Ref<span class="w"> </span>SecurityGroupTagValue<span class="w">
+</span><span class="w">              </span>- !Ref<span class="w"> </span>AWS<span class="p">::</span>NoValue<span class="w">
+</span></code></pre></div><p>Now if we set <code>SecurityTagRestriction</code> to <code>Enabled</code> then the condition is applied. If it is set to <code>Disabled</code> then by the magic of <code>AWS::NoValue</code> the Condition property disappears and it&rsquo;s like it never existed at all.</p>
+<h4 id="making-the-configuration-consumable">Making The Configuration Consumable<a href="#making-the-configuration-consumable" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>So we&rsquo;ve given the delivery teams a capbility to select known IAM configurations by only touching the parameter json file, which is a significant win, rather than hand editing the yaml with potentially disastrous and unforseen consequences, we&rsquo;ve locked down the possible number of states of the role and given something which is inherently more testable.</p>
+<p>But once again donning the hat of the compliance team how do we determine what configuration is in flight in a given account, there is one missing permission from the role which enables us to understand the configuration:</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">ListPolicies</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="k">Type</span><span class="p">:</span><span class="w"> </span>AWS<span class="p">::</span>IAM<span class="p">::</span>ManagedPolicy<span class="w">
+</span><span class="w">  </span><span class="k">Properties</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">ManagedPolicyName</span><span class="p">:</span><span class="w"> </span>ListRolePolicies<span class="w">
+</span><span class="w">    </span><span class="k">Roles</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- !Ref<span class="w"> </span>CrossAccountRole<span class="w">
+</span><span class="w">    </span><span class="k">PolicyDocument</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="k">Version</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;2012-10-17&#34;</span><span class="w">
+</span><span class="w">      </span><span class="k">Statement</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span>- <span class="k">Effect</span><span class="p">:</span><span class="w"> </span>Allow<span class="w">
+</span><span class="w">          </span><span class="k">Action</span><span class="p">:</span><span class="w">
+</span><span class="w">            </span>- <span class="s2">&#34;iam:ListAttachedRolePolicies&#34;</span><span class="w">
+</span><span class="w">          </span><span class="k">Resource</span><span class="p">:</span><span class="w"> </span>!GetAtt<span class="w"> </span>CrossAccountRole.Arn<span class="w">
+</span></code></pre></div><p>With that permission in place we can list the policies attached to the role, allowing us to determine the state of play in any given account.</p>
+<p>Assuming the role and running <code>aws iam list-attached-role-policies --role-name CrossAccountRole</code> returns:</p>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+    <span class="nt">&#34;AttachedPolicies&#34;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&#34;PolicyName&#34;</span><span class="p">:</span> <span class="s2">&#34;BlockPublicRDP&#34;</span><span class="p">,</span>
+            <span class="nt">&#34;PolicyArn&#34;</span><span class="p">:</span> <span class="s2">&#34;arn:aws:iam::285525127666:policy/BlockPublicRDP&#34;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&#34;PolicyName&#34;</span><span class="p">:</span> <span class="s2">&#34;ListRolePolicies&#34;</span><span class="p">,</span>
+            <span class="nt">&#34;PolicyArn&#34;</span><span class="p">:</span> <span class="s2">&#34;arn:aws:iam::285525127666:policy/ListRolePolicies&#34;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="click-here-for-full-sourcehttpsgithubcomjosharmiconditional-iam-roles"><a href="https://github.com/JoshArmi/conditional-iam-roles">Click Here For Full Source</a><a href="#click-here-for-full-sourcehttpsgithubcomjosharmiconditional-iam-roles" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<h3 id="conclusion">Conclusion<a href="#conclusion" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>This feels like a good, low investment solution for managing IAM at scale that is consumed by other delivery teams, they can opt-in to IAM on their terms, which also gives them the option of opt-out in the case of an issue.</p>
+<p>By making the configuration done via parameters in the json file, we can provide an interface that reduces the burden on the consuming teams whilst also giving the compliance team a more manageable surface to test compared to hand-editing templates.</p>
+<p>Although CloudFormation being CloudFormation, I did revisit and old bug-bear which still seems to be an issue as explained below:</p>
+<h4 id="configuring-the-tag-key">Configuring The Tag Key<a href="#configuring-the-tag-key" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>The eagle eyed amongst you will see that potentially you might want to configure the key of the tag as well as the value, unfortunately it does not appear that computed keys are allowed in CloudFormation. So consider this another addition to my #awswishlist</p>
+
+			</div>
+			<hr class="post-end">
+			<footer class="post-info">
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-feather"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>Josh Armitage</p>
+				<p>
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg><span class="tag"><a href="https://josharmi.github.io/tags/cloud">Cloud</a></span><span class="tag"><a href="https://josharmi.github.io/tags/aws">AWS</a></span><span class="tag"><a href="https://josharmi.github.io/tags/iam">IAM</a></span><span class="tag"><a href="https://josharmi.github.io/tags/security">Security</a></span><span class="tag"><a href="https://josharmi.github.io/tags/compliance">Compliance</a></span>
+				</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>915 Words</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2020-07-06 01:00 &#43;0100</p>
+			</footer>
+		</article>
+		<div class="post-nav thin">
+			<a class="prev-post" href="https://josharmi.github.io/posts/diy-stacksets/">
+				<span class="post-nav-label">Older&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>DIY StackSets with Step Functions</span>
+			</a>
+		</div>
+		<div id="comments" class="thin">
+</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2020 <a href="https://josharmi.github.io">Josh Armitage</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://josharmi.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="https://josharmi.github.io/js/bundle.min.4a9a0ac3d2217822c7865b4161e6c2a71de1d70492264337755427898dd718f6.js" integrity="sha256-SpoKw9IheCLHhltBYebCpx3h1wSSJkM3dVQniY3XGPY=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>

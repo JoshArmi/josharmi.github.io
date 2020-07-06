@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Fri, 26 Jun 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 06 Jul 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://josharmi.github.io/tags/cloud/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Conditional IAM Roles</title>
+      <link>https://josharmi.github.io/posts/conditional-iam-roles/</link>
+      <pubDate>Mon, 06 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/conditional-iam-roles/</guid>
+      <description>Giving Consuming Teams A Choice Generally IAM roles are all-or-nothing deals, you either accept or reject the policies in their entirety. Here we look at leveraging CloudFormation conditions to build a configurable IAM role, that results in a more configurable and testable method for controlling role scope.
+Where Might This Be Useful When controlling IAM roles within our sphere of control we follow the principle of least privilege, deploying exactly what is required to perform our tasks, which is relatively simple.</description>
+    </item>
     
     <item>
       <title>DIY StackSets with Step Functions</title>
