@@ -18,9 +18,8 @@
       <pubDate>Thu, 06 Aug 2020 00:00:00 +0000</pubDate>
       
       <guid>https://josharmi.github.io/posts/lambda-layers/</guid>
-      <description>What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&amp;rsquo;re a simple enough thing to set up:
-MyLayer: Type: &amp;quot;AWS::Lambda::LayerVersion&amp;quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:
-lambdaFunction: Type: &amp;quot;AWS::Lambda::Function&amp;quot; Properties: Code: lambda FunctionName: FunctionWithLayer Handler: function.handler MemorySize: 128 Role: !</description>
+      <description>The Three Tips  Consider and manage your layer lifecycle Don&amp;rsquo;t prematurely optimise Consider different ways to decompose  What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&amp;rsquo;re a simple enough thing to set up:
+MyLayer: Type: &amp;quot;AWS::Lambda::LayerVersion&amp;quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:</description>
     </item>
     
   </channel>

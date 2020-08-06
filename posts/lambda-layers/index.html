@@ -8,9 +8,8 @@
 	<meta name="theme-color" content="#494f5c">
 	<meta name="msapplication-TileColor" content="#494f5c">
 <meta itemprop="name" content="Three Tips For Lambda Layers">
-<meta itemprop="description" content="What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&rsquo;re a simple enough thing to set up:
-MyLayer: Type: &quot;AWS::Lambda::LayerVersion&quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:
-lambdaFunction: Type: &quot;AWS::Lambda::Function&quot; Properties: Code: lambda FunctionName: FunctionWithLayer Handler: function.handler MemorySize: 128 Role: !">
+<meta itemprop="description" content="The Three Tips  Consider and manage your layer lifecycle Don&rsquo;t prematurely optimise Consider different ways to decompose  What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&rsquo;re a simple enough thing to set up:
+MyLayer: Type: &quot;AWS::Lambda::LayerVersion&quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:">
 <meta itemprop="datePublished" content="2020-08-06T00:00:00&#43;00:00" />
 <meta itemprop="dateModified" content="2020-08-06T00:00:00&#43;00:00" />
 <meta itemprop="wordCount" content="888">
@@ -18,18 +17,16 @@ lambdaFunction: Type: &quot;AWS::Lambda::Function&quot; Properties: Code: lambda
 
 
 <meta itemprop="keywords" content="Cloud,AWS,Lambda," /><meta property="og:title" content="Three Tips For Lambda Layers" />
-<meta property="og:description" content="What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&rsquo;re a simple enough thing to set up:
-MyLayer: Type: &quot;AWS::Lambda::LayerVersion&quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:
-lambdaFunction: Type: &quot;AWS::Lambda::Function&quot; Properties: Code: lambda FunctionName: FunctionWithLayer Handler: function.handler MemorySize: 128 Role: !" />
+<meta property="og:description" content="The Three Tips  Consider and manage your layer lifecycle Don&rsquo;t prematurely optimise Consider different ways to decompose  What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&rsquo;re a simple enough thing to set up:
+MyLayer: Type: &quot;AWS::Lambda::LayerVersion&quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://josharmi.github.io/posts/lambda-layers/" />
 <meta property="article:published_time" content="2020-08-06T00:00:00+00:00" />
 <meta property="article:modified_time" content="2020-08-06T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Three Tips For Lambda Layers"/>
-<meta name="twitter:description" content="What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&rsquo;re a simple enough thing to set up:
-MyLayer: Type: &quot;AWS::Lambda::LayerVersion&quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:
-lambdaFunction: Type: &quot;AWS::Lambda::Function&quot; Properties: Code: lambda FunctionName: FunctionWithLayer Handler: function.handler MemorySize: 128 Role: !"/>
+<meta name="twitter:description" content="The Three Tips  Consider and manage your layer lifecycle Don&rsquo;t prematurely optimise Consider different ways to decompose  What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&rsquo;re a simple enough thing to set up:
+MyLayer: Type: &quot;AWS::Lambda::LayerVersion&quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:"/>
 
 	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -76,7 +73,13 @@ lambdaFunction: Type: &quot;AWS::Lambda::Function&quot; Properties: Code: lambda
 				<h1>Three Tips For Lambda Layers</h1>
 			</header>
 			<div class="content">
-				<h2 id="what-is-a-lambda-layer">What Is A Lambda Layer?<a href="#what-is-a-lambda-layer" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+				<h2 id="the-three-tips">The Three Tips<a href="#the-three-tips" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<ol>
+<li>Consider and manage your layer lifecycle</li>
+<li>Don&rsquo;t prematurely optimise</li>
+<li>Consider different ways to decompose</li>
+</ol>
+<h2 id="what-is-a-lambda-layer">What Is A Lambda Layer?<a href="#what-is-a-lambda-layer" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
 <p>Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&rsquo;re a simple enough thing to set up:</p>
 <pre><code>MyLayer:
     Type: &quot;AWS::Lambda::LayerVersion&quot;
@@ -98,13 +101,7 @@ lambdaFunction: Type: &quot;AWS::Lambda::Function&quot; Properties: Code: lambda
         Runtime: python3.7
         Layers:
             - !Ref MyLayer
-</code></pre><h2 id="the-three-tips">The Three Tips<a href="#the-three-tips" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
-<ol>
-<li>Consider and manage your layer lifecycle</li>
-<li>Don&rsquo;t prematurely optimise</li>
-<li>Consider different ways to decompose</li>
-</ol>
-<h2 id="dunning-kruger--lambda-layers">Dunning-Kruger &amp; Lambda Layers<a href="#dunning-kruger--lambda-layers" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+</code></pre><h2 id="dunning-kruger--lambda-layers">Dunning-Kruger &amp; Lambda Layers<a href="#dunning-kruger--lambda-layers" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
 <p>When getting started is so quick and simple as it often is with true serverless development, the speed at which you move can come with debts accrued through the best intentions.</p>
 <p>A common journey to discovering layers is where you&rsquo;ve written a collection of functions that operate as a microservice, and all of sudden you hit copy paste one too many times and you know there must be a better way. You find the notion of layers and a lightbulb goes off, you split your code off into a layer, drop the resource into your CloudFormation and hey presto, the dream of reuse has become reality. Day 1 is a wonderful thing, the problem feels solved and you move onto the next.</p>
 <p>Then comes day 2, you need to make a change the layer, but now it&rsquo;s shared across 10, 20, 30 functions, <a href="https://www.hyrumslaw.com/">Hyrum&rsquo;s Law</a> has become manifest. You want to make a change but only have the change affect a subset of the functions, the speedy solution is to reach for the trust control-c control-v solutions to all life&rsquo;s coding problems.</p>
