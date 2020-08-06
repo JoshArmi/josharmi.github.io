@@ -7,10 +7,21 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Mon, 06 Jul 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 06 Aug 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://josharmi.github.io/tags/cloud/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Three Tips For Lambda Layers</title>
+      <link>https://josharmi.github.io/posts/lambda-layers/</link>
+      <pubDate>Thu, 06 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/lambda-layers/</guid>
+      <description>What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&amp;rsquo;re a simple enough thing to set up:
+MyLayer: Type: &amp;quot;AWS::Lambda::LayerVersion&amp;quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:
+lambdaFunction: Type: &amp;quot;AWS::Lambda::Function&amp;quot; Properties: Code: lambda FunctionName: FunctionWithLayer Handler: function.handler MemorySize: 128 Role: !</description>
+    </item>
     
     <item>
       <title>Conditional IAM Roles</title>

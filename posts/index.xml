@@ -6,8 +6,85 @@
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
 		<copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-		<lastBuildDate>Mon, 06 Jul 2020 00:00:00 +0000</lastBuildDate>
+		<lastBuildDate>Thu, 06 Aug 2020 00:00:00 +0000</lastBuildDate>
 		<atom:link href="https://josharmi.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+		
+		<item>
+			<title>Three Tips For Lambda Layers</title>
+			<link>https://josharmi.github.io/posts/lambda-layers/</link>
+			<pubDate>Thu, 06 Aug 2020 00:00:00 +0000</pubDate>
+			
+			<guid>https://josharmi.github.io/posts/lambda-layers/</guid>
+			<description>What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&amp;rsquo;re a simple enough thing to set up:
+MyLayer: Type: &amp;quot;AWS::Lambda::LayerVersion&amp;quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:
+lambdaFunction: Type: &amp;quot;AWS::Lambda::Function&amp;quot; Properties: Code: lambda FunctionName: FunctionWithLayer Handler: function.handler MemorySize: 128 Role: !</description>
+			<content type="html"><![CDATA[<h2 id="what-is-a-lambda-layer">What Is A Lambda Layer?</h2>
+<p>Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&rsquo;re a simple enough thing to set up:</p>
+<pre><code>MyLayer:
+    Type: &quot;AWS::Lambda::LayerVersion&quot;
+    Properties:
+        Description: Common code for reuse
+        LayerName: CommonCodeLayer
+        CompatibleRuntimes:
+            - python3.7
+        Content: layer
+</code></pre><p>Then you can use it in a serverless function by:</p>
+<pre><code>lambdaFunction:
+    Type: &quot;AWS::Lambda::Function&quot;
+    Properties:
+        Code: lambda
+        FunctionName: FunctionWithLayer
+        Handler: function.handler
+        MemorySize: 128
+        Role: !Ref LambdaRole
+        Runtime: python3.7
+        Layers:
+            - !Ref MyLayer
+</code></pre><h2 id="the-three-tips">The Three Tips</h2>
+<ol>
+<li>Consider and manage your layer lifecycle</li>
+<li>Don&rsquo;t prematurely optimise</li>
+<li>Consider different ways to decompose</li>
+</ol>
+<h2 id="dunning-kruger--lambda-layers">Dunning-Kruger &amp; Lambda Layers</h2>
+<p>When getting started is so quick and simple as it often is with true serverless development, the speed at which you move can come with debts accrued through the best intentions.</p>
+<p>A common journey to discovering layers is where you&rsquo;ve written a collection of functions that operate as a microservice, and all of sudden you hit copy paste one too many times and you know there must be a better way. You find the notion of layers and a lightbulb goes off, you split your code off into a layer, drop the resource into your CloudFormation and hey presto, the dream of reuse has become reality. Day 1 is a wonderful thing, the problem feels solved and you move onto the next.</p>
+<p>Then comes day 2, you need to make a change the layer, but now it&rsquo;s shared across 10, 20, 30 functions, <a href="https://www.hyrumslaw.com/">Hyrum&rsquo;s Law</a> has become manifest. You want to make a change but only have the change affect a subset of the functions, the speedy solution is to reach for the trust control-c control-v solutions to all life&rsquo;s coding problems.</p>
+<p>Having had this exact situation happen to me, hopefully the lessons I learnt may save you from the pain.</p>
+<h2 id="consider-and-manage-your-layer-lifecycle">Consider And Manage Your Layer Lifecycle</h2>
+<h4 id="action-separate-the-layer-into-its-own-cloudformation-stack">Action: Separate the layer into its own CloudFormation stack</h4>
+<p>Give yourself the option of managing it independently.</p>
+<p>Lambda layers introduce coupling between functions, in the example given above changes to the layer now have a large potential blast radius. If we need to make a breaking change to the layer, either we&rsquo;ve now got to perform code updates across a huge swathe of functions, or we have to maintain multiple parallel layer versions.</p>
+<p>How onerous a task the function updates are depends in a large part on your automated testing suite. If you have a robust testing culture, it may well be possible to make all the requisite changes and have confidence no regressions have been introduced. Google&rsquo;s Beyoncé rule applies well here, “If you liked it, you should have put a CI test on it”</p>
+<p>For managing multiple versions, by operating as an independent stack you can now export the layer reference with versioning, potentially <a href="https://semver.org/">semver</a>. Now stacks can !ImportValue the layer they&rsquo;re expecting and you can bring functions up to date independently of the layer update.</p>
+<h2 id="dont-prematurely-optimise">Don&rsquo;t Prematurely Optimise</h2>
+<p>One of the most oft quoted truisms in software development:</p>
+<blockquote>
+<p>We should forget about small efficiencies, say about 97% of the time: premature optimization is the root of all evil. Yet we should not pass up our opportunities in that critical 3%.
+<em><strong>Knuth and Hoare</strong></em></p>
+</blockquote>
+<p>You may be thinking that managing the lifecycle is a non-trivial amount of work, and you&rsquo;d be right. Managing shared code comes with overhead, that you&rsquo;re trading off against the effort of managing the duplication. Like all trade offs this should be conscious.</p>
+<h4 id="action-regularly-review-the-code-in-the-layer-to-consciously-decide-what-is-worth-the-trade-off">Action: Regularly review the code in the layer to consciously decide what is worth the trade off</h4>
+<h2 id="consider-other-options">Consider Other Options</h2>
+<p>I&rsquo;m not trying to make out that layers are evil, far from it. They&rsquo;re a very useful tool to have. However, they are but one solution to code reuse in lambdas.</p>
+<h3 id="1-packaging">1. Packaging</h3>
+<p>Now CodeArtifact is finally released by AWS, packaging code has become a more realistic option. You still have to manage the lifecycle, but now the code has potentially wider reuse angles outside of lambda itself.</p>
+<p>Packages are necessary in most non-trivial functions, potentially managing everything as packages is less cognitive load than a mixture of packages and layers.</p>
+<h4 id="local-testing-side-note">Local Testing Side Note</h4>
+<p>When integrating with language standard testing frameworks, layers can be hard or impossible to import as needed. Packages are much easier to handle in this regard.</p>
+<h3 id="2-functional-decomposition">2. Functional Decomposition</h3>
+<p>If you have common code functions, could they potentially be served as a lambda function in their own right? This kind of decomposition has interesting benefits from many angles, such as:</p>
+<ul>
+<li>Allows for design options to better leverage AWS technologies, e.g. push data to SQS so you can manage throughput to a Dynamo table</li>
+<li>Finer grained IAM permissions, e.g. only give KMS key permissions to a much smaller subset of functions</li>
+<li>Better user experience, e.g. respond back to the client once work has been asynchronously queued rather than wait for the entire process to finish</li>
+</ul>
+<p>See <a href="https://serverlesspatterns.io/">serverlesspatterns.io</a> for many more ways functional decomposition can improve your architectures</p>
+<h4 id="action-reevaluate-whether-layers-are-the-right-choice-for-your-current-goals">Action: Reevaluate whether layers are the right choice for your current goals</h4>
+<h2 id="conclusion">Conclusion</h2>
+<p>Layers when used with due care and for the right reasons are an essential part of a serverless developers toolkit. Like every technology they suffer from the Dunning-Kruger effect, hopefully my battle scars will prove to be pedagogical and these lessons will help make you a happier developer.</p>
+]]></content>
+		</item>
 		
 		<item>
 			<title>Conditional IAM Roles</title>

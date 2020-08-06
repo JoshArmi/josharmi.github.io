@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="theme-color" content="#494f5c">
+	<meta name="msapplication-TileColor" content="#494f5c">
+<meta itemprop="name" content="Three Tips For Lambda Layers">
+<meta itemprop="description" content="What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&rsquo;re a simple enough thing to set up:
+MyLayer: Type: &quot;AWS::Lambda::LayerVersion&quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:
+lambdaFunction: Type: &quot;AWS::Lambda::Function&quot; Properties: Code: lambda FunctionName: FunctionWithLayer Handler: function.handler MemorySize: 128 Role: !">
+<meta itemprop="datePublished" content="2020-08-06T00:00:00&#43;00:00" />
+<meta itemprop="dateModified" content="2020-08-06T00:00:00&#43;00:00" />
+<meta itemprop="wordCount" content="888">
+
+
+
+<meta itemprop="keywords" content="Cloud,AWS,Lambda," /><meta property="og:title" content="Three Tips For Lambda Layers" />
+<meta property="og:description" content="What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&rsquo;re a simple enough thing to set up:
+MyLayer: Type: &quot;AWS::Lambda::LayerVersion&quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:
+lambdaFunction: Type: &quot;AWS::Lambda::Function&quot; Properties: Code: lambda FunctionName: FunctionWithLayer Handler: function.handler MemorySize: 128 Role: !" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://josharmi.github.io/posts/lambda-layers/" />
+<meta property="article:published_time" content="2020-08-06T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-08-06T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Three Tips For Lambda Layers"/>
+<meta name="twitter:description" content="What Is A Lambda Layer? Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&rsquo;re a simple enough thing to set up:
+MyLayer: Type: &quot;AWS::Lambda::LayerVersion&quot; Properties: Description: Common code for reuse LayerName: CommonCodeLayer CompatibleRuntimes: - python3.7 Content: layer Then you can use it in a serverless function by:
+lambdaFunction: Type: &quot;AWS::Lambda::Function&quot; Properties: Code: lambda FunctionName: FunctionWithLayer Handler: function.handler MemorySize: 128 Role: !"/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title>Three Tips For Lambda Layers</title>
+	<link rel="stylesheet" href="https://josharmi.github.io/css/style.min.657bcb7af31123e4156b1a3d2ff60a636717e54ead74f882136b5114cf72b55e.css" integrity="sha256-ZXvLevMRI+QVaxo9L/YKY2cX5U6tdPiCE2tRFM9ytV4=" crossorigin="anonymous">
+	
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp faster">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="https://josharmi.github.io">Josh Armitage</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="https://josharmi.github.io/posts/">Posts</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="https://twitter.com/josharmi" target="_blank" rel="noopener me" title="Twitter"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a><a href="https://linkedin.com/in/josh-armitage-b7825a41" target="_blank" rel="noopener me" title="Linkedin"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a><a href="https://github.com/josharmi" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title="Menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="https://josharmi.github.io/posts/">Posts</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner animated fadeIn faster">
+		<article class="thin">
+			<header class="post-header">
+				<div class="post-meta"><span>Aug 6, 2020</span></div>
+				<h1>Three Tips For Lambda Layers</h1>
+			</header>
+			<div class="content">
+				<h2 id="what-is-a-lambda-layer">What Is A Lambda Layer?<a href="#what-is-a-lambda-layer" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Layers are a mechanism by which you can have common code available to an array of AWS lambda functions. They&rsquo;re a simple enough thing to set up:</p>
+<pre><code>MyLayer:
+    Type: &quot;AWS::Lambda::LayerVersion&quot;
+    Properties:
+        Description: Common code for reuse
+        LayerName: CommonCodeLayer
+        CompatibleRuntimes:
+            - python3.7
+        Content: layer
+</code></pre><p>Then you can use it in a serverless function by:</p>
+<pre><code>lambdaFunction:
+    Type: &quot;AWS::Lambda::Function&quot;
+    Properties:
+        Code: lambda
+        FunctionName: FunctionWithLayer
+        Handler: function.handler
+        MemorySize: 128
+        Role: !Ref LambdaRole
+        Runtime: python3.7
+        Layers:
+            - !Ref MyLayer
+</code></pre><h2 id="the-three-tips">The Three Tips<a href="#the-three-tips" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<ol>
+<li>Consider and manage your layer lifecycle</li>
+<li>Don&rsquo;t prematurely optimise</li>
+<li>Consider different ways to decompose</li>
+</ol>
+<h2 id="dunning-kruger--lambda-layers">Dunning-Kruger &amp; Lambda Layers<a href="#dunning-kruger--lambda-layers" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>When getting started is so quick and simple as it often is with true serverless development, the speed at which you move can come with debts accrued through the best intentions.</p>
+<p>A common journey to discovering layers is where you&rsquo;ve written a collection of functions that operate as a microservice, and all of sudden you hit copy paste one too many times and you know there must be a better way. You find the notion of layers and a lightbulb goes off, you split your code off into a layer, drop the resource into your CloudFormation and hey presto, the dream of reuse has become reality. Day 1 is a wonderful thing, the problem feels solved and you move onto the next.</p>
+<p>Then comes day 2, you need to make a change the layer, but now it&rsquo;s shared across 10, 20, 30 functions, <a href="https://www.hyrumslaw.com/">Hyrum&rsquo;s Law</a> has become manifest. You want to make a change but only have the change affect a subset of the functions, the speedy solution is to reach for the trust control-c control-v solutions to all life&rsquo;s coding problems.</p>
+<p>Having had this exact situation happen to me, hopefully the lessons I learnt may save you from the pain.</p>
+<h2 id="consider-and-manage-your-layer-lifecycle">Consider And Manage Your Layer Lifecycle<a href="#consider-and-manage-your-layer-lifecycle" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<h4 id="action-separate-the-layer-into-its-own-cloudformation-stack">Action: Separate the layer into its own CloudFormation stack<a href="#action-separate-the-layer-into-its-own-cloudformation-stack" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>Give yourself the option of managing it independently.</p>
+<p>Lambda layers introduce coupling between functions, in the example given above changes to the layer now have a large potential blast radius. If we need to make a breaking change to the layer, either we&rsquo;ve now got to perform code updates across a huge swathe of functions, or we have to maintain multiple parallel layer versions.</p>
+<p>How onerous a task the function updates are depends in a large part on your automated testing suite. If you have a robust testing culture, it may well be possible to make all the requisite changes and have confidence no regressions have been introduced. Google&rsquo;s Beyoncé rule applies well here, “If you liked it, you should have put a CI test on it”</p>
+<p>For managing multiple versions, by operating as an independent stack you can now export the layer reference with versioning, potentially <a href="https://semver.org/">semver</a>. Now stacks can !ImportValue the layer they&rsquo;re expecting and you can bring functions up to date independently of the layer update.</p>
+<h2 id="dont-prematurely-optimise">Don&rsquo;t Prematurely Optimise<a href="#dont-prematurely-optimise" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>One of the most oft quoted truisms in software development:</p>
+<blockquote>
+<p>We should forget about small efficiencies, say about 97% of the time: premature optimization is the root of all evil. Yet we should not pass up our opportunities in that critical 3%.
+<em><strong>Knuth and Hoare</strong></em></p>
+</blockquote>
+<p>You may be thinking that managing the lifecycle is a non-trivial amount of work, and you&rsquo;d be right. Managing shared code comes with overhead, that you&rsquo;re trading off against the effort of managing the duplication. Like all trade offs this should be conscious.</p>
+<h4 id="action-regularly-review-the-code-in-the-layer-to-consciously-decide-what-is-worth-the-trade-off">Action: Regularly review the code in the layer to consciously decide what is worth the trade off<a href="#action-regularly-review-the-code-in-the-layer-to-consciously-decide-what-is-worth-the-trade-off" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<h2 id="consider-other-options">Consider Other Options<a href="#consider-other-options" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>I&rsquo;m not trying to make out that layers are evil, far from it. They&rsquo;re a very useful tool to have. However, they are but one solution to code reuse in lambdas.</p>
+<h3 id="1-packaging">1. Packaging<a href="#1-packaging" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Now CodeArtifact is finally released by AWS, packaging code has become a more realistic option. You still have to manage the lifecycle, but now the code has potentially wider reuse angles outside of lambda itself.</p>
+<p>Packages are necessary in most non-trivial functions, potentially managing everything as packages is less cognitive load than a mixture of packages and layers.</p>
+<h4 id="local-testing-side-note">Local Testing Side Note<a href="#local-testing-side-note" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>When integrating with language standard testing frameworks, layers can be hard or impossible to import as needed. Packages are much easier to handle in this regard.</p>
+<h3 id="2-functional-decomposition">2. Functional Decomposition<a href="#2-functional-decomposition" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>If you have common code functions, could they potentially be served as a lambda function in their own right? This kind of decomposition has interesting benefits from many angles, such as:</p>
+<ul>
+<li>Allows for design options to better leverage AWS technologies, e.g. push data to SQS so you can manage throughput to a Dynamo table</li>
+<li>Finer grained IAM permissions, e.g. only give KMS key permissions to a much smaller subset of functions</li>
+<li>Better user experience, e.g. respond back to the client once work has been asynchronously queued rather than wait for the entire process to finish</li>
+</ul>
+<p>See <a href="https://serverlesspatterns.io/">serverlesspatterns.io</a> for many more ways functional decomposition can improve your architectures</p>
+<h4 id="action-reevaluate-whether-layers-are-the-right-choice-for-your-current-goals">Action: Reevaluate whether layers are the right choice for your current goals<a href="#action-reevaluate-whether-layers-are-the-right-choice-for-your-current-goals" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<h2 id="conclusion">Conclusion<a href="#conclusion" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Layers when used with due care and for the right reasons are an essential part of a serverless developers toolkit. Like every technology they suffer from the Dunning-Kruger effect, hopefully my battle scars will prove to be pedagogical and these lessons will help make you a happier developer.</p>
+
+			</div>
+			<hr class="post-end">
+			<footer class="post-info">
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-feather"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>Josh Armitage</p>
+				<p>
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg><span class="tag"><a href="https://josharmi.github.io/tags/cloud">Cloud</a></span><span class="tag"><a href="https://josharmi.github.io/tags/aws">AWS</a></span><span class="tag"><a href="https://josharmi.github.io/tags/lambda">Lambda</a></span>
+				</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>888 Words</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2020-08-06 01:00 &#43;0100</p>
+			</footer>
+		</article>
+		<div class="post-nav thin">
+			<a class="prev-post" href="https://josharmi.github.io/posts/conditional-iam-roles/">
+				<span class="post-nav-label">Older&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>Conditional IAM Roles</span>
+			</a>
+		</div>
+		<div id="comments" class="thin">
+</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2020 <a href="https://josharmi.github.io">Josh Armitage</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://josharmi.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="https://josharmi.github.io/js/bundle.min.4a9a0ac3d2217822c7865b4161e6c2a71de1d70492264337755427898dd718f6.js" integrity="sha256-SpoKw9IheCLHhltBYebCpx3h1wSSJkM3dVQniY3XGPY=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>
