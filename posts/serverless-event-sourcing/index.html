@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="theme-color" content="#494f5c">
+	<meta name="msapplication-TileColor" content="#494f5c">
+<meta itemprop="name" content="Beginning The Quest For Serverless CQRS &amp; Event Sourcing">
+<meta itemprop="description" content="The Quest This is the first in a series of blog posts to explore the potential for building serverless event sourced CQRS systems on AWS. First we&rsquo;re going to lay out the whats and the whys of CQRS and event sourcing, some of the constraints we&rsquo;re under and some initial spikes that look promising.
+Why should I care about CQRS &amp; Event Sourcing? In a general sense, there is always something to learn in any new style of application or architecture.">
+<meta itemprop="datePublished" content="2020-10-03T00:00:00&#43;00:00" />
+<meta itemprop="dateModified" content="2020-10-03T00:00:00&#43;00:00" />
+<meta itemprop="wordCount" content="1150">
+
+
+
+<meta itemprop="keywords" content="Event Sourcing,AWS,Event Driven Architectures," /><meta property="og:title" content="Beginning The Quest For Serverless CQRS &amp; Event Sourcing" />
+<meta property="og:description" content="The Quest This is the first in a series of blog posts to explore the potential for building serverless event sourced CQRS systems on AWS. First we&rsquo;re going to lay out the whats and the whys of CQRS and event sourcing, some of the constraints we&rsquo;re under and some initial spikes that look promising.
+Why should I care about CQRS &amp; Event Sourcing? In a general sense, there is always something to learn in any new style of application or architecture." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://josharmi.github.io/posts/serverless-event-sourcing/" />
+<meta property="article:published_time" content="2020-10-03T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-10-03T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Beginning The Quest For Serverless CQRS &amp; Event Sourcing"/>
+<meta name="twitter:description" content="The Quest This is the first in a series of blog posts to explore the potential for building serverless event sourced CQRS systems on AWS. First we&rsquo;re going to lay out the whats and the whys of CQRS and event sourcing, some of the constraints we&rsquo;re under and some initial spikes that look promising.
+Why should I care about CQRS &amp; Event Sourcing? In a general sense, there is always something to learn in any new style of application or architecture."/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title>Beginning The Quest For Serverless CQRS &amp; Event Sourcing</title>
+	<link rel="stylesheet" href="https://josharmi.github.io/css/style.min.657bcb7af31123e4156b1a3d2ff60a636717e54ead74f882136b5114cf72b55e.css" integrity="sha256-ZXvLevMRI+QVaxo9L/YKY2cX5U6tdPiCE2tRFM9ytV4=" crossorigin="anonymous">
+	
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp faster">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="https://josharmi.github.io">Josh Armitage</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="https://josharmi.github.io/posts/">Posts</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="https://twitter.com/josharmi" target="_blank" rel="noopener me" title="Twitter"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a><a href="https://linkedin.com/in/josh-armitage-b7825a41" target="_blank" rel="noopener me" title="Linkedin"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a><a href="https://github.com/josharmi" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title="Menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="https://josharmi.github.io/posts/">Posts</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner animated fadeIn faster">
+		<article class="thin">
+			<header class="post-header">
+				<div class="post-meta"><span>Oct 3, 2020</span></div>
+				<h1>Beginning The Quest For Serverless CQRS &amp; Event Sourcing</h1>
+			</header>
+			<div class="content">
+				<h2 id="the-quest">The Quest<a href="#the-quest" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>This is the first in a series of blog posts to explore the potential for building serverless event sourced CQRS systems on AWS. First we&rsquo;re going to lay out the whats and the whys of CQRS and event sourcing, some of the constraints we&rsquo;re under and some initial spikes that look promising.</p>
+<h2 id="why-should-i-care-about-cqrs--event-sourcing">Why should I care about CQRS &amp; Event Sourcing?<a href="#why-should-i-care-about-cqrs--event-sourcing" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>In a general sense, there is always something to learn in any new style of application or architecture. We live in a world of trade-offs, and we don&rsquo;t have enough time to follow every thread as far as we would like. Most advancements happen from transferral between domains as opposed to brand new insight.</p>
+<p>In a more direct sense, I believe CQRS and Event Sourcing are increasingly becoming a highly valuable tool to have in ones arsenal. Having built a series of systems based on their principles, when presented with a high complexity, high value problem to solve it has become my default choice through repeated success.</p>
+<h3 id="why-cqrs">Why CQRS?<a href="#why-cqrs" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>In 2004, Greg Young shared Command Query Responsibility Segregation (CQRS) with the world, a pattern to build scalable, extendable domain driven systems. Over the intervening 16 years interest has trended upwards:</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>Not a disimilar trend to Domain Driven Design (DDD) as a whole:</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>Two keys reasons that I believe underly this trend are:</p>
+<ul>
+<li>The fact that serious scale is becoming an increasingly common requirement, businesses rightly continue to expect more of the systems they build, especially with the unprecedented access to elasticity that public cloud provides</li>
+<li>The fact that the weight of legacy is ever more dragging back on progress, over time many systems get exponentially harder to work on, CQRS and Event Sourcing provide a journey with the potential to break the cycle</li>
+</ul>
+<h3 id="what-is-cqrs-with-event-sourcing">What is CQRS with Event Sourcing<a href="#what-is-cqrs-with-event-sourcing" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p><img src="/static/images/CQRS.jpg" alt="CQRS High Level Flow" title="CQRS High Level Flow"></p>
+<p>Let&rsquo;s look at the data flows through the system first, using a banking app as an example:</p>
+<ol>
+<li>Commands -&gt; Commands are statements of intent from a user, they can be rejected, and are aimed at a distinct aggregate. Think &ldquo;Deposit Money&rdquo;
+<ul>
+<li>Aggregate -&gt; Aggregates are an instance of a domain object, Think &ldquo;Josh&rsquo;s Account&rdquo;</li>
+</ul>
+</li>
+<li>Events -&gt; Events are statements of fact, they are persisted forever and cannot be rejected. Think &ldquo;Money Deposited&rdquo;</li>
+<li>Queries -&gt; Queries are asking to get data out of the system. Think &ldquo;Get Account Balance&rdquo;</li>
+<li>Read Models -&gt; Read Models are an opinion of current state. Rather than have to compute the account balance on demand, we can keep a running tally as events enter the system and present that back</li>
+</ol>
+<p>Now let&rsquo;s break the individual components:</p>
+<ol>
+<li>User -&gt; A user of the system</li>
+<li>Command Handler -&gt; Handles the commands to the system</li>
+<li>Event Store -&gt; The database that stores the events of the system</li>
+<li>Read Model Populator -&gt; A process which tails the event store and computes read models</li>
+<li>Read Model Store -&gt; A fit for purpose store to hold read models</li>
+<li>Query Handler -&gt; Handles queries by accessing read model stores</li>
+</ol>
+<p>With that we can see where the name comes from, commands and queries are served from opposite sides.</p>
+<p>Now let&rsquo;s look at why this is powerful</p>
+<h3 id="the-power-of-relaxing-consistency">The Power of Relaxing Consistency<a href="#the-power-of-relaxing-consistency" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<h4 id="strong-vs-eventual-consistency">Strong vs Eventual Consistency<a href="#strong-vs-eventual-consistency" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>When it comes to consistency we have two options, one is strong and one is eventual, and they give us different guarantees.</p>
+<p>Strong consistency means that when asking the same question we will always get the same answer, ensuring the guarantee comes with a performance impact, for example enforcing strong consistency on AWS DynamoDB reads is twice as expensive as allowing eventual consistency.</p>
+<p>Eventual consistency means that given enough time for a given question we will get the same answer, by doing this we open up many more options for how we can build applications.</p>
+<p>In the above diagram, queries are answered with eventual consistency, we can answer queries much more quickly in exchange for them having a potential of being out of date.</p>
+<p>However, commands are handled with strong consistency, as mentioned above, events are irrefutable facts, we need to be sure that when we persist them they are correct.</p>
+<p>The long story short is, by segregting commands and queries we are able to optimise for their specific requirements, where we need stronger guarantees we have them, where we can have more freedom we take full advantage.</p>
+<h3 id="the-event-store-core">The Event Store Core<a href="#the-event-store-core" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Let&rsquo;s look a bit deeper at the event store itself and what options it enables.</p>
+<p>An event store is an immutable ledger of events. All data traversing through the system is either an event, or can be recomputed from events.</p>
+<h4 id="global-chronological-event-ordering">Global Chronological Event Ordering<a href="#global-chronological-event-ordering" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>A debate I&rsquo;ve often had in describing or building event stores, is whether chronological ordering of events is required or not.</p>
+<p>The key to this discussion is in the mathematical concept of commutativity, i.e. is the ordering of operations important?</p>
+<p>If replaying the events in any order doesn&rsquo;t change the final outcome, then the events are commutative, which gives me many more options in terms of processing and concurrency.</p>
+<p>Within an aggregate, events are generally non-commutative, if I have two events for changing my address, the current state is determined by whichever event I process second, as such we will implement in aggregate event ordering to allow for consistency.</p>
+<p>Across aggregates, generally you will have requirements that make events non-commutative outside of a single aggregate, if this is the case then global ordering is a simple way to achieve consistency on replaying events.</p>
+<p>If we look at the pros and cons:</p>
+<h5 id="pros">Pros<a href="#pros" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h5>
+<ol>
+<li>I can time travel backwards with the event store knowing the system is going to be consistent</li>
+<li>Being able to rely on the ordering can make implementing business logic simpler</li>
+<li>Every rebuild will be identical allowing me more confident recovery from issues</li>
+</ol>
+<h5 id="cons">Cons<a href="#cons" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h5>
+<ol>
+<li>By introducing global ordering we are forcing event ingestion to be single-threaded, or reliant on performance limiting consensus algorithms.</li>
+</ol>
+<h5 id="conclusion">Conclusion<a href="#conclusion" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h5>
+<p>For the intents of this quest I&rsquo;m going to <strong>include</strong> global ordering for one very simple reason:</p>
+<ul>
+<li>Having global ordering is an easily reversible decision</li>
+<li>Not having global ordering is incredibly difficult, approaching impossible to reverse</li>
+</ul>
+<h3 id="what-constraints-does-serverless-imply">What Constraints Does Serverless Imply?<a href="#what-constraints-does-serverless-imply" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>I want to be able build the entire solution using only serverless AWS services, with no idle running cost.</p>
+<p>For compute the obvious option is Lambda functions, and we can front them with REST APIs to allow us to interact with the system. The more interesting choices are for our event store, in terms of serverless databases on AWS we have:</p>
+<ul>
+<li><strong>Serverless Aurora</strong></li>
+<li><strong>DynamoDB</strong></li>
+<li><strong>Quantum Ledger Database</strong></li>
+<li>Timestream</li>
+<li>Neptune</li>
+<li>Keyspaces</li>
+</ul>
+<p>The three databases in bold are on first inspection the three which present the most interesting options.</p>
+<p>Next time we&rsquo;ll be investigating using Serverless Aurora, as it&rsquo;s a full SQL database that means we are following well trodden paths on how to create an Event Store, before branching off into the far more experimental options.</p>
+
+			</div>
+			<hr class="post-end">
+			<footer class="post-info">
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-feather"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>Josh Armitage</p>
+				<p>
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg><span class="tag"><a href="https://josharmi.github.io/tags/event-sourcing">Event Sourcing</a></span><span class="tag"><a href="https://josharmi.github.io/tags/aws">AWS</a></span><span class="tag"><a href="https://josharmi.github.io/tags/event-driven-architectures">Event Driven Architectures</a></span>
+				</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>1150 Words</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2020-10-03 01:00 &#43;0100</p>
+			</footer>
+		</article>
+		<div class="post-nav thin">
+			<a class="prev-post" href="https://josharmi.github.io/posts/parameter-store/">
+				<span class="post-nav-label">Older&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>Parameter Store Considered Harmful</span>
+			</a>
+		</div>
+		<div id="comments" class="thin">
+</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2020 <a href="https://josharmi.github.io">Josh Armitage</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://josharmi.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="https://josharmi.github.io/js/bundle.min.4a9a0ac3d2217822c7865b4161e6c2a71de1d70492264337755427898dd718f6.js" integrity="sha256-SpoKw9IheCLHhltBYebCpx3h1wSSJkM3dVQniY3XGPY=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>

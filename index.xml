@@ -7,10 +7,29 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Thu, 06 Aug 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 03 Oct 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://josharmi.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Beginning The Quest For Serverless CQRS &amp; Event Sourcing</title>
+      <link>https://josharmi.github.io/posts/serverless-event-sourcing/</link>
+      <pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/serverless-event-sourcing/</guid>
+      <description>The Quest This is the first in a series of blog posts to explore the potential for building serverless event sourced CQRS systems on AWS. First we&amp;rsquo;re going to lay out the whats and the whys of CQRS and event sourcing, some of the constraints we&amp;rsquo;re under and some initial spikes that look promising.
+Why should I care about CQRS &amp;amp; Event Sourcing? In a general sense, there is always something to learn in any new style of application or architecture.</description>
+    </item>
+    
+    <item>
+      <title>Parameter Store Considered Harmful</title>
+      <link>https://josharmi.github.io/posts/parameter-store/</link>
+      <pubDate>Tue, 11 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/parameter-store/</guid>
+      <description>Is Parameter Store an AWS Service GOTO? </description>
+    </item>
     
     <item>
       <title>Three Tips For Lambda Layers</title>

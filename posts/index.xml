@@ -6,8 +6,120 @@
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
 		<copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-		<lastBuildDate>Thu, 06 Aug 2020 00:00:00 +0000</lastBuildDate>
+		<lastBuildDate>Sat, 03 Oct 2020 00:00:00 +0000</lastBuildDate>
 		<atom:link href="https://josharmi.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+		
+		<item>
+			<title>Beginning The Quest For Serverless CQRS &amp; Event Sourcing</title>
+			<link>https://josharmi.github.io/posts/serverless-event-sourcing/</link>
+			<pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
+			
+			<guid>https://josharmi.github.io/posts/serverless-event-sourcing/</guid>
+			<description>The Quest This is the first in a series of blog posts to explore the potential for building serverless event sourced CQRS systems on AWS. First we&amp;rsquo;re going to lay out the whats and the whys of CQRS and event sourcing, some of the constraints we&amp;rsquo;re under and some initial spikes that look promising.
+Why should I care about CQRS &amp;amp; Event Sourcing? In a general sense, there is always something to learn in any new style of application or architecture.</description>
+			<content type="html"><![CDATA[<h2 id="the-quest">The Quest</h2>
+<p>This is the first in a series of blog posts to explore the potential for building serverless event sourced CQRS systems on AWS. First we&rsquo;re going to lay out the whats and the whys of CQRS and event sourcing, some of the constraints we&rsquo;re under and some initial spikes that look promising.</p>
+<h2 id="why-should-i-care-about-cqrs--event-sourcing">Why should I care about CQRS &amp; Event Sourcing?</h2>
+<p>In a general sense, there is always something to learn in any new style of application or architecture. We live in a world of trade-offs, and we don&rsquo;t have enough time to follow every thread as far as we would like. Most advancements happen from transferral between domains as opposed to brand new insight.</p>
+<p>In a more direct sense, I believe CQRS and Event Sourcing are increasingly becoming a highly valuable tool to have in ones arsenal. Having built a series of systems based on their principles, when presented with a high complexity, high value problem to solve it has become my default choice through repeated success.</p>
+<h3 id="why-cqrs">Why CQRS?</h3>
+<p>In 2004, Greg Young shared Command Query Responsibility Segregation (CQRS) with the world, a pattern to build scalable, extendable domain driven systems. Over the intervening 16 years interest has trended upwards:</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>Not a disimilar trend to Domain Driven Design (DDD) as a whole:</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>Two keys reasons that I believe underly this trend are:</p>
+<ul>
+<li>The fact that serious scale is becoming an increasingly common requirement, businesses rightly continue to expect more of the systems they build, especially with the unprecedented access to elasticity that public cloud provides</li>
+<li>The fact that the weight of legacy is ever more dragging back on progress, over time many systems get exponentially harder to work on, CQRS and Event Sourcing provide a journey with the potential to break the cycle</li>
+</ul>
+<h3 id="what-is-cqrs-with-event-sourcing">What is CQRS with Event Sourcing</h3>
+<p><img src="/static/images/CQRS.jpg" alt="CQRS High Level Flow" title="CQRS High Level Flow"></p>
+<p>Let&rsquo;s look at the data flows through the system first, using a banking app as an example:</p>
+<ol>
+<li>Commands -&gt; Commands are statements of intent from a user, they can be rejected, and are aimed at a distinct aggregate. Think &ldquo;Deposit Money&rdquo;
+<ul>
+<li>Aggregate -&gt; Aggregates are an instance of a domain object, Think &ldquo;Josh&rsquo;s Account&rdquo;</li>
+</ul>
+</li>
+<li>Events -&gt; Events are statements of fact, they are persisted forever and cannot be rejected. Think &ldquo;Money Deposited&rdquo;</li>
+<li>Queries -&gt; Queries are asking to get data out of the system. Think &ldquo;Get Account Balance&rdquo;</li>
+<li>Read Models -&gt; Read Models are an opinion of current state. Rather than have to compute the account balance on demand, we can keep a running tally as events enter the system and present that back</li>
+</ol>
+<p>Now let&rsquo;s break the individual components:</p>
+<ol>
+<li>User -&gt; A user of the system</li>
+<li>Command Handler -&gt; Handles the commands to the system</li>
+<li>Event Store -&gt; The database that stores the events of the system</li>
+<li>Read Model Populator -&gt; A process which tails the event store and computes read models</li>
+<li>Read Model Store -&gt; A fit for purpose store to hold read models</li>
+<li>Query Handler -&gt; Handles queries by accessing read model stores</li>
+</ol>
+<p>With that we can see where the name comes from, commands and queries are served from opposite sides.</p>
+<p>Now let&rsquo;s look at why this is powerful</p>
+<h3 id="the-power-of-relaxing-consistency">The Power of Relaxing Consistency</h3>
+<h4 id="strong-vs-eventual-consistency">Strong vs Eventual Consistency</h4>
+<p>When it comes to consistency we have two options, one is strong and one is eventual, and they give us different guarantees.</p>
+<p>Strong consistency means that when asking the same question we will always get the same answer, ensuring the guarantee comes with a performance impact, for example enforcing strong consistency on AWS DynamoDB reads is twice as expensive as allowing eventual consistency.</p>
+<p>Eventual consistency means that given enough time for a given question we will get the same answer, by doing this we open up many more options for how we can build applications.</p>
+<p>In the above diagram, queries are answered with eventual consistency, we can answer queries much more quickly in exchange for them having a potential of being out of date.</p>
+<p>However, commands are handled with strong consistency, as mentioned above, events are irrefutable facts, we need to be sure that when we persist them they are correct.</p>
+<p>The long story short is, by segregting commands and queries we are able to optimise for their specific requirements, where we need stronger guarantees we have them, where we can have more freedom we take full advantage.</p>
+<h3 id="the-event-store-core">The Event Store Core</h3>
+<p>Let&rsquo;s look a bit deeper at the event store itself and what options it enables.</p>
+<p>An event store is an immutable ledger of events. All data traversing through the system is either an event, or can be recomputed from events.</p>
+<h4 id="global-chronological-event-ordering">Global Chronological Event Ordering</h4>
+<p>A debate I&rsquo;ve often had in describing or building event stores, is whether chronological ordering of events is required or not.</p>
+<p>The key to this discussion is in the mathematical concept of commutativity, i.e. is the ordering of operations important?</p>
+<p>If replaying the events in any order doesn&rsquo;t change the final outcome, then the events are commutative, which gives me many more options in terms of processing and concurrency.</p>
+<p>Within an aggregate, events are generally non-commutative, if I have two events for changing my address, the current state is determined by whichever event I process second, as such we will implement in aggregate event ordering to allow for consistency.</p>
+<p>Across aggregates, generally you will have requirements that make events non-commutative outside of a single aggregate, if this is the case then global ordering is a simple way to achieve consistency on replaying events.</p>
+<p>If we look at the pros and cons:</p>
+<h5 id="pros">Pros</h5>
+<ol>
+<li>I can time travel backwards with the event store knowing the system is going to be consistent</li>
+<li>Being able to rely on the ordering can make implementing business logic simpler</li>
+<li>Every rebuild will be identical allowing me more confident recovery from issues</li>
+</ol>
+<h5 id="cons">Cons</h5>
+<ol>
+<li>By introducing global ordering we are forcing event ingestion to be single-threaded, or reliant on performance limiting consensus algorithms.</li>
+</ol>
+<h5 id="conclusion">Conclusion</h5>
+<p>For the intents of this quest I&rsquo;m going to <strong>include</strong> global ordering for one very simple reason:</p>
+<ul>
+<li>Having global ordering is an easily reversible decision</li>
+<li>Not having global ordering is incredibly difficult, approaching impossible to reverse</li>
+</ul>
+<h3 id="what-constraints-does-serverless-imply">What Constraints Does Serverless Imply?</h3>
+<p>I want to be able build the entire solution using only serverless AWS services, with no idle running cost.</p>
+<p>For compute the obvious option is Lambda functions, and we can front them with REST APIs to allow us to interact with the system. The more interesting choices are for our event store, in terms of serverless databases on AWS we have:</p>
+<ul>
+<li><strong>Serverless Aurora</strong></li>
+<li><strong>DynamoDB</strong></li>
+<li><strong>Quantum Ledger Database</strong></li>
+<li>Timestream</li>
+<li>Neptune</li>
+<li>Keyspaces</li>
+</ul>
+<p>The three databases in bold are on first inspection the three which present the most interesting options.</p>
+<p>Next time we&rsquo;ll be investigating using Serverless Aurora, as it&rsquo;s a full SQL database that means we are following well trodden paths on how to create an Event Store, before branching off into the far more experimental options.</p>
+]]></content>
+		</item>
+		
+		<item>
+			<title>Parameter Store Considered Harmful</title>
+			<link>https://josharmi.github.io/posts/parameter-store/</link>
+			<pubDate>Tue, 11 Aug 2020 00:00:00 +0000</pubDate>
+			
+			<guid>https://josharmi.github.io/posts/parameter-store/</guid>
+			<description>Is Parameter Store an AWS Service GOTO? </description>
+			<content type="html"><![CDATA[<h2 id="is-parameter-store-an-aws-service-goto">Is Parameter Store an AWS Service GOTO?</h2>
+]]></content>
+		</item>
 		
 		<item>
 			<title>Three Tips For Lambda Layers</title>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Event Sourcing on Josh Armitage</title>
+    <link>https://josharmi.github.io/tags/event-sourcing/</link>
+    <description>Recent content in Event Sourcing on Josh Armitage</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
+    <lastBuildDate>Sat, 03 Oct 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://josharmi.github.io/tags/event-sourcing/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Beginning The Quest For Serverless CQRS &amp; Event Sourcing</title>
+      <link>https://josharmi.github.io/posts/serverless-event-sourcing/</link>
+      <pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/serverless-event-sourcing/</guid>
+      <description>The Quest This is the first in a series of blog posts to explore the potential for building serverless event sourced CQRS systems on AWS. First we&amp;rsquo;re going to lay out the whats and the whys of CQRS and event sourcing, some of the constraints we&amp;rsquo;re under and some initial spikes that look promising.
+Why should I care about CQRS &amp;amp; Event Sourcing? In a general sense, there is always something to learn in any new style of application or architecture.</description>
+    </item>
+    
+  </channel>
+</rss>
