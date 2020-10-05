@@ -105,17 +105,6 @@ Number three discards one of the unique properties of the pattern</p>
 		</item>
 		
 		<item>
-			<title>Parameter Store Considered Harmful</title>
-			<link>https://josharmi.github.io/posts/parameter-store/</link>
-			<pubDate>Tue, 11 Aug 2020 00:00:00 +0000</pubDate>
-			
-			<guid>https://josharmi.github.io/posts/parameter-store/</guid>
-			<description>Is Parameter Store an AWS Service GOTO? </description>
-			<content type="html"><![CDATA[<h2 id="is-parameter-store-an-aws-service-goto">Is Parameter Store an AWS Service GOTO?</h2>
-]]></content>
-		</item>
-		
-		<item>
 			<title>Three Tips For Lambda Layers</title>
 			<link>https://josharmi.github.io/posts/lambda-layers/</link>
 			<pubDate>Thu, 06 Aug 2020 00:00:00 +0000</pubDate>

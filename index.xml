@@ -23,15 +23,6 @@ By the end of the quest we hope to have an example repository that you can fork 
     </item>
     
     <item>
-      <title>Parameter Store Considered Harmful</title>
-      <link>https://josharmi.github.io/posts/parameter-store/</link>
-      <pubDate>Tue, 11 Aug 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/posts/parameter-store/</guid>
-      <description>Is Parameter Store an AWS Service GOTO? </description>
-    </item>
-    
-    <item>
       <title>Three Tips For Lambda Layers</title>
       <link>https://josharmi.github.io/posts/lambda-layers/</link>
       <pubDate>Thu, 06 Aug 2020 00:00:00 +0000</pubDate>
