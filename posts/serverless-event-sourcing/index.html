@@ -9,16 +9,16 @@
 	<meta name="msapplication-TileColor" content="#494f5c">
 <meta itemprop="name" content="Beginning The Quest For Serverless CQRS &amp; Event Sourcing">
 <meta itemprop="description" content="The Quest This is the first in a series of blog posts to explore the potential for building serverless event sourced CQRS systems on AWS. First we&rsquo;re going to lay out the whats and the whys of CQRS and event sourcing, some of the constraints we&rsquo;re under and some initial spikes that look promising.
-Why should I care about CQRS &amp; Event Sourcing? In a general sense, there is always something to learn in any new style of application or architecture.">
+By the end of the quest we hope to have an example repository that you can fork and extend to start your own Serverless CQRS journey of discovery.">
 <meta itemprop="datePublished" content="2020-10-03T00:00:00&#43;00:00" />
 <meta itemprop="dateModified" content="2020-10-03T00:00:00&#43;00:00" />
-<meta itemprop="wordCount" content="1150">
+<meta itemprop="wordCount" content="952">
 
 
 
 <meta itemprop="keywords" content="Event Sourcing,AWS,Event Driven Architectures," /><meta property="og:title" content="Beginning The Quest For Serverless CQRS &amp; Event Sourcing" />
 <meta property="og:description" content="The Quest This is the first in a series of blog posts to explore the potential for building serverless event sourced CQRS systems on AWS. First we&rsquo;re going to lay out the whats and the whys of CQRS and event sourcing, some of the constraints we&rsquo;re under and some initial spikes that look promising.
-Why should I care about CQRS &amp; Event Sourcing? In a general sense, there is always something to learn in any new style of application or architecture." />
+By the end of the quest we hope to have an example repository that you can fork and extend to start your own Serverless CQRS journey of discovery." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://josharmi.github.io/posts/serverless-event-sourcing/" />
 <meta property="article:published_time" content="2020-10-03T00:00:00+00:00" />
@@ -26,7 +26,7 @@ Why should I care about CQRS &amp; Event Sourcing? In a general sense, there is 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Beginning The Quest For Serverless CQRS &amp; Event Sourcing"/>
 <meta name="twitter:description" content="The Quest This is the first in a series of blog posts to explore the potential for building serverless event sourced CQRS systems on AWS. First we&rsquo;re going to lay out the whats and the whys of CQRS and event sourcing, some of the constraints we&rsquo;re under and some initial spikes that look promising.
-Why should I care about CQRS &amp; Event Sourcing? In a general sense, there is always something to learn in any new style of application or architecture."/>
+By the end of the quest we hope to have an example repository that you can fork and extend to start your own Serverless CQRS journey of discovery."/>
 
 	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -75,18 +75,19 @@ Why should I care about CQRS &amp; Event Sourcing? In a general sense, there is 
 			<div class="content">
 				<h2 id="the-quest">The Quest<a href="#the-quest" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
 <p>This is the first in a series of blog posts to explore the potential for building serverless event sourced CQRS systems on AWS. First we&rsquo;re going to lay out the whats and the whys of CQRS and event sourcing, some of the constraints we&rsquo;re under and some initial spikes that look promising.</p>
+<p>By the end of the quest we hope to have an example repository that you can fork and extend to start your own Serverless CQRS journey of discovery.</p>
 <h2 id="why-should-i-care-about-cqrs--event-sourcing">Why should I care about CQRS &amp; Event Sourcing?<a href="#why-should-i-care-about-cqrs--event-sourcing" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
-<p>In a general sense, there is always something to learn in any new style of application or architecture. We live in a world of trade-offs, and we don&rsquo;t have enough time to follow every thread as far as we would like. Most advancements happen from transferral between domains as opposed to brand new insight.</p>
-<p>In a more direct sense, I believe CQRS and Event Sourcing are increasingly becoming a highly valuable tool to have in ones arsenal. Having built a series of systems based on their principles, when presented with a high complexity, high value problem to solve it has become my default choice through repeated success.</p>
+<p>In a general sense, there is always something to learn in any new style of application or architecture. We live in a world of trade-offs and most advancements happen from transferral between domains as opposed to brand new unique insight.</p>
+<p>In a more direct sense, I believe CQRS and Event Sourcing are becoming an invaluable tool to have in ones arsenal. Having built a series of systems based on their principles, when presented with high complexity, high value problems it quickly became my default due to repeated success.</p>
 <h3 id="why-cqrs">Why CQRS?<a href="#why-cqrs" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
-<p>In 2004, Greg Young shared Command Query Responsibility Segregation (CQRS) with the world, a pattern to build scalable, extendable domain driven systems. Over the intervening 16 years interest has trended upwards:</p>
+<p>In the early 2000s, Greg Young shared Command Query Responsibility Segregation (CQRS) with the world, a pattern to build scalable, extendable domain driven systems. Over the intervening years interest has trended upwards:</p>
 <p><img src="/static/images/CQRS-trend.png" alt="CQRS Trend" title="CQRS Trend"></p>
 <p>Not a disimilar trend to Domain Driven Design (DDD) as a whole:</p>
 <p><img src="/static/images/DDD-trend.png" alt="DDD Trend" title="DDD Trend"></p>
 <p>Two keys reasons that I believe underly this trend are:</p>
 <ul>
-<li>The fact that serious scale is becoming an increasingly common requirement, businesses rightly continue to expect more of the systems they build, especially with the unprecedented access to elasticity that public cloud provides</li>
-<li>The fact that the weight of legacy is ever more dragging back on progress, over time many systems get exponentially harder to work on, CQRS and Event Sourcing provide a journey with the potential to break the cycle</li>
+<li>Scalability is fundamental, businesses rightly expect more of systems, especially with the elasticity that public cloud provides</li>
+<li>Legacy systems are impeding progress, they get exponentially harder to work on, CQRS and Event Sourcing provide a journey to break the cycle</li>
 </ul>
 <h3 id="what-is-cqrs-with-event-sourcing">What is CQRS with Event Sourcing<a href="#what-is-cqrs-with-event-sourcing" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
 <p><img src="/static/images/CQRS.jpg" alt="CQRS High Level Flow" title="CQRS High Level Flow"></p>
@@ -103,43 +104,40 @@ Why should I care about CQRS &amp; Event Sourcing? In a general sense, there is 
 </ol>
 <p>Now let&rsquo;s break the individual components:</p>
 <ol>
-<li>User -&gt; A user of the system</li>
+<li>User -&gt; A user of the system, could be a customer, a teller or another system</li>
 <li>Command Handler -&gt; Handles the commands to the system</li>
-<li>Event Store -&gt; The database that stores the events of the system</li>
+<li>Event Store -&gt; An immutable event ledger</li>
 <li>Read Model Populator -&gt; A process which tails the event store and computes read models</li>
-<li>Read Model Store -&gt; A fit for purpose store to hold read models</li>
+<li>Read Model Store -&gt; A fit for purpose store</li>
 <li>Query Handler -&gt; Handles queries by accessing read model stores</li>
 </ol>
-<p>With that we can see where the name comes from, commands and queries are served from opposite sides.</p>
+<p>Commands and queries are served from opposite sides, hence segregation.</p>
 <p>Now let&rsquo;s look at why this is powerful</p>
 <h3 id="the-power-of-relaxing-consistency">The Power of Relaxing Consistency<a href="#the-power-of-relaxing-consistency" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
 <h4 id="strong-vs-eventual-consistency">Strong vs Eventual Consistency<a href="#strong-vs-eventual-consistency" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
 <p>When it comes to consistency we have two options, one is strong and one is eventual, and they give us different guarantees.</p>
-<p>Strong consistency means that when asking the same question we will always get the same answer, ensuring the guarantee comes with a performance impact, for example enforcing strong consistency on AWS DynamoDB reads is twice as expensive as allowing eventual consistency.</p>
-<p>Eventual consistency means that given enough time for a given question we will get the same answer, by doing this we open up many more options for how we can build applications.</p>
-<p>In the above diagram, queries are answered with eventual consistency, we can answer queries much more quickly in exchange for them having a potential of being out of date.</p>
-<p>However, commands are handled with strong consistency, as mentioned above, events are irrefutable facts, we need to be sure that when we persist them they are correct.</p>
-<p>The long story short is, by segregting commands and queries we are able to optimise for their specific requirements, where we need stronger guarantees we have them, where we can have more freedom we take full advantage.</p>
+<p>Strong consistency means that for the same question, we get the same answer, in exchange for a performance impact. E.g. AWS DynamoDB strongly consistent reads are twice as expensive and slower than eventually consistent reads.</p>
+<p>Eventual consistency means that given enough time, we get the same answer. By embracing this we open up more architectural options.</p>
+<p>In CQRS, queries are answered with eventual consistency, as they are &ldquo;opinions&rdquo;</p>
+<p>However, commands are handled with strong consistency, as they result in &ldquo;facts&rdquo;</p>
+<p>By segregting commands and queries we are able to specifically optimise, where we need stronger guarantees we have them, where we have more freedom we take full advantage.</p>
 <h3 id="the-event-store-core">The Event Store Core<a href="#the-event-store-core" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
-<p>Let&rsquo;s look a bit deeper at the event store itself and what options it enables.</p>
-<p>An event store is an immutable ledger of events. All data traversing through the system is either an event, or can be recomputed from events.</p>
+<p>Let&rsquo;s look a bit deeper into event stores.</p>
+<p>It is an immutable ledger of events. All data traversing through the system is persisted as events, allowing us to rebuild state on demand.</p>
 <h4 id="global-chronological-event-ordering">Global Chronological Event Ordering<a href="#global-chronological-event-ordering" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
-<p>A debate I&rsquo;ve often had in describing or building event stores, is whether chronological ordering of events is required or not.</p>
-<p>The key to this discussion is in the mathematical concept of commutativity, i.e. is the ordering of operations important?</p>
-<p>If replaying the events in any order doesn&rsquo;t change the final outcome, then the events are commutative, which gives me many more options in terms of processing and concurrency.</p>
-<p>Within an aggregate, events are generally non-commutative, if I have two events for changing my address, the current state is determined by whichever event I process second, as such we will implement in aggregate event ordering to allow for consistency.</p>
-<p>Across aggregates, generally you will have requirements that make events non-commutative outside of a single aggregate, if this is the case then global ordering is a simple way to achieve consistency on replaying events.</p>
-<p>If we look at the pros and cons:</p>
-<h5 id="pros">Pros<a href="#pros" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h5>
+<p>A common event store debate, is whether chronological ordering of events is required.</p>
+<p>The key to this discussion is in the mathematical concept of commutativity, i.e. is order important?</p>
+<p>If replaying events in any order has the same outcome, then the events are commutative, which removes the need for order.</p>
+<p>Within an aggregate, events are nearly always non-commutative, e.g. if I have two events for changing my address, the final state is reliant on processing order.</p>
+<p>Across aggregates, you can:</p>
 <ol>
-<li>I can time travel backwards with the event store knowing the system is going to be consistent</li>
-<li>Being able to rely on the ordering can make implementing business logic simpler</li>
-<li>Every rebuild will be identical allowing me more confident recovery from issues</li>
+<li>design for allowing non-commutative events</li>
+<li>design to never have them</li>
+<li>sacrifice replay consistency.</li>
 </ol>
-<h5 id="cons">Cons<a href="#cons" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h5>
-<ol>
-<li>By introducing global ordering we are forcing event ingestion to be single-threaded, or reliant on performance limiting consensus algorithms.</li>
-</ol>
+<p>Number one can be achieved through global ordering
+Number two is possible only in highly exceptional edge cases
+Number three discards one of the unique properties of the pattern</p>
 <h5 id="conclusion">Conclusion<a href="#conclusion" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h5>
 <p>For the intents of this quest I&rsquo;m going to <strong>include</strong> global ordering for one very simple reason:</p>
 <ul>
@@ -148,7 +146,7 @@ Why should I care about CQRS &amp; Event Sourcing? In a general sense, there is 
 </ul>
 <h3 id="what-constraints-does-serverless-imply">What Constraints Does Serverless Imply?<a href="#what-constraints-does-serverless-imply" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
 <p>I want to be able build the entire solution using only serverless AWS services, with no idle running cost.</p>
-<p>For compute the obvious option is Lambda functions, and we can front them with REST APIs to allow us to interact with the system. The more interesting choices are for our event store, in terms of serverless databases on AWS we have:</p>
+<p>For compute the obvious option is Lambda functions, event sourcing marries well with event driven, and we can front them with REST APIs to allow us to interact with the system. The more interesting choices are for our event store, in terms of serverless databases on AWS we have:</p>
 <ul>
 <li><strong>Serverless Aurora</strong></li>
 <li><strong>DynamoDB</strong></li>
@@ -157,8 +155,8 @@ Why should I care about CQRS &amp; Event Sourcing? In a general sense, there is 
 <li>Neptune</li>
 <li>Keyspaces</li>
 </ul>
-<p>The three databases in bold are on first inspection the three which present the most interesting options.</p>
-<p>Next time we&rsquo;ll be investigating using Serverless Aurora, as it&rsquo;s a full SQL database that means we are following well trodden paths on how to create an Event Store, before branching off into the far more experimental options.</p>
+<p>The first three databases are on first inspection the most interesting.</p>
+<p>Next time we&rsquo;ll be investigating using Serverless Aurora, as a full SQL database means we are on well trodden paths, before branching off into experimental options.</p>
 
 			</div>
 			<hr class="post-end">
@@ -167,7 +165,7 @@ Why should I care about CQRS &amp; Event Sourcing? In a general sense, there is 
 				<p>
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg><span class="tag"><a href="https://josharmi.github.io/tags/event-sourcing">Event Sourcing</a></span><span class="tag"><a href="https://josharmi.github.io/tags/aws">AWS</a></span><span class="tag"><a href="https://josharmi.github.io/tags/event-driven-architectures">Event Driven Architectures</a></span>
 				</p>
-				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>1150 Words</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>952 Words</p>
 				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2020-10-03 01:00 &#43;0100</p>
 			</footer>
 		</article>
