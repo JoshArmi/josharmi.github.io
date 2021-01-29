@@ -49,56 +49,56 @@
     </item>
     
     <item>
-      <title>Agile</title>
-      <link>https://josharmi.github.io/tags/agile/</link>
-      <pubDate>Sun, 13 Dec 2020 00:00:00 +0000</pubDate>
+      <title>AWS</title>
+      <link>https://josharmi.github.io/tags/aws/</link>
+      <pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://josharmi.github.io/tags/agile/</guid>
+      <guid>https://josharmi.github.io/tags/aws/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>Cloud Native</title>
-      <link>https://josharmi.github.io/tags/cloud-native/</link>
-      <pubDate>Sun, 13 Dec 2020 00:00:00 +0000</pubDate>
+      <title>Event Driven Architectures</title>
+      <link>https://josharmi.github.io/tags/event-driven-architectures/</link>
+      <pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://josharmi.github.io/tags/cloud-native/</guid>
+      <guid>https://josharmi.github.io/tags/event-driven-architectures/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>SAFe</title>
-      <link>https://josharmi.github.io/tags/safe/</link>
-      <pubDate>Sun, 13 Dec 2020 00:00:00 +0000</pubDate>
+      <title>Event Sourcing</title>
+      <link>https://josharmi.github.io/tags/event-sourcing/</link>
+      <pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://josharmi.github.io/tags/safe/</guid>
+      <guid>https://josharmi.github.io/tags/event-sourcing/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>IaC</title>
-      <link>https://josharmi.github.io/tags/iac/</link>
-      <pubDate>Wed, 07 Oct 2020 00:00:00 +0000</pubDate>
+      <title>Lambda</title>
+      <link>https://josharmi.github.io/tags/lambda/</link>
+      <pubDate>Thu, 06 Aug 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://josharmi.github.io/tags/iac/</guid>
+      <guid>https://josharmi.github.io/tags/lambda/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>Infrastructure</title>
-      <link>https://josharmi.github.io/tags/infrastructure/</link>
-      <pubDate>Wed, 07 Oct 2020 00:00:00 +0000</pubDate>
+      <title>Compliance</title>
+      <link>https://josharmi.github.io/tags/compliance/</link>
+      <pubDate>Mon, 06 Jul 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://josharmi.github.io/tags/infrastructure/</guid>
+      <guid>https://josharmi.github.io/tags/compliance/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>Terraform</title>
-      <link>https://josharmi.github.io/tags/terraform/</link>
-      <pubDate>Wed, 07 Oct 2020 00:00:00 +0000</pubDate>
+      <title>IAM</title>
+      <link>https://josharmi.github.io/tags/iam/</link>
+      <pubDate>Mon, 06 Jul 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://josharmi.github.io/tags/terraform/</guid>
+      <guid>https://josharmi.github.io/tags/iam/</guid>
       <description></description>
     </item>
     

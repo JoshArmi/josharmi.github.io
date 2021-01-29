@@ -43,46 +43,6 @@
   </url>
   
   <url>
-    <loc>https://josharmi.github.io/tags/agile/</loc>
-    <lastmod>2020-12-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://josharmi.github.io/tags/cloud-native/</loc>
-    <lastmod>2020-12-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://josharmi.github.io/tags/safe/</loc>
-    <lastmod>2020-12-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://josharmi.github.io/posts/not-so-safe/</loc>
-    <lastmod>2020-12-13T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://josharmi.github.io/tags/iac/</loc>
-    <lastmod>2020-10-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://josharmi.github.io/tags/infrastructure/</loc>
-    <lastmod>2020-10-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://josharmi.github.io/tags/terraform/</loc>
-    <lastmod>2020-10-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://josharmi.github.io/posts/terraform-module-ux/</loc>
-    <lastmod>2020-10-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://josharmi.github.io/tags/aws/</loc>
     <lastmod>2020-10-03T00:00:00+00:00</lastmod>
   </url>

@@ -296,50 +296,6 @@ gcloud projects list
 		</item>
 		
 		<item>
-			<title>SAFety From Cloud Native</title>
-			<link>https://josharmi.github.io/posts/not-so-safe/</link>
-			<pubDate>Sun, 13 Dec 2020 00:00:00 +0000</pubDate>
-			
-			<guid>https://josharmi.github.io/posts/not-so-safe/</guid>
-			<description>SAFe - Agile For Enterprises &amp;ldquo;The Scaled Agile Framework&amp;rdquo; is becoming near ubiquitous at the world&amp;rsquo;s biggest companies. Promising a roadmap to the near-mythical Agile transformation, it&amp;rsquo;s not hard to see why it&amp;rsquo;s compelling. It provides structure and standardisation that will help your enterprise compete in the markets of the future. Right?</description>
-			<content type="html"><![CDATA[<h2 id="safe---agile-for-enterprises">SAFe - Agile For Enterprises</h2>
-<p><em>&ldquo;The Scaled Agile Framework&rdquo;</em> is becoming near ubiquitous at the world&rsquo;s biggest companies. Promising a roadmap to the near-mythical Agile transformation, it&rsquo;s not hard to see why it&rsquo;s compelling. It provides structure and standardisation that will help your enterprise compete in the markets of the future. Right?</p>
-]]></content>
-		</item>
-		
-		<item>
-			<title>Terraform Module UX</title>
-			<link>https://josharmi.github.io/posts/terraform-module-ux/</link>
-			<pubDate>Wed, 07 Oct 2020 00:00:00 +0000</pubDate>
-			
-			<guid>https://josharmi.github.io/posts/terraform-module-ux/</guid>
-			<description>UX Is Everyone&amp;rsquo;s Responsibility Nearly every job posting I&amp;rsquo;ve ever seen about UX is UI focused, yet the skills are needed everywhere. UX is often thought about as a vehicle for user acquisition and retention:
-Better UX =&amp;gt; More Users
-Whilst true, this is short-sighted. We&amp;rsquo;re going to use Terraform module design to show how UX principles are crucial everywhere.
-Why Terraform Modules? In my day job at Contino, one thing we&amp;rsquo;re known for are Cloud Landing Zones, with the chief aim of expediting their digital transformation and cloud adoption journey.</description>
-			<content type="html"><![CDATA[<h2 id="ux-is-everyones-responsibility">UX Is Everyone&rsquo;s Responsibility</h2>
-<p>Nearly every job posting I&rsquo;ve ever seen about UX is UI focused, yet the skills are needed everywhere. UX is often thought about as a vehicle for user acquisition and retention:</p>
-<p>Better UX =&gt; More Users</p>
-<p>Whilst true, this is short-sighted. We&rsquo;re going to use Terraform module design to show how UX principles are crucial everywhere.</p>
-<h2 id="why-terraform-modules">Why Terraform Modules?</h2>
-<p>In my day job at Contino, one thing we&rsquo;re known for are Cloud Landing Zones, with the chief aim of expediting their digital transformation and cloud adoption journey. As a heavy terraform shop this normally results in us helping platform teams produce a module library to accelerate their development teams.</p>
-<p>Through this process, UX is often forgotten about. This, unfortunately, results in a long tail of negative consquences.</p>
-<p>It is imperative that you keep in mind who your users are, and also what they&rsquo;re trying to achieve.</p>
-<p>In this case, they&rsquo;re your fellow engineers and they&rsquo;re trying to <strong>move faster</strong> and <strong>simplify</strong>.</p>
-<h2 id="the-principles">The Principles</h2>
-<h3 id="1-dont-make-me-think">1. Don&rsquo;t make me think</h3>
-<p>A classic book in many UX designers library, <a href="https://www.amazon.com/Dont-Make-Me-Think-Usability/dp/0321344758">Don&rsquo;t Make Me Think</a>&rsquo;s core principle can be applied to modules. Make your modules self-evident and logical, favour explicitness. For example, .</p>
-<h3 id="2-avoid-analysis-paralysis">2. Avoid Analysis Paralysis</h3>
-<p>Humans generally do better with fewer choices than more. A good heuristic for module design is the size of the variables file, the smaller the number of variables the easier your module is to use. An additional benefit is a significantly reducing testing scope, as the amount of possibile variable combinations is smaller.</p>
-<p>This is analagous to designing interfaces in general programming languages, as espoused in <a href="https://www.amazon.co.uk/Philosophy-Software-Design-John-Ousterhout/dp/1732102201/ref=sr_1_1?crid=2UFB7X7G4FEER&amp;dchild=1&amp;keywords=a+philosophy+of+software+design&amp;qid=1602114073&amp;sprefix=a+phil%2Caps%2C140&amp;sr=8-1">A Philosophy of Software Design</a>, reducing the size of your interface simplifies usage, which is directly one of the goals we&rsquo;re trying to support.</p>
-<h3 id="3-build-to-current-requirements-not-the-future">3. Build To Current Requirements Not The Future</h3>
-<p>A common pitfall people fall into is designing for every usecase they can imagine, not every validated usecase they have. Taking the example of an AWS module for RDS databases, it requires an IAM role to enable detailed monitoring, often they allow for the injection of a custom IAM role, which exists purely as a maintenance burden. Adding a variable is close to a one way decision, it&rsquo;s much harder to take back than it is to add later.</p>
-<h3 id="4-use-constraints-to-force-behaviour">4. Use Constraints to Force Behaviour</h3>
-<p>In UX we want people to either do or not do particular things, in the realm of websites we have Calls to Action, in Terraform module design we are able to embed good practices. Taking S3 buckets as the example, we can as the standard case deploy CIS compliant buckets, once a module is publicly released the effort to</p>
-]]></content>
-		</item>
-		
-		<item>
 			<title>Beginning The Quest For Serverless CQRS &amp; Event Sourcing</title>
 			<link>https://josharmi.github.io/posts/serverless-event-sourcing/</link>
 			<pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
