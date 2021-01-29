@@ -15,12 +15,23 @@
 			<pubDate>Fri, 29 Jan 2021 00:00:00 +0000</pubDate>
 			
 			<guid>https://josharmi.github.io/posts/pointing-the-way-serverless-python/</guid>
-			<description>3 Reasons Why Waypoint   Consistent developer experience over bespoke scripting
-  A central UI for understanding who did what when
-  Spend more time writing code vs deploying code
-  3 Reasons Why Google Cloud Run   The simplest way to get your code live and accessible on the cloud
-  Containers give you high levels of environmental consistency, no more &amp;ldquo;works on my machine&amp;rdquo;</description>
-			<content type="html"><![CDATA[<h2 id="3-reasons-why-waypoint">3 Reasons Why Waypoint</h2>
+			<description>Takeaways Today we&amp;rsquo;re going to look at running up the world&amp;rsquo;s simplest Flask app using Cloud Run.
+You&amp;rsquo;ll learn:
+ How Google Cloud Run makes hosting apps delightfully easy How to write a simple Dockerfile to run your application in Cloud Run How you can leverage Waypoint to make development simple  To skip to the end there&amp;rsquo;s a reference GitHub repository here
+The What &amp;amp; Why of Waypoint What is Waypoint In October 2020, Hashicorp announced Waypoint, a new way to simplify your development process.</description>
+			<content type="html"><![CDATA[<h2 id="takeaways">Takeaways</h2>
+<p>Today we&rsquo;re going to look at running up the world&rsquo;s simplest <a href="https://flask.palletsprojects.com/en/1.1.x/">Flask</a> app using Cloud Run.</p>
+<p>You&rsquo;ll learn:</p>
+<ul>
+<li>How Google Cloud Run makes hosting apps delightfully easy</li>
+<li>How to write a simple Dockerfile to run your application in Cloud Run</li>
+<li>How you can leverage Waypoint to make development simple</li>
+</ul>
+<p>To skip to the end there&rsquo;s a reference GitHub repository <a href="">here</a></p>
+<h2 id="the-what--why-of-waypoint">The What &amp; Why of Waypoint</h2>
+<h3 id="what-is-waypoint">What is Waypoint</h3>
+<p>In October 2020, Hashicorp announced Waypoint, a new way to simplify your development process. Rather than bespoke scripting and Makefiles, you can have a consistent experience to your flow. Coupled with a UI that allows you to simply understand who did what when, it&rsquo;s an intriguing proposition for modernising and harmonising across your projects.</p>
+<h3 id="3-reasons-why">3 Reasons Why</h3>
 <ol>
 <li>
 <p>Consistent developer experience over bespoke scripting</p>
@@ -44,7 +55,7 @@
 <p>The first million requests a month are <strong>FREE</strong></p>
 </li>
 </ol>
-<h2 id="takeaways">Takeaways</h2>
+<h2 id="takeaways-1">Takeaways</h2>
 <p>Today we&rsquo;re going to look at running up the world&rsquo;s simplest <a href="https://flask.palletsprojects.com/en/1.1.x/">Flask</a> app using Cloud Run.</p>
 <p>You&rsquo;ll learn:</p>
 <ul>
