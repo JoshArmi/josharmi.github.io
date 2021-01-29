@@ -12,7 +12,7 @@
 Takeaways Today we&rsquo;re going to look at running up the world&rsquo;s simplest Flask app using Cloud Run.">
 <meta itemprop="datePublished" content="2021-01-29T00:00:00&#43;00:00" />
 <meta itemprop="dateModified" content="2021-01-29T00:00:00&#43;00:00" />
-<meta itemprop="wordCount" content="1248">
+<meta itemprop="wordCount" content="1268">
 
 
 
@@ -82,6 +82,7 @@ Takeaways Today we&rsquo;re going to look at running up the world&rsquo;s simple
 <li>How to write a simple Dockerfile to run your application in Cloud Run</li>
 <li>How you can leverage Waypoint to make development simple</li>
 </ul>
+<p>To skip to the end there&rsquo;s a reference GitHub repository <a href="">here</a></p>
 <h2 id="prerequisies">Prerequisies<a href="#prerequisies" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
 <h3 id="install-waypoint">Install Waypoint<a href="#install-waypoint" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
 <p>Follow the Hashicorp instructions <a href="https://learn.hashicorp.com/tutorials/waypoint/get-started-install">here</a></p>
@@ -96,11 +97,11 @@ Takeaways Today we&rsquo;re going to look at running up the world&rsquo;s simple
 <h3 id="inital-waypoint-set-up">Inital Waypoint Set Up<a href="#inital-waypoint-set-up" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
 <p>First let&rsquo;s create a new directory to host our app</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">mkdir serverless-python <span class="o">&amp;&amp;</span> <span class="nb">cd</span> serverless-python
-</code></pre></div><p>If you haven&rsquo;t already, initialise <code>waypoint</code> in your Docker environment</p>
+</code></pre></div><p>If you haven&rsquo;t already, install a <code>waypoint</code> server into your Docker environment</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">waypoint install --platform<span class="o">=</span>docker -accept-tos
 </code></pre></div><p>Now we can initialise <code>waypoint</code></p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">waypoint init
-</code></pre></div><p>That will have created a <code>waypoint.hcl</code> file that looks something like:</p>
+</code></pre></div><p>That will have created a <code>waypoint.hcl</code> file that looks like this:</p>
 <div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl"><span class="c1"># The name of your project. A project typically maps 1:1 to a VCS repository.
 </span><span class="c1"># This name must be unique for your Waypoint server. If you&#39;re running in
 </span><span class="c1"># local mode, this must be unique to your machine.
@@ -132,7 +133,7 @@ Takeaways Today we&rsquo;re going to look at running up the world&rsquo;s simple
         <span class="k">use</span> <span class="s2">&#34;docker&#34;</span> {}
     }
 }
-</code></pre></div><p>Now let&rsquo;s get rid of all the comments so it looks like:</p>
+</code></pre></div><p>Strip out all the comments:</p>
 <pre><code>project = &quot;my-project&quot;
 
 app &quot;web&quot; {
@@ -145,7 +146,7 @@ app &quot;web&quot; {
         use &quot;docker&quot; {}
     }
 }
-</code></pre><p>Now update <code>project</code> to be <code>serverless-python</code> and <code>app</code> to be <code>api</code> so it looks like:</p>
+</code></pre><p>Update <code>project</code> to be <code>serverless-python</code> and <code>app</code> to be <code>api</code>:</p>
 <div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl"><span class="n">project</span> <span class="o">=</span> <span class="s2">&#34;serverless-python&#34;</span>
 
 <span class="k">app</span> <span class="s2">&#34;api&#34;</span> {
@@ -159,13 +160,13 @@ app &quot;web&quot; {
     }
 }
 </code></pre></div><h3 id="adding-some-python">Adding Some Python<a href="#adding-some-python" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
-<p>Let&rsquo;s set up our python environment with <code>pipenv</code></p>
+<p>Set up our python environment with <code>pipenv</code></p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">pipenv --three
-</code></pre></div><p>And now we can install the two packages we&rsquo;re going to need, <code>flask</code> and <code>gunicorn</code></p>
+</code></pre></div><p>Now install the two packages we&rsquo;re going to need, <code>flask</code> and <code>gunicorn</code></p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">pipenv install flask gunicorn
 </code></pre></div><p>Create a new <code>app.py</code> file</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">touch app.py
-</code></pre></div><p>Fill out with a simple flask app</p>
+</code></pre></div><p>And fill out with a simple flask app</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -179,7 +180,7 @@ app &quot;web&quot; {
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&#34;0.0.0.0&#34;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">)</span> <span class="c1"># Setting host and port allow the app to be accessible outside of localhost</span>
 </code></pre></div><h3 id="containerisation">Containerisation<a href="#containerisation" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
-<p>Now we need a Dockerfile so we can build our image so we can hoist it into the cloud</p>
+<p>We need a Dockerfile so we can build our image and hoist it up to the cloud</p>
 <div class="highlight"><pre class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> python:alpine3.12</span><span class="err">
 </span><span class="err">
 </span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /usr/src/app</span><span class="err">
@@ -204,7 +205,7 @@ __pycache__
 .pytest_cache
 .waypoint
 .vscode
-</code></pre><p>Now we can try building our container for the first time, first it&rsquo;s worth reinitialising waypoint to make sure it&rsquo;s caught up on our changes</p>
+</code></pre><p>Now we can try building our container for the first time, first it&rsquo;s worth reinitialising waypoint to make sure it&rsquo;s caught up on all our changes</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">waypoint init
 </code></pre></div><p>And then we can run our first build</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">waypoint build
@@ -233,10 +234,10 @@ traffic. You can manage this hostname using <span class="s2">&#34;waypoint hostn
    Release URL: https://main-lt4ygdndkq-nw.a.run.app
 Deployment URL: https://heavily-fitting-piglet--v11.waypoint.run
 </code></pre></div><p>And if click to go to the url, you hit an <strong>error page</strong></p>
-<p><img src="../static/images/waypoint_error.png" alt=""></p>
+<p><img src="/static/images/waypoint_error.png" alt=""></p>
 <p>Thankfully it&rsquo;s a simple fix</p>
 <p>We need to add <code>service_port = 8080</code> to our <code>deploy</code> block</p>
-<p>So <code>waypoint.hcl</code> now looks like</p>
+<p>So <code>waypoint.hcl</code> should look like</p>
 <div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl"><span class="n">project</span> <span class="o">=</span> <span class="s2">&#34;serverless-python&#34;</span>
 
 <span class="k">app</span> <span class="s2">&#34;api&#34;</span> {
@@ -251,7 +252,7 @@ Deployment URL: https://heavily-fitting-piglet--v11.waypoint.run
         }
     }
 }
-</code></pre></div><p>And now after running <code>waypoint up</code> again the urls now works!</p>
+</code></pre></div><p>And now after running <code>waypoint up</code> again the URL works!</p>
 <p>So we&rsquo;ve tested the container works locally, but the goal is to get it up into the cloud.</p>
 <p>Let&rsquo;s make sure we&rsquo;re authenticated properly and get a list of projects so we can select a target project</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">gcloud auth application-default login
@@ -286,9 +287,9 @@ gcloud projects list
         }
     }
 </code></pre></div><p>And when we click the URL we are again presented with an <strong>error page</strong></p>
-<p><img src="../static/images/waypoint_error.png" alt=""></p>
+<p><img src="/static/images/waypoint_error.png" alt=""></p>
 <p>If we look at the cloud console we can see that our Cloud Run service looks healthy&hellip;</p>
-<p><img src="../static/images/cloud_run_status.png" alt=""></p>
+<p><img src="/static/images/cloud_run_status.png" alt=""></p>
 <p>Unfortunately, Google is expecting us to authenticate to hit the URL, but we can make it public by adding a <code>release</code> block</p>
 <div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl">    <span class="k">release</span> {
         <span class="k">use</span> <span class="s2">&#34;google-cloud-run&#34;</span> {}
@@ -333,7 +334,7 @@ gcloud projects list
     }
 }
 </code></pre></div><p>And if we run <code>waypoint up</code> once more, the console now looks like</p>
-<p><img src="../static/images/cloud_run_status2.png" alt=""></p>
+<p><img src="/static/images/cloud_run_status2.png" alt=""></p>
 <p>By going to the <code>Release URL</code> from the waypoint output we see</p>
 <blockquote>
 <p><code>Hello, world!</code></p>
@@ -345,6 +346,8 @@ gcloud projects list
 <p>Although the Dockerfile is not hardened for production use, we know have a skeleton that allows us to rapidly build python applications hosted in the cloud</p>
 <h3 id="waypoint-makes-for-simple-development-flows">Waypoint makes for simple development flows<a href="#waypoint-makes-for-simple-development-flows" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
 <p>We&rsquo;ve only touched on the basics of waypoint here, but you can see how it provides a consistent experience that makes common tasks truly simple comapred to bespoke bash scripting</p>
+<h2 id="cleanup">Cleanup<a href="#cleanup" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Run <code>waypoint destroy</code> to clear up all the resources, and it&rsquo;s always worth double checking in the Google Cloud console to make sure!</p>
 
 			</div>
 			<hr class="post-end">
@@ -353,7 +356,7 @@ gcloud projects list
 				<p>
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg><span class="tag"><a href="https://josharmi.github.io/tags/cloud">Cloud</a></span><span class="tag"><a href="https://josharmi.github.io/tags/gcp">GCP</a></span><span class="tag"><a href="https://josharmi.github.io/tags/serverless">Serverless</a></span><span class="tag"><a href="https://josharmi.github.io/tags/waypoint">Waypoint</a></span>
 				</p>
-				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>1248 Words</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>1268 Words</p>
 				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2021-01-29 00:00 &#43;0000</p>
 			</footer>
 		</article>
