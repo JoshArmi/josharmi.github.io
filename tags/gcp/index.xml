@@ -18,8 +18,11 @@
       <pubDate>Fri, 29 Jan 2021 00:00:00 +0000</pubDate>
       
       <guid>https://josharmi.github.io/posts/pointing-the-way-serverless-python/</guid>
-      <description>In October 2020, Hashicorp announced Waypoint, a new way to simplify your development process. Rather than bespoke scripting and Makefiles, you can have a consistent experience to your flow. Coupled with a UI that allows you to simply understand who did what when, it&amp;rsquo;s an intriguing proposition for modernising and harmonising across your projects.
-Takeaways Today we&amp;rsquo;re going to look at running up the world&amp;rsquo;s simplest Flask app using Cloud Run.</description>
+      <description>3 Reasons Why Waypoint   Consistent developer experience over bespoke scripting
+  A central UI for understanding who did what when
+  Spend more time writing code vs deploying code
+  3 Reasons Why Google Cloud Run   The simplest way to get your code live and accessible on the cloud
+  Containers give you high levels of environmental consistency, no more &amp;ldquo;works on my machine&amp;rdquo;</description>
     </item>
     
   </channel>
