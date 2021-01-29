@@ -6,8 +6,335 @@
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
 		<copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-		<lastBuildDate>Sat, 03 Oct 2020 00:00:00 +0000</lastBuildDate>
+		<lastBuildDate>Fri, 29 Jan 2021 00:00:00 +0000</lastBuildDate>
 		<atom:link href="https://josharmi.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+		
+		<item>
+			<title>Pointing the Way to Serverless Python</title>
+			<link>https://josharmi.github.io/posts/pointing-the-way-serverless-python/</link>
+			<pubDate>Fri, 29 Jan 2021 00:00:00 +0000</pubDate>
+			
+			<guid>https://josharmi.github.io/posts/pointing-the-way-serverless-python/</guid>
+			<description>In October 2020, Hashicorp announced Waypoint, a new way to simplify your development process. Rather than bespoke scripting and Makefiles, you can have a consistent experience to your flow. Coupled with a UI that allows you to simply understand who did what when, it&amp;rsquo;s an intruiging proposition for modernising and harmonising across your projects.
+Takeaways Today we&amp;rsquo;re going to look at running up the world&amp;rsquo;s simplest Flask app using Cloud Run.</description>
+			<content type="html"><![CDATA[<p>In October 2020, Hashicorp announced Waypoint, a new way to simplify your development process. Rather than bespoke scripting and Makefiles, you can have a consistent experience to your flow. Coupled with a UI that allows you to simply understand who did what when, it&rsquo;s an intruiging proposition for modernising and harmonising across your projects.</p>
+<h2 id="takeaways">Takeaways</h2>
+<p>Today we&rsquo;re going to look at running up the world&rsquo;s simplest <a href="https://flask.palletsprojects.com/en/1.1.x/">Flask</a> app using Cloud Run.</p>
+<p>You&rsquo;ll learn:</p>
+<ul>
+<li>How Google Cloud Run makes hosting apps delightfully easy</li>
+<li>How to write a simple Dockerfile to run your application in Cloud Run</li>
+<li>How you can leverage Waypoint to make development simple</li>
+</ul>
+<h2 id="prerequisies">Prerequisies</h2>
+<h3 id="install-waypoint">Install Waypoint</h3>
+<p>Follow the Hashicorp instructions <a href="https://learn.hashicorp.com/tutorials/waypoint/get-started-install">here</a></p>
+<h3 id="install-google-cloud-cli">Install Google Cloud CLI</h3>
+<p>Follow the Google instructions <a href="https://cloud.google.com/sdk/docs/install">here</a></p>
+<h3 id="install-docker">Install Docker</h3>
+<p>Follow the Docker instructions <a href="https://docs.docker.com/desktop/#download-and-install">here</a></p>
+<h3 id="install-python3-and-pipenv">Install Python3 and Pipenv</h3>
+<p>Follow the Python instructions <a href="https://www.python.org/downloads/">here</a></p>
+<p>Follow the Pipenv instructions <a href="https://pipenv.pypa.io/en/latest/#install-pipenv-today">here</a></p>
+<h2 id="lets-get-started">Let&rsquo;s Get Started</h2>
+<h3 id="inital-waypoint-set-up">Inital Waypoint Set Up</h3>
+<p>First let&rsquo;s create a new directory to host our app</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">mkdir serverless-python <span class="o">&amp;&amp;</span> <span class="nb">cd</span> serverless-python
+</code></pre></div><p>If you haven&rsquo;t already, initialise <code>waypoint</code> in your Docker environment</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">waypoint install --platform<span class="o">=</span>docker -accept-tos
+</code></pre></div><p>Now we can initialise <code>waypoint</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">waypoint init
+</code></pre></div><p>That will have created a <code>waypoint.hcl</code> file that looks something like:</p>
+<div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl"><span class="c1"># The name of your project. A project typically maps 1:1 to a VCS repository.
+</span><span class="c1"># This name must be unique for your Waypoint server. If you&#39;re running in
+</span><span class="c1"># local mode, this must be unique to your machine.
+</span><span class="c1"></span><span class="n">project</span> <span class="o">=</span> <span class="s2">&#34;my-project&#34;</span><span class="c1">
+</span><span class="c1">
+</span><span class="c1"># Labels can be specified for organizational purposes.
+</span><span class="c1"># labels = { &#34;foo&#34; = &#34;bar&#34; }
+</span><span class="c1">
+</span><span class="c1"># An application to deploy.
+</span><span class="c1"></span><span class="k">app</span> <span class="s2">&#34;web&#34;</span> {<span class="c1">
+</span><span class="c1">    # Build specifies how an application should be deployed. In this case,
+</span><span class="c1">    # we&#39;ll build using a Dockerfile and keeping it in a local registry.
+</span><span class="c1"></span>    <span class="k">build</span> {
+        <span class="k">use</span> <span class="s2">&#34;docker&#34;</span> {}<span class="c1">
+</span><span class="c1">
+</span><span class="c1">        # Uncomment below to use a remote docker registry to push your built images.
+</span><span class="c1">        #
+</span><span class="c1">        # registry {
+</span><span class="c1">        #   use &#34;docker&#34; {
+</span><span class="c1">        #     image = &#34;registry.example.com/image&#34;
+</span><span class="c1">        #     tag   = &#34;latest&#34;
+</span><span class="c1">        #   }
+</span><span class="c1">        # }
+</span><span class="c1"></span>
+    }<span class="c1">
+</span><span class="c1">
+</span><span class="c1">    # Deploy to Docker
+</span><span class="c1"></span>    <span class="k">deploy</span> {
+        <span class="k">use</span> <span class="s2">&#34;docker&#34;</span> {}
+    }
+}
+</code></pre></div><p>Now let&rsquo;s get rid of all the comments so it looks like:</p>
+<pre><code>project = &quot;my-project&quot;
+
+app &quot;web&quot; {
+    build {
+        use &quot;docker&quot; {}
+
+    }
+
+    deploy {
+        use &quot;docker&quot; {}
+    }
+}
+</code></pre><p>Now update <code>project</code> to be <code>serverless-python</code> and <code>app</code> to be <code>api</code> so it looks like:</p>
+<div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl"><span class="n">project</span> <span class="o">=</span> <span class="s2">&#34;serverless-python&#34;</span>
+
+<span class="k">app</span> <span class="s2">&#34;api&#34;</span> {
+    <span class="k">build</span> {
+        <span class="k">use</span> <span class="s2">&#34;docker&#34;</span> {}
+
+    }
+
+    <span class="k">deploy</span> {
+        <span class="k">use</span> <span class="s2">&#34;docker&#34;</span> {}
+    }
+}
+</code></pre></div><h3 id="adding-some-python">Adding Some Python</h3>
+<p>Let&rsquo;s set up our python environment with <code>pipenv</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">pipenv --three
+</code></pre></div><p>And now we can install the two packages we&rsquo;re going to need, <code>flask</code> and <code>gunicorn</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">pipenv install flask gunicorn
+</code></pre></div><p>Create a new <code>app.py</code> file</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">touch app.py
+</code></pre></div><p>Fill out with a simple flask app</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s2">&#34;/&#34;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello_world</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&#34;Hello, world!&#34;</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&#34;0.0.0.0&#34;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">)</span> <span class="c1"># Setting host and port allow the app to be accessible outside of localhost</span>
+</code></pre></div><h3 id="containerisation">Containerisation</h3>
+<p>Now we need a Dockerfile so we can build our image so we can hoist it into the cloud</p>
+<div class="highlight"><pre class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="k">FROM</span><span class="s"> python:alpine3.12</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /usr/src/app</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">COPY</span> . .<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">RUN</span> pip install pipenv <span class="o">&amp;&amp;</span> pipenv lock -r &gt; requirements.txt <span class="o">&amp;&amp;</span> pip install -r requirements.txt<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">EXPOSE</span><span class="s"> 8080</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">CMD</span> <span class="nb">exec</span> gunicorn --bind :8080 --workers <span class="m">1</span> --threads <span class="m">8</span> --timeout <span class="m">0</span> app:app<span class="err">
+</span></code></pre></div><blockquote>
+<p>A critical thing about Cloud Run is that we need to conform to Google&rsquo;s <a href="https://cloud.google.com/run/docs/reference/container-contract"><strong>container contract</strong></a>. For our purposes here, this means we need to listen for requests on <code>0.0.0.0</code> and port <code>8080</code>, which we implement in the <code>CMD</code> statement.</p>
+</blockquote>
+<p>It&rsquo;s always good practice to add a <code>.dockerignore</code> file to make sure we don&rsquo;t copy unnecessary files into our images, create one now with the below content</p>
+<pre><code>Dockerfile
+README.md
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+.pytest_cache
+.waypoint
+.vscode
+</code></pre><p>Now we can try building our container for the first time, first it&rsquo;s worth reinitialising waypoint to make sure it&rsquo;s caught up on our changes</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">waypoint init
+</code></pre></div><p>And then we can run our first build</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">waypoint build
+</code></pre></div><p>You should see output of that looks something like this</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">➜ waypoint build
+✓ Initializing Docker client...
+✓ Building image...
+ │  ---&gt; eb7dbc300413
+ │ Step 5/6 : EXPOSE <span class="m">8080</span>
+ │  ---&gt; Running in da514cb73c55
+ │  ---&gt; b3b71fee78ed
+ │ Step 6/6 : CMD <span class="nb">exec</span> gunicorn --bind :8080 --workers <span class="m">1</span> --threads <span class="m">8</span> --timeout <span class="m">0</span> ap
+ │ p:app
+ │  ---&gt; Running in 1455e0b30f65
+ │  ---&gt; e9319ce94c71
+ │ Successfully built e9319ce94c71
+ │ Successfully tagged waypoint.local/api:latest
+✓ Injecting Waypoint Entrypoint...
+</code></pre></div><p>Great Success!</p>
+<p>Now we can run the container locally in docker by running <code>waypoint up</code></p>
+<p>You&rsquo;ll get console output that looks like</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">The deploy was successful! A Waypoint deployment URL is shown below. This
+can be used internally to check your deployment and is not meant <span class="k">for</span> external
+traffic. You can manage this hostname using <span class="s2">&#34;waypoint hostname.&#34;</span>
+
+   Release URL: https://main-lt4ygdndkq-nw.a.run.app
+Deployment URL: https://heavily-fitting-piglet--v11.waypoint.run
+</code></pre></div><p>And if click to go to the url, you hit an <strong>error page</strong></p>
+<p><img src="../static/images/waypoint_error.png" alt=""></p>
+<p>Thankfully it&rsquo;s a simple fix</p>
+<p>We need to add <code>service_port = 8080</code> to our <code>deploy</code> block</p>
+<p>So <code>waypoint.hcl</code> now looks like</p>
+<div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl"><span class="n">project</span> <span class="o">=</span> <span class="s2">&#34;serverless-python&#34;</span>
+
+<span class="k">app</span> <span class="s2">&#34;api&#34;</span> {
+    <span class="k">build</span> {
+        <span class="k">use</span> <span class="s2">&#34;docker&#34;</span> {}
+
+    }
+
+    <span class="k">deploy</span> {
+        <span class="k">use</span> <span class="s2">&#34;docker&#34;</span> {
+<span class="n">            service_port</span> <span class="o">=</span> <span class="m">8080</span>
+        }
+    }
+}
+</code></pre></div><p>And now after running <code>waypoint up</code> again the urls now works!</p>
+<p>So we&rsquo;ve tested the container works locally, but the goal is to get it up into the cloud.</p>
+<p>Let&rsquo;s make sure we&rsquo;re authenticated properly and get a list of projects so we can select a target project</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">gcloud auth application-default login
+gcloud projects list
+</code></pre></div><p>And let&rsquo;s update our <code>waypoint.hcl</code> file so we deploy to Cloud Run instead of our local docker</p>
+<p>Add this to your <code>build</code> block and replace <code>&lt;your-project-name&gt;</code> with your target project</p>
+<div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl">    <span class="k">registry</span> {
+      <span class="k">use</span> <span class="s2">&#34;docker&#34;</span> {
+<span class="n">        image</span> <span class="o">=</span> <span class="s2">&#34;gcr.io/&lt;your-project-name&gt;/serverless-python&#34;</span>
+<span class="n">        tag</span>   <span class="o">=</span> <span class="s2">&#34;latest&#34;</span>
+      }
+    }
+</code></pre></div><p>Now when we build the Docker image, we&rsquo;ll automatically upload it to the Google container registry</p>
+<p>Replace your <code>deploy</code> block with and replace <code>&lt;your-project-name&gt;</code> with your target project</p>
+<div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl">    <span class="k">deploy</span> {
+        <span class="k">use</span> <span class="s2">&#34;google-cloud-run&#34;</span> {
+<span class="n">            project</span>  <span class="o">=</span> <span class="s2">&#34;&lt;your-project-name&gt;&#34;</span>
+<span class="n">            location</span> <span class="o">=</span> <span class="s2">&#34;europe-west2&#34;</span>
+
+<span class="n">            port</span> <span class="o">=</span> <span class="m">8080</span>
+
+            <span class="k">capacity</span> {
+<span class="n">                memory</span>                     <span class="o">=</span> <span class="m">128</span>
+<span class="n">                cpu_count</span>                  <span class="o">=</span> <span class="m">1</span>
+<span class="n">                max_requests_per_container</span> <span class="o">=</span> <span class="m">10</span>
+<span class="n">                request_timeout</span>            <span class="o">=</span> <span class="m">300</span>
+            }
+
+            <span class="k">auto_scaling</span> {
+<span class="n">                max</span> <span class="o">=</span> <span class="m">1</span>
+            }
+        }
+    }
+</code></pre></div><p>And when we click the URL we are again presented with an <strong>error page</strong></p>
+<p><img src="../static/images/waypoint_error.png" alt=""></p>
+<p>If we look at the cloud console we can see that our Cloud Run service looks healthy&hellip;</p>
+<p><img src="../static/images/cloud_run_status.png" alt=""></p>
+<p>Unfortunately, Google is expecting us to authenticate to hit the URL, but we can make it public by adding a <code>release</code> block</p>
+<div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl">    <span class="k">release</span> {
+        <span class="k">use</span> <span class="s2">&#34;google-cloud-run&#34;</span> {}
+    }
+</code></pre></div><p>So our <code>waypoint.hcl</code> now looks like</p>
+<div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl"><span class="n">project</span> <span class="o">=</span> <span class="s2">&#34;serverless-python&#34;</span>
+
+<span class="k">app</span> <span class="s2">&#34;api&#34;</span> {
+    <span class="k">build</span> {
+        <span class="k">use</span> <span class="s2">&#34;docker&#34;</span> {}
+
+        <span class="k">registry</span> {
+            <span class="k">use</span> <span class="s2">&#34;docker&#34;</span> {
+<span class="n">                image</span> <span class="o">=</span> <span class="s2">&#34;gcr.io/&lt;your-project-name&gt;/serverless-python&#34;</span>
+<span class="n">                tag</span>   <span class="o">=</span> <span class="s2">&#34;latest&#34;</span>
+            }
+        }
+    }
+
+    <span class="k">deploy</span> {
+        <span class="k">use</span> <span class="s2">&#34;google-cloud-run&#34;</span> {
+<span class="n">            project</span>  <span class="o">=</span> <span class="s2">&#34;&lt;your-project-name&gt;&#34;</span>
+<span class="n">            location</span> <span class="o">=</span> <span class="s2">&#34;europe-west2&#34;</span>
+
+<span class="n">            port</span> <span class="o">=</span> <span class="m">8080</span>
+
+            <span class="k">capacity</span> {
+<span class="n">                memory</span>                     <span class="o">=</span> <span class="m">128</span>
+<span class="n">                cpu_count</span>                  <span class="o">=</span> <span class="m">1</span>
+<span class="n">                max_requests_per_container</span> <span class="o">=</span> <span class="m">10</span>
+<span class="n">                request_timeout</span>            <span class="o">=</span> <span class="m">300</span>
+            }
+
+            <span class="k">auto_scaling</span> {
+<span class="n">                max</span> <span class="o">=</span> <span class="m">1</span>
+            }
+        }
+    }
+
+    <span class="k">release</span> {
+        <span class="k">use</span> <span class="s2">&#34;google-cloud-run&#34;</span> {}
+    }
+}
+</code></pre></div><p>And if we run <code>waypoint up</code> once more, the console now looks like</p>
+<p><img src="../static/images/cloud_run_status2.png" alt=""></p>
+<p>By going to the <code>Release URL</code> from the waypoint output we see</p>
+<blockquote>
+<p><code>Hello, world!</code></p>
+</blockquote>
+<h2 id="recap">Recap</h2>
+<h3 id="cloud-run-is-easy">Cloud Run is easy</h3>
+<p>We&rsquo;ve seen how Cloud Run makes it easy to host apps at record speed, and making changes to production code</p>
+<h3 id="simple-dockerfile-skeleton">Simple Dockerfile skeleton</h3>
+<p>Although the Dockerfile is not hardened for production use, we know have a skeleton that allows us to rapidly build python applications hosted in the cloud</p>
+<h3 id="waypoint-makes-for-simple-development-flows">Waypoint makes for simple development flows</h3>
+<p>We&rsquo;ve only touched on the basics of waypoint here, but you can see how it provides a consistent experience that makes common tasks truly simple comapred to bespoke bash scripting</p>
+]]></content>
+		</item>
+		
+		<item>
+			<title>SAFety From Cloud Native</title>
+			<link>https://josharmi.github.io/posts/not-so-safe/</link>
+			<pubDate>Sun, 13 Dec 2020 00:00:00 +0000</pubDate>
+			
+			<guid>https://josharmi.github.io/posts/not-so-safe/</guid>
+			<description>SAFe - Agile For Enterprises &amp;ldquo;The Scaled Agile Framework&amp;rdquo; is becoming near ubiquitous at the world&amp;rsquo;s biggest companies. Promising a roadmap to the near-mythical Agile transformation, it&amp;rsquo;s not hard to see why it&amp;rsquo;s compelling. It provides structure and standardisation that will help your enterprise compete in the markets of the future. Right?</description>
+			<content type="html"><![CDATA[<h2 id="safe---agile-for-enterprises">SAFe - Agile For Enterprises</h2>
+<p><em>&ldquo;The Scaled Agile Framework&rdquo;</em> is becoming near ubiquitous at the world&rsquo;s biggest companies. Promising a roadmap to the near-mythical Agile transformation, it&rsquo;s not hard to see why it&rsquo;s compelling. It provides structure and standardisation that will help your enterprise compete in the markets of the future. Right?</p>
+]]></content>
+		</item>
+		
+		<item>
+			<title>Terraform Module UX</title>
+			<link>https://josharmi.github.io/posts/terraform-module-ux/</link>
+			<pubDate>Wed, 07 Oct 2020 00:00:00 +0000</pubDate>
+			
+			<guid>https://josharmi.github.io/posts/terraform-module-ux/</guid>
+			<description>UX Is Everyone&amp;rsquo;s Responsibility Nearly every job posting I&amp;rsquo;ve ever seen about UX is UI focused, yet the skills are needed everywhere. UX is often thought about as a vehicle for user acquisition and retention:
+Better UX =&amp;gt; More Users
+Whilst true, this is short-sighted. We&amp;rsquo;re going to use Terraform module design to show how UX principles are crucial everywhere.
+Why Terraform Modules? In my day job at Contino, one thing we&amp;rsquo;re known for are Cloud Landing Zones, with the chief aim of expediting their digital transformation and cloud adoption journey.</description>
+			<content type="html"><![CDATA[<h2 id="ux-is-everyones-responsibility">UX Is Everyone&rsquo;s Responsibility</h2>
+<p>Nearly every job posting I&rsquo;ve ever seen about UX is UI focused, yet the skills are needed everywhere. UX is often thought about as a vehicle for user acquisition and retention:</p>
+<p>Better UX =&gt; More Users</p>
+<p>Whilst true, this is short-sighted. We&rsquo;re going to use Terraform module design to show how UX principles are crucial everywhere.</p>
+<h2 id="why-terraform-modules">Why Terraform Modules?</h2>
+<p>In my day job at Contino, one thing we&rsquo;re known for are Cloud Landing Zones, with the chief aim of expediting their digital transformation and cloud adoption journey. As a heavy terraform shop this normally results in us helping platform teams produce a module library to accelerate their development teams.</p>
+<p>Through this process, UX is often forgotten about. This, unfortunately, results in a long tail of negative consquences.</p>
+<p>It is imperative that you keep in mind who your users are, and also what they&rsquo;re trying to achieve.</p>
+<p>In this case, they&rsquo;re your fellow engineers and they&rsquo;re trying to <strong>move faster</strong> and <strong>simplify</strong>.</p>
+<h2 id="the-principles">The Principles</h2>
+<h3 id="1-dont-make-me-think">1. Don&rsquo;t make me think</h3>
+<p>A classic book in many UX designers library, <a href="https://www.amazon.com/Dont-Make-Me-Think-Usability/dp/0321344758">Don&rsquo;t Make Me Think</a>&rsquo;s core principle can be applied to modules. Make your modules self-evident and logical, favour explicitness. For example, .</p>
+<h3 id="2-avoid-analysis-paralysis">2. Avoid Analysis Paralysis</h3>
+<p>Humans generally do better with fewer choices than more. A good heuristic for module design is the size of the variables file, the smaller the number of variables the easier your module is to use. An additional benefit is a significantly reducing testing scope, as the amount of possibile variable combinations is smaller.</p>
+<p>This is analagous to designing interfaces in general programming languages, as espoused in <a href="https://www.amazon.co.uk/Philosophy-Software-Design-John-Ousterhout/dp/1732102201/ref=sr_1_1?crid=2UFB7X7G4FEER&amp;dchild=1&amp;keywords=a+philosophy+of+software+design&amp;qid=1602114073&amp;sprefix=a+phil%2Caps%2C140&amp;sr=8-1">A Philosophy of Software Design</a>, reducing the size of your interface simplifies usage, which is directly one of the goals we&rsquo;re trying to support.</p>
+<h3 id="3-build-to-current-requirements-not-the-future">3. Build To Current Requirements Not The Future</h3>
+<p>A common pitfall people fall into is designing for every usecase they can imagine, not every validated usecase they have. Taking the example of an AWS module for RDS databases, it requires an IAM role to enable detailed monitoring, often they allow for the injection of a custom IAM role, which exists purely as a maintenance burden. Adding a variable is close to a one way decision, it&rsquo;s much harder to take back than it is to add later.</p>
+<h3 id="4-use-constraints-to-force-behaviour">4. Use Constraints to Force Behaviour</h3>
+<p>In UX we want people to either do or not do particular things, in the realm of websites we have Calls to Action, in Terraform module design we are able to embed good practices. Taking S3 buckets as the example, we can as the standard case deploy CIS compliant buckets, once a module is publicly released the effort to</p>
+]]></content>
+		</item>
 		
 		<item>
 			<title>Beginning The Quest For Serverless CQRS &amp; Event Sourcing</title>

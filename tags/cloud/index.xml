@@ -7,10 +7,41 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Thu, 06 Aug 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 29 Jan 2021 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://josharmi.github.io/tags/cloud/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Pointing the Way to Serverless Python</title>
+      <link>https://josharmi.github.io/posts/pointing-the-way-serverless-python/</link>
+      <pubDate>Fri, 29 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/pointing-the-way-serverless-python/</guid>
+      <description>In October 2020, Hashicorp announced Waypoint, a new way to simplify your development process. Rather than bespoke scripting and Makefiles, you can have a consistent experience to your flow. Coupled with a UI that allows you to simply understand who did what when, it&amp;rsquo;s an intruiging proposition for modernising and harmonising across your projects.
+Takeaways Today we&amp;rsquo;re going to look at running up the world&amp;rsquo;s simplest Flask app using Cloud Run.</description>
+    </item>
+    
+    <item>
+      <title>SAFety From Cloud Native</title>
+      <link>https://josharmi.github.io/posts/not-so-safe/</link>
+      <pubDate>Sun, 13 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/not-so-safe/</guid>
+      <description>SAFe - Agile For Enterprises &amp;ldquo;The Scaled Agile Framework&amp;rdquo; is becoming near ubiquitous at the world&amp;rsquo;s biggest companies. Promising a roadmap to the near-mythical Agile transformation, it&amp;rsquo;s not hard to see why it&amp;rsquo;s compelling. It provides structure and standardisation that will help your enterprise compete in the markets of the future. Right?</description>
+    </item>
+    
+    <item>
+      <title>Terraform Module UX</title>
+      <link>https://josharmi.github.io/posts/terraform-module-ux/</link>
+      <pubDate>Wed, 07 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/terraform-module-ux/</guid>
+      <description>UX Is Everyone&amp;rsquo;s Responsibility Nearly every job posting I&amp;rsquo;ve ever seen about UX is UI focused, yet the skills are needed everywhere. UX is often thought about as a vehicle for user acquisition and retention:
+Better UX =&amp;gt; More Users
+Whilst true, this is short-sighted. We&amp;rsquo;re going to use Terraform module design to show how UX principles are crucial everywhere.
+Why Terraform Modules? In my day job at Contino, one thing we&amp;rsquo;re known for are Cloud Landing Zones, with the chief aim of expediting their digital transformation and cloud adoption journey.</description>
+    </item>
     
     <item>
       <title>Three Tips For Lambda Layers</title>

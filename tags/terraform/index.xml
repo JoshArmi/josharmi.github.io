@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Terraform on Josh Armitage</title>
+    <link>https://josharmi.github.io/tags/terraform/</link>
+    <description>Recent content in Terraform on Josh Armitage</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
+    <lastBuildDate>Wed, 07 Oct 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://josharmi.github.io/tags/terraform/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Terraform Module UX</title>
+      <link>https://josharmi.github.io/posts/terraform-module-ux/</link>
+      <pubDate>Wed, 07 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/terraform-module-ux/</guid>
+      <description>UX Is Everyone&amp;rsquo;s Responsibility Nearly every job posting I&amp;rsquo;ve ever seen about UX is UI focused, yet the skills are needed everywhere. UX is often thought about as a vehicle for user acquisition and retention:
+Better UX =&amp;gt; More Users
+Whilst true, this is short-sighted. We&amp;rsquo;re going to use Terraform module design to show how UX principles are crucial everywhere.
+Why Terraform Modules? In my day job at Contino, one thing we&amp;rsquo;re known for are Cloud Landing Zones, with the chief aim of expediting their digital transformation and cloud adoption journey.</description>
+    </item>
+    
+  </channel>
+</rss>

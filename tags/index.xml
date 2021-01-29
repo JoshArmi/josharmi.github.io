@@ -7,98 +7,98 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Sat, 03 Oct 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 29 Jan 2021 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://josharmi.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>AWS</title>
-      <link>https://josharmi.github.io/tags/aws/</link>
-      <pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/tags/aws/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Event Driven Architectures</title>
-      <link>https://josharmi.github.io/tags/event-driven-architectures/</link>
-      <pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/tags/event-driven-architectures/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Event Sourcing</title>
-      <link>https://josharmi.github.io/tags/event-sourcing/</link>
-      <pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/tags/event-sourcing/</guid>
-      <description></description>
-    </item>
-    
-    <item>
       <title>Cloud</title>
       <link>https://josharmi.github.io/tags/cloud/</link>
-      <pubDate>Thu, 06 Aug 2020 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 29 Jan 2021 00:00:00 +0000</pubDate>
       
       <guid>https://josharmi.github.io/tags/cloud/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>Lambda</title>
-      <link>https://josharmi.github.io/tags/lambda/</link>
-      <pubDate>Thu, 06 Aug 2020 00:00:00 +0000</pubDate>
+      <title>GCP</title>
+      <link>https://josharmi.github.io/tags/gcp/</link>
+      <pubDate>Fri, 29 Jan 2021 00:00:00 +0000</pubDate>
       
-      <guid>https://josharmi.github.io/tags/lambda/</guid>
+      <guid>https://josharmi.github.io/tags/gcp/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>Compliance</title>
-      <link>https://josharmi.github.io/tags/compliance/</link>
-      <pubDate>Mon, 06 Jul 2020 00:00:00 +0000</pubDate>
+      <title>Serverless</title>
+      <link>https://josharmi.github.io/tags/serverless/</link>
+      <pubDate>Fri, 29 Jan 2021 00:00:00 +0000</pubDate>
       
-      <guid>https://josharmi.github.io/tags/compliance/</guid>
+      <guid>https://josharmi.github.io/tags/serverless/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>IAM</title>
-      <link>https://josharmi.github.io/tags/iam/</link>
-      <pubDate>Mon, 06 Jul 2020 00:00:00 +0000</pubDate>
+      <title>Waypoint</title>
+      <link>https://josharmi.github.io/tags/waypoint/</link>
+      <pubDate>Fri, 29 Jan 2021 00:00:00 +0000</pubDate>
       
-      <guid>https://josharmi.github.io/tags/iam/</guid>
+      <guid>https://josharmi.github.io/tags/waypoint/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>Security</title>
-      <link>https://josharmi.github.io/tags/security/</link>
-      <pubDate>Mon, 06 Jul 2020 00:00:00 +0000</pubDate>
+      <title>Agile</title>
+      <link>https://josharmi.github.io/tags/agile/</link>
+      <pubDate>Sun, 13 Dec 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://josharmi.github.io/tags/security/</guid>
+      <guid>https://josharmi.github.io/tags/agile/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>StackSets</title>
-      <link>https://josharmi.github.io/tags/stacksets/</link>
-      <pubDate>Fri, 26 Jun 2020 00:00:00 +0000</pubDate>
+      <title>Cloud Native</title>
+      <link>https://josharmi.github.io/tags/cloud-native/</link>
+      <pubDate>Sun, 13 Dec 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://josharmi.github.io/tags/stacksets/</guid>
+      <guid>https://josharmi.github.io/tags/cloud-native/</guid>
       <description></description>
     </item>
     
     <item>
-      <title>Step Functions</title>
-      <link>https://josharmi.github.io/tags/step-functions/</link>
-      <pubDate>Fri, 26 Jun 2020 00:00:00 +0000</pubDate>
+      <title>SAFe</title>
+      <link>https://josharmi.github.io/tags/safe/</link>
+      <pubDate>Sun, 13 Dec 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://josharmi.github.io/tags/step-functions/</guid>
+      <guid>https://josharmi.github.io/tags/safe/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>IaC</title>
+      <link>https://josharmi.github.io/tags/iac/</link>
+      <pubDate>Wed, 07 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/tags/iac/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Infrastructure</title>
+      <link>https://josharmi.github.io/tags/infrastructure/</link>
+      <pubDate>Wed, 07 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/tags/infrastructure/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Terraform</title>
+      <link>https://josharmi.github.io/tags/terraform/</link>
+      <pubDate>Wed, 07 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/tags/terraform/</guid>
       <description></description>
     </item>
     

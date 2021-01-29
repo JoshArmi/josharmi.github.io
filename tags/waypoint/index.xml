@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Waypoint on Josh Armitage</title>
+    <link>https://josharmi.github.io/tags/waypoint/</link>
+    <description>Recent content in Waypoint on Josh Armitage</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
+    <lastBuildDate>Fri, 29 Jan 2021 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://josharmi.github.io/tags/waypoint/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Pointing the Way to Serverless Python</title>
+      <link>https://josharmi.github.io/posts/pointing-the-way-serverless-python/</link>
+      <pubDate>Fri, 29 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/pointing-the-way-serverless-python/</guid>
+      <description>In October 2020, Hashicorp announced Waypoint, a new way to simplify your development process. Rather than bespoke scripting and Makefiles, you can have a consistent experience to your flow. Coupled with a UI that allows you to simply understand who did what when, it&amp;rsquo;s an intruiging proposition for modernising and harmonising across your projects.
+Takeaways Today we&amp;rsquo;re going to look at running up the world&amp;rsquo;s simplest Flask app using Cloud Run.</description>
+    </item>
+    
+  </channel>
+</rss>
