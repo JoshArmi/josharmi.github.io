@@ -55,15 +55,6 @@ The What &amp;amp; Why of Waypoint What is Waypoint In October 2020, Hashicorp a
 <p>The first million requests a month are <strong>FREE</strong></p>
 </li>
 </ol>
-<h2 id="takeaways-1">Takeaways</h2>
-<p>Today we&rsquo;re going to look at running up the world&rsquo;s simplest <a href="https://flask.palletsprojects.com/en/1.1.x/">Flask</a> app using Cloud Run.</p>
-<p>You&rsquo;ll learn:</p>
-<ul>
-<li>How Google Cloud Run makes hosting apps delightfully easy</li>
-<li>How to write a simple Dockerfile to run your application in Cloud Run</li>
-<li>How you can leverage Waypoint to make development simple</li>
-</ul>
-<p>To skip to the end there&rsquo;s a reference GitHub repository <a href="">here</a></p>
 <h2 id="prerequisies">Prerequisies</h2>
 <h3 id="install-waypoint">Install Waypoint</h3>
 <p>Follow the Hashicorp instructions <a href="https://learn.hashicorp.com/tutorials/waypoint/get-started-install">here</a></p>
