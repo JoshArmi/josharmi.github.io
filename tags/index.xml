@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Fri, 29 Jan 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 28 Feb 2021 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://josharmi.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,9 +15,63 @@
     <item>
       <title>Cloud</title>
       <link>https://josharmi.github.io/tags/cloud/</link>
-      <pubDate>Fri, 29 Jan 2021 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 28 Feb 2021 00:00:00 +0000</pubDate>
       
       <guid>https://josharmi.github.io/tags/cloud/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>CloudFormation</title>
+      <link>https://josharmi.github.io/tags/cloudformation/</link>
+      <pubDate>Sun, 28 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/tags/cloudformation/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>IaC</title>
+      <link>https://josharmi.github.io/tags/iac/</link>
+      <pubDate>Sun, 28 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/tags/iac/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Infrastructure</title>
+      <link>https://josharmi.github.io/tags/infrastructure/</link>
+      <pubDate>Sun, 28 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/tags/infrastructure/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Infrastructure as Code</title>
+      <link>https://josharmi.github.io/tags/infrastructure-as-code/</link>
+      <pubDate>Sun, 28 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/tags/infrastructure-as-code/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>StackSets</title>
+      <link>https://josharmi.github.io/tags/stacksets/</link>
+      <pubDate>Sun, 28 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/tags/stacksets/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Terraform</title>
+      <link>https://josharmi.github.io/tags/terraform/</link>
+      <pubDate>Sun, 28 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/tags/terraform/</guid>
       <description></description>
     </item>
     
@@ -45,60 +99,6 @@
       <pubDate>Fri, 29 Jan 2021 00:00:00 +0000</pubDate>
       
       <guid>https://josharmi.github.io/tags/waypoint/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>AWS</title>
-      <link>https://josharmi.github.io/tags/aws/</link>
-      <pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/tags/aws/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Event Driven Architectures</title>
-      <link>https://josharmi.github.io/tags/event-driven-architectures/</link>
-      <pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/tags/event-driven-architectures/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Event Sourcing</title>
-      <link>https://josharmi.github.io/tags/event-sourcing/</link>
-      <pubDate>Sat, 03 Oct 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/tags/event-sourcing/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Lambda</title>
-      <link>https://josharmi.github.io/tags/lambda/</link>
-      <pubDate>Thu, 06 Aug 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/tags/lambda/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Compliance</title>
-      <link>https://josharmi.github.io/tags/compliance/</link>
-      <pubDate>Mon, 06 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/tags/compliance/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>IAM</title>
-      <link>https://josharmi.github.io/tags/iam/</link>
-      <pubDate>Mon, 06 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://josharmi.github.io/tags/iam/</guid>
       <description></description>
     </item>
     

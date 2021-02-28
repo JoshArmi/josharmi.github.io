@@ -6,8 +6,271 @@
 		<generator>Hugo -- gohugo.io</generator>
 		<language>en-us</language>
 		<copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-		<lastBuildDate>Fri, 29 Jan 2021 00:00:00 +0000</lastBuildDate>
+		<lastBuildDate>Sun, 28 Feb 2021 00:00:00 +0000</lastBuildDate>
 		<atom:link href="https://josharmi.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+		
+		<item>
+			<title>DIY Stacksets for Terraform</title>
+			<link>https://josharmi.github.io/posts/terraform-stacksets/</link>
+			<pubDate>Sun, 28 Feb 2021 00:00:00 +0000</pubDate>
+			
+			<guid>https://josharmi.github.io/posts/terraform-stacksets/</guid>
+			<description>What you&amp;rsquo;ll learn by the end By the end of this blog you will understand how you can build out stackset-esque functionality for your Terraform code and how this will make deploying common infrastructure across vast AWS estate significantly simpler.
+Why we want Terraform stacksets Having been a heavy CloudFormation user for many years, and seeing the ecosystem of tooling that has built up around it, there was one piece I really wanted for Terraform, stacksets.</description>
+			<content type="html"><![CDATA[<h2 id="what-youll-learn-by-the-end">What you&rsquo;ll learn by the end</h2>
+<p>By the end of this blog you will understand how you can build out stackset-esque functionality for your Terraform code and how this will make deploying common infrastructure across vast AWS estate significantly simpler.</p>
+<h2 id="why-we-want-terraform-stacksets">Why we want Terraform stacksets</h2>
+<p>Having been a heavy CloudFormation user for many years, and seeing the ecosystem of tooling that has built up around it, there was one piece I really wanted for Terraform, <strong>stacksets</strong>.</p>
+<p>For those unfamiliar, CloudFormation stacksets allow you to provision infrastructure across all accounts in an organisation or under a particular organisational unit. This allows you to build out account baselines, making sure certain resources are uniquitously enabled.</p>
+<p>Commonly these take the form of such things as foundational IAM roles, AWS config rules and logging buckets. CloudFormation stacksets allow you to define a single template and have that deployed into every account from one central location.</p>
+<p>Terraform unfortunately does not have this inherent capability, but how hard is it to build our own?</p>
+<h2 id="steps">Steps</h2>
+<p>In this example we&rsquo;re going to deploy the world&rsquo;s simplest IAM role to all accounts in our organization.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<ol>
+<li>Install Terraform 14, <a href="https://www.terraform.io/downloads.html">instructions here</a></li>
+<li>You will need an assumable role in all accounts, by default that&rsquo;s the <code>OrganizationAccountAccessRole</code></li>
+<li>Confirm that the role also exists in your payer account (the one with access to <code>organizations</code>) as it doesn&rsquo;t by default</li>
+<li>Assume a role in your payer account that has read access to <code>organizations</code> and write access to <code>s3</code></li>
+<li>Create an S3 bucket for storing our state:
+<code>aws s3api create-bucket --bucket terraform-state-${aws sts get-caller-identity | jq -r '.Account'}</code></li>
+<li>Ensure you have <code>pipenv</code> installed, <a href="https://pipenv.pypa.io/en/latest/install/">instructions here</a></li>
+<li>Create a new folder and open it in your IDE of choice</li>
+</ol>
+<h3 id="terraform-workspaces">Terraform Workspaces</h3>
+<p>As we&rsquo;re using S3 as our remote state storage, we have access to Terraform Workspaces, they were initially pitched as a way of logically separating production and non-production infrastructure, but in this case we&rsquo;re going to create one per account to keep our state distinct.</p>
+<h3 id="setting-up-terraform">Setting up Terraform</h3>
+<p>First we need to set up our Terraform so we can deploy the role to all accounts.</p>
+<p>Create a file called <code>main.tf</code> and paste the below content in.</p>
+<div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl"><span class="k">terraform</span> {
+  <span class="k">backend</span> <span class="s2">&#34;s3&#34;</span> {
+<span class="n">    bucket</span> <span class="o">=</span> <span class="s2">&#34;terraform-stackset-&lt;payer-account-id&gt;&#34;</span>
+<span class="n">    key</span> <span class="o">=</span> <span class="s2">&#34;terraform&#34;</span>
+<span class="n">    region</span> <span class="o">=</span> <span class="s2">&#34;eu-west-2&#34;</span>
+  }
+  <span class="k">required_providers</span> {
+<span class="n">    aws</span> <span class="o">=</span> {
+<span class="n">      source</span>  <span class="o">=</span> <span class="s2">&#34;hashicorp/aws&#34;</span>
+<span class="n">      version</span> <span class="o">=</span> <span class="s2">&#34;~&gt; 3.27&#34;</span>
+    }
+  }
+}
+
+<span class="k">provider</span> <span class="s2">&#34;aws&#34;</span> {
+<span class="n">  region</span>  <span class="o">=</span> <span class="s2">&#34;eu-west-2&#34;</span>
+}
+
+<span class="k">provider</span> <span class="s2">&#34;aws&#34;</span> {
+<span class="n">  alias</span> <span class="o">=</span> <span class="s2">&#34;target&#34;</span>
+<span class="n">  region</span>  <span class="o">=</span> <span class="s2">&#34;eu-west-2&#34;</span>
+  <span class="k">assume_role</span> {
+<span class="n">    role_arn</span> <span class="o">=</span> <span class="s2">&#34;arn:aws:iam::${var.target_account_id}:role/OrganizationAccountAccessRole&#34;</span>
+  }
+}
+
+<span class="k">resource</span> <span class="s2">&#34;aws_iam_role&#34; &#34;cross_account_role&#34;</span> {
+<span class="n">  provider</span> <span class="o">=</span> <span class="k">aws</span><span class="p">.</span><span class="k">target</span>
+
+<span class="n">  name</span> <span class="o">=</span> <span class="s2">&#34;stackset_cross_account_role&#34;</span>
+
+<span class="n">  assume_role_policy</span> <span class="o">=</span> <span class="k">jsonencode</span><span class="p">(</span>{
+<span class="n">    Version</span> <span class="o">=</span> <span class="s2">&#34;2012-10-17&#34;</span>
+<span class="n">    Statement</span> <span class="o">=</span> <span class="p">[</span>
+      {
+<span class="n">        Action</span> <span class="o">=</span> <span class="s2">&#34;sts:AssumeRole&#34;</span>
+<span class="n">        Effect</span> <span class="o">=</span> <span class="s2">&#34;Allow&#34;</span>
+<span class="n">        Sid</span>    <span class="o">=</span> <span class="s2">&#34;&#34;</span>
+<span class="n">        Principal</span> <span class="o">=</span> {
+<span class="n">          AWS</span> <span class="o">=</span> <span class="s2">&#34;&lt;payer-account-id&gt;&#34;</span>
+        }
+      }<span class="p">,</span>
+    <span class="p">]</span>
+  }<span class="p">)</span>
+}
+
+<span class="k">variable</span> <span class="s2">&#34;target_account_id&#34;</span> {
+<span class="n">  type</span> <span class="o">=</span> <span class="k">string</span>
+}
+</code></pre></div><p>Make sure to replace the two <code>&lt;payer-account-id&gt;</code> statements with your payer account id.</p>
+<p>Now run <code>terraform init</code> and everything should come back clean.</p>
+<h3 id="initialising-the-python-environment">Initialising the python environment</h3>
+<p>Run <code>pipenv --three</code> to create a python virtualenv to run our code in</p>
+<p>Run <code>pipenv install boto3</code> so we have access to the excellent boto3 library for invoking AWS.</p>
+<p>Create a file called <code>stacksets.py</code> and copy the below content into it:</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="kn">import</span> <span class="nn">boto3</span>
+
+<span class="k">def</span> <span class="nf">init</span><span class="p">():</span>
+  <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;terraform init&#34;</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">get_accounts</span><span class="p">():</span>
+  <span class="n">organizations</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">&#39;organizations&#39;</span><span class="p">)</span>
+  <span class="n">paginator</span> <span class="o">=</span> <span class="n">organizations</span><span class="o">.</span><span class="n">get_paginator</span><span class="p">(</span><span class="s2">&#34;list_accounts&#34;</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="p">[</span>
+        <span class="n">account</span><span class="p">[</span><span class="s2">&#34;Id&#34;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">paginator</span><span class="o">.</span><span class="n">paginate</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">account</span> <span class="ow">in</span> <span class="n">page</span><span class="p">[</span><span class="s2">&#34;Accounts&#34;</span><span class="p">]</span>
+  <span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">workspace_exists</span><span class="p">(</span><span class="n">account</span><span class="p">):</span>
+  <span class="n">completed_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;terraform workspace list | grep {account}&#34;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">completed_process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span>
+
+<span class="k">def</span> <span class="nf">create_workspace</span><span class="p">(</span><span class="n">account</span><span class="p">):</span>
+  <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;terraform workspace new {account}&#34;</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">switch_to_workspace</span><span class="p">(</span><span class="n">account</span><span class="p">):</span>
+  <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;terraform workspace select {account}&#34;</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">plan</span><span class="p">(</span><span class="n">account</span><span class="p">):</span>
+  <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;terraform plan -var target_account_id={account}&#34;</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="n">account</span><span class="p">):</span>
+  <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;terraform apply -var target_account_id={account} -auto-approve&#34;</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
+  <span class="n">init</span><span class="p">()</span>
+  <span class="k">for</span> <span class="n">account</span> <span class="ow">in</span> <span class="n">get_accounts</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">workspace_exists</span><span class="p">(</span><span class="n">account</span><span class="p">):</span>
+      <span class="n">create_workspace</span><span class="p">(</span><span class="n">account</span><span class="p">)</span>
+    <span class="n">switch_to_workspace</span><span class="p">(</span><span class="n">account</span><span class="p">)</span>
+    <span class="n">plan</span><span class="p">(</span><span class="n">account</span><span class="p">)</span>
+    <span class="nb">apply</span><span class="p">(</span><span class="n">account</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
+  <span class="n">run</span><span class="p">()</span>
+</code></pre></div><h3 id="stepping-through-the-python">Stepping through the python</h3>
+<p>Lets quickly break down what the python code is doing:</p>
+<ol>
+<li>We initialise terraform to ensure our environment is set up to work</li>
+<li>We query AWS for a list of all accounts in the organization</li>
+<li>We check whether a Terraform workspace exists for that account</li>
+<li>If not, we create one</li>
+<li>We select the approrpriate workspace for the account</li>
+<li>We plan the changes against the account</li>
+<li>We apply the changes to the account</li>
+</ol>
+<h3 id="apply-our-changes">Apply our changes</h3>
+<p>If we now run <code>pipenv run python stacksets.py</code> the code will now iterate through every account and deploy our role.</p>
+<h3 id="confirm-we-can-assume-the-role">Confirm we can assume the role</h3>
+<p>Lets test our new role by picking an account id and invoking <code>aws sts assume-role --role-arn arn:aws:iam::&lt;your-account-id&gt;:role/stackset_cross_account_role --role-session-name terraform-stacksets</code></p>
+<p>You should see that you&rsquo;re sent back a set of credentials, and if so we have succeeded!</p>
+<h2 id="where-are-we-now">Where are we now</h2>
+<p>So now we have a skeleton that allows us to rapidly deploy resources across all our AWS accounts that allows us to stay purely in terraform.</p>
+<p>Hopefully, one of these days Terraform Cloud might provide us with a fully managed version of this so we don&rsquo;t have to maintain and extend this code ourselves. Until then, I think this will do nicely.</p>
+]]></content>
+		</item>
+		
+		<item>
+			<title>Terraform Module UX</title>
+			<link>https://josharmi.github.io/posts/terraform-module-ux/</link>
+			<pubDate>Sun, 28 Feb 2021 00:00:00 +0000</pubDate>
+			
+			<guid>https://josharmi.github.io/posts/terraform-module-ux/</guid>
+			<description>In this post you will learn the power of Terraform modules at scale across an organisation, the importance of user experience for Terraform modules, and heuristics for improving their UX. By the end you will see modules in a new light and be able to support your colleagues in building higher quality modules in the future.
+UX is more than skin deep When you say the words User Experience to someone, their mind flits straight to visuals, but user experience, like love, is more than just skin deep.</description>
+			<content type="html"><![CDATA[<p>In this post you will learn the power of Terraform modules at scale across an organisation, the importance of user experience for Terraform modules, and heuristics for improving their UX. By the end you will see modules in a new light and be able to support your colleagues in building higher quality modules in the future.</p>
+<h2 id="ux-is-more-than-skin-deep">UX is more than skin deep</h2>
+<p>When you say the words <strong>User Experience</strong> to someone, their mind flits straight to visuals, but user experience, like love, is more than just skin deep. Hashicorp are one company that understand this better than most, as you can see Mitchell Hashimoto explain ever so eloquently:</p>
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="https://www.youtube.com/embed/usyIitVshzU" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+<blockquote>
+<p>User experience defines your demographic, and your success within the demographic</p>
+</blockquote>
+<p>In my experience, when people write Terraform modules they become laser focused on the now at the expense of the future.</p>
+<h2 id="the-power-of-terraform-modules">The power of Terraform modules</h2>
+<p>People often talk of the power of Terraform modules through the lens of reuse, if I write this module I can stop people having to write the code again. I can <strong>abstract</strong> away the complexity. This is a first-order advantage, this is the thin end of the wedge on what modules can help us achieve.</p>
+<h3 id="second-order-advantages">Second-order advantages</h3>
+<h4 id="developers-are-lightning">Developers are lightning</h4>
+<p>My favourite analogy for developers in this context is that they are lightning, they seek and follow the path of least resistance. To stretch the metaphor too far, Terraform modules are a lightning rod. In the quest for speed, if we make modules the least resistance path, we can leverage that to achieve other objectives.</p>
+<h4 id="secure-by-default">Secure by default</h4>
+<p>The most common objective to achieve through modules is a secure by default approach, we can abstract away the security based complexities, baking in correct configurations. Ensuring that the principle of least privilege is applied at scale is generally incredibly difficult, but modules give you a fantastic platform for ensuring this.</p>
+<p>Other common things to bake into modules from a security perspective are correct KMS configurations, blocking publicly accessible resources and setting up conformant VPCs that have correct routing by default.</p>
+<blockquote>
+<p>With a healthy, heavily leveraged module ecosystem you enable options that are otherwise impossible.</p>
+</blockquote>
+<h3 id="premature-optimisation-is-the-root-of-all-evil">Premature optimisation is the root of all evil</h3>
+<p>A common adage in programming circles is that <em>&ldquo;Premature optimisation is the root of all evil&rdquo;</em> and abstractions are a form of optimisation. To look at this in more detail we need to understand two things, the difference between <strong>deep</strong> modules and <strong>wide</strong> modules, and the nature of public interfaces over time.</p>
+<h4 id="deep-vs-wide-modules">Deep vs Wide modules</h4>
+<p>In the book <a href="https://www.amazon.co.uk/Philosophy-Software-Design-John-Ousterhout/dp/1732102201/ref=sr_1_1?crid=2UFB7X7G4FEER&amp;dchild=1&amp;keywords=a+philosophy+of+software+design&amp;qid=1602114073&amp;sprefix=a+phil%2Caps%2C140&amp;sr=8-1">A Philosophy of Software Design</a>, John Ousterhout introduces the concept of having a deep abstraction and a wide abstraction.</p>
+<blockquote>
+<p>Deep abstractions hide complexity below the surface, wide abstractions expose more complexity at the surface</p>
+</blockquote>
+<p><img src="/static/images/deep-vs-wide-2.png" alt="Deep vs Wide Module" title="Deep vs Wide Modules"></p>
+<p>There is a minimum width that a module must have to serve its purpose, the close to that I can get, the better the abstraction. The less the consumer <strong>needs to know</strong> to use my module. The more likely they are to use my module. The more positive impact I can have at scale.</p>
+<h4 id="public-interfaces-over-time">Public interfaces over time</h4>
+<p>Public interfaces as a general rule <strong>grow over time</strong>. Think back to the last time you deprecated an API endpoint, or removed a public method from a class relied upon by another team. It was hard wasn&rsquo;t it?</p>
+<p>Contrast this against adding a new API endpoint. That was relatively trivial wasn&rsquo;t it?</p>
+<blockquote>
+<p>Removing items from a public interface is <strong>at least 100 times harder</strong> than adding them</p>
+</blockquote>
+<p>So when&rsquo;s the easiest time to set a minimally wide interface?</p>
+<blockquote>
+<p>When we first write the module</p>
+</blockquote>
+<h4 id="the-impact-of-premature-optimisation">The impact of premature optimisation</h4>
+<p>Now we can see in the quest for deep modules, the initial interface we write has an outsized impact in our success. Once people are using the modules we write it&rsquo;s very hard to make backwards incompatible changes, and in doing so we erode the trust and the value that teams get from them. Interestingly enough, this is the same logic the AWS CloudFormation team often use for not supporting resources on the day of release, once they set out the resource definition, they&rsquo;re stuck with it. It&rsquo;s a 1-way decision, and needs to be taken with a lot of care.</p>
+<h3 id="the-public-interface-of-modules">The public interface of modules</h3>
+<p>In other system domains the public interface is very obvious, do we have a publicly accessible API? What methods are exposed when someone imports our library? For a terraform module, the public interface is the <strong>variables</strong>. Which leads us to our heuristics of module design:</p>
+<h2 id="heuristics-of-module-design">Heuristics of module design</h2>
+<h3 id="less-variables-is-better">Less variables is better</h3>
+<p>If you were presented a module that had 400 variables, would you know where to start? How long would it take you to understand how to achieve your goal? Would you ever feel completely confident that you had everything configured correctly?</p>
+<p>Looking at some numbers, it can get quite scary.</p>
+<p>If you have 5 binary variables, i.e. they only have two valid options</p>
+<p>There are 32 possible combinations of those variables</p>
+<p>If you have 5 variables that each have 5 valid options</p>
+<blockquote>
+<p>There are <strong>3,125</strong> possible combinations!</p>
+</blockquote>
+<h3 id="build-only-for-todays-requirements">Build only for today&rsquo;s requirements</h3>
+<p>Now we understand the exponential impact of adding variables, it is critical that we develop for <strong>only</strong> today&rsquo;s usecases. Often I see people implementing options that no one has yet asked for. The two key reasons for avoiding this are:</p>
+<ol>
+<li>The additional variables increases the cognitive load on the consumer</li>
+<li>We will know more tomorrow than we do today, the central tenet of agile.</li>
+</ol>
+<h4 id="agile-as-the-counter-to-arrogance">Agile as the counter to arrogance</h4>
+<p>For me, agile is all about becoming comfortable with uncertainty and humility over arrogance. Now we understand that removing variables is much harder than taking them away, adding unneeded options is just inserting pain into the future.</p>
+<h3 id="challenge-new-default-variables">Challenge new default variables</h3>
+<p>Default variables can be a wonderful thing, they allow you to open up new options in a module whilst easily preserving the existing functionality. However, they are worth examining to see if they are truly required or are a future requirement creeping into today&rsquo;s module. Is there a way you hide that complexity from your consumer?</p>
+<h3 id="embed-sensible-defaults">Embed sensible defaults</h3>
+<p>Lets take an S3 bucket module, as a consumer what I want is the bucket so I can deliver on my feature, in a compliant, secure way. What I don&rsquo;t want is having to understand the minutae of what makes the bucket secure and compliant. Modules are the vector by which we can embed systemic changes across our estate.</p>
+<p>It is not realistic to expect all engineers be able to write perfect KMS policies, if we can bake such things into the module that is how secure by default can be achieved.</p>
+<h3 id="documentation-is-king">Documentation is king</h3>
+<p>Tools such as <a href="https://terraform-docs.io/">Terraform Docs</a> automatically produce documentation for your modules. Great documentation is a key driver of user experience, nothing turns engineers off quicker than subpar documentation. It can be hard for the person making the change to write documentation at the right level, so this is where pairing and PR reviews are worth their weight in gold.</p>
+<h3 id="version-modules-as-you-would-anything-else">Version modules as you would anything else</h3>
+<p>Especially since the pandemic hit, the shift to remote work has stretched communication pathways. This has led to a focus on how to communicate effectively asynchronously, and module versioning along with documentation is key to this.</p>
+<p>The most common versioning strategy in the industry currently is <a href="https://semver.org/">semver</a>, so we&rsquo;ll use that as our example.</p>
+<p>In semver you have three numbers: <code>major</code>.<code>minor</code>.<code>patch</code></p>
+<p><code>Major</code> indicates a breaking change, and sets an expectation that a significant amount of effort will be needed to migrate</p>
+<p><code>Minor</code> indicates new functionality has been added, migrating should not have any impact</p>
+<p><code>Patch</code> indicates a non-observable change has occurred, potentially a bug fix, and similarly to <code>minor</code>, migrating should be simple</p>
+<p>By embedding this versioning into your modules you can explicitly communicate and set expectations with your consumers so they understand the scope and impact of moving versions.</p>
+<p>As a side benefit, this also allows you to observe where people are still using old versions of modules, building a critical feedback loop to understand why they have stalled there.</p>
+<h3 id="thoroughly-test-your-modules">Thoroughly test your modules</h3>
+<p>There exists many options for testing module code, a powerful combination is <a href="https://terratest.gruntwork.io/">Terratest</a> and <a href="https://terraform-compliance.com/">Terraform Compliance</a></p>
+<p>Much like you shouldn&rsquo;t accept a pull request for code that doesn&rsquo;t have tests, nor should you accept module pull requests without appropriate tests. Terratest allows you to quickly instantiate modules and run post-apply validations. Going back to the variable permutation explosion from <code>Less variables is better</code> you should have a test that confirms that the changes being made enable the wanted outcome.</p>
+<p>Terraform Compliance allows you to define your compliance requirements in plain English and have them operate as an executable specification against your infrastructure. When developing modules it is critical that you confirm it is possible to use the module to produce compliant infrastructure, and that as new controls are developed and added to the suite that this continues to be the case.</p>
+<h2 id="contributions">Contributions</h2>
+<p>As we now see user experience is not something you can neglect when authoring Terraform modules. Without it you cannot hope to extract even 1/10th of the possible value. A mature internal module ecosystem is a foundation that enables systemic change that is otherwise impossible.</p>
+<p>We&rsquo;ve learnt with the great power of abstraction comes great responsibility.</p>
+<p>We&rsquo;ve explored some heuristics and techniques for improving the UX of all modules:</p>
+<ul>
+<li>Less variables is better</li>
+<li>Build only for today&rsquo;s requirements</li>
+<li>Challenge new default variables</li>
+<li>Embed sensible defaults</li>
+<li>Documentation is king</li>
+<li>Version modules as you would anything else</li>
+<li>Thoroughly test your modules</li>
+</ul>
+<p>Now, using these heuristics you can have better conversations, build better modules and enable systemic change.</p>
+]]></content>
+		</item>
 		
 		<item>
 			<title>Pointing the Way to Serverless Python</title>

@@ -7,10 +7,30 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Fri, 29 Jan 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 28 Feb 2021 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://josharmi.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>DIY Stacksets for Terraform</title>
+      <link>https://josharmi.github.io/posts/terraform-stacksets/</link>
+      <pubDate>Sun, 28 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/terraform-stacksets/</guid>
+      <description>What you&amp;rsquo;ll learn by the end By the end of this blog you will understand how you can build out stackset-esque functionality for your Terraform code and how this will make deploying common infrastructure across vast AWS estate significantly simpler.
+Why we want Terraform stacksets Having been a heavy CloudFormation user for many years, and seeing the ecosystem of tooling that has built up around it, there was one piece I really wanted for Terraform, stacksets.</description>
+    </item>
+    
+    <item>
+      <title>Terraform Module UX</title>
+      <link>https://josharmi.github.io/posts/terraform-module-ux/</link>
+      <pubDate>Sun, 28 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://josharmi.github.io/posts/terraform-module-ux/</guid>
+      <description>In this post you will learn the power of Terraform modules at scale across an organisation, the importance of user experience for Terraform modules, and heuristics for improving their UX. By the end you will see modules in a new light and be able to support your colleagues in building higher quality modules in the future.
+UX is more than skin deep When you say the words User Experience to someone, their mind flits straight to visuals, but user experience, like love, is more than just skin deep.</description>
+    </item>
     
     <item>
       <title>Pointing the Way to Serverless Python</title>

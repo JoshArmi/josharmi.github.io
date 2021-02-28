@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="theme-color" content="#494f5c">
+	<meta name="msapplication-TileColor" content="#494f5c">
+<meta itemprop="name" content="DIY Stacksets for Terraform">
+<meta itemprop="description" content="What you&rsquo;ll learn by the end By the end of this blog you will understand how you can build out stackset-esque functionality for your Terraform code and how this will make deploying common infrastructure across vast AWS estate significantly simpler.
+Why we want Terraform stacksets Having been a heavy CloudFormation user for many years, and seeing the ecosystem of tooling that has built up around it, there was one piece I really wanted for Terraform, stacksets.">
+<meta itemprop="datePublished" content="2021-02-28T00:00:00&#43;00:00" />
+<meta itemprop="dateModified" content="2021-02-28T00:00:00&#43;00:00" />
+<meta itemprop="wordCount" content="833">
+
+
+
+<meta itemprop="keywords" content="Terraform,Cloud,CloudFormation,Stacksets,Infrastructure as Code," /><meta property="og:title" content="DIY Stacksets for Terraform" />
+<meta property="og:description" content="What you&rsquo;ll learn by the end By the end of this blog you will understand how you can build out stackset-esque functionality for your Terraform code and how this will make deploying common infrastructure across vast AWS estate significantly simpler.
+Why we want Terraform stacksets Having been a heavy CloudFormation user for many years, and seeing the ecosystem of tooling that has built up around it, there was one piece I really wanted for Terraform, stacksets." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://josharmi.github.io/posts/terraform-stacksets/" />
+<meta property="article:published_time" content="2021-02-28T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-02-28T00:00:00+00:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="DIY Stacksets for Terraform"/>
+<meta name="twitter:description" content="What you&rsquo;ll learn by the end By the end of this blog you will understand how you can build out stackset-esque functionality for your Terraform code and how this will make deploying common infrastructure across vast AWS estate significantly simpler.
+Why we want Terraform stacksets Having been a heavy CloudFormation user for many years, and seeing the ecosystem of tooling that has built up around it, there was one piece I really wanted for Terraform, stacksets."/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title>DIY Stacksets for Terraform</title>
+	<link rel="stylesheet" href="https://josharmi.github.io/css/style.min.657bcb7af31123e4156b1a3d2ff60a636717e54ead74f882136b5114cf72b55e.css" integrity="sha256-ZXvLevMRI+QVaxo9L/YKY2cX5U6tdPiCE2tRFM9ytV4=" crossorigin="anonymous">
+	
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp faster">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="https://josharmi.github.io">Josh Armitage</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="https://josharmi.github.io/posts/">Posts</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="https://twitter.com/josharmi" target="_blank" rel="noopener me" title="Twitter"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a><a href="https://linkedin.com/in/josh-armitage-b7825a41" target="_blank" rel="noopener me" title="Linkedin"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a><a href="https://github.com/josharmi" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title="Menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="https://josharmi.github.io/posts/">Posts</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner animated fadeIn faster">
+		<article class="thin">
+			<header class="post-header">
+				<div class="post-meta"><span>Feb 28, 2021</span></div>
+				<h1>DIY Stacksets for Terraform</h1>
+			</header>
+			<div class="content">
+				<h2 id="what-youll-learn-by-the-end">What you&rsquo;ll learn by the end<a href="#what-youll-learn-by-the-end" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>By the end of this blog you will understand how you can build out stackset-esque functionality for your Terraform code and how this will make deploying common infrastructure across vast AWS estate significantly simpler.</p>
+<h2 id="why-we-want-terraform-stacksets">Why we want Terraform stacksets<a href="#why-we-want-terraform-stacksets" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Having been a heavy CloudFormation user for many years, and seeing the ecosystem of tooling that has built up around it, there was one piece I really wanted for Terraform, <strong>stacksets</strong>.</p>
+<p>For those unfamiliar, CloudFormation stacksets allow you to provision infrastructure across all accounts in an organisation or under a particular organisational unit. This allows you to build out account baselines, making sure certain resources are uniquitously enabled.</p>
+<p>Commonly these take the form of such things as foundational IAM roles, AWS config rules and logging buckets. CloudFormation stacksets allow you to define a single template and have that deployed into every account from one central location.</p>
+<p>Terraform unfortunately does not have this inherent capability, but how hard is it to build our own?</p>
+<h2 id="steps">Steps<a href="#steps" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>In this example we&rsquo;re going to deploy the world&rsquo;s simplest IAM role to all accounts in our organization.</p>
+<h3 id="prerequisites">Prerequisites<a href="#prerequisites" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<ol>
+<li>Install Terraform 14, <a href="https://www.terraform.io/downloads.html">instructions here</a></li>
+<li>You will need an assumable role in all accounts, by default that&rsquo;s the <code>OrganizationAccountAccessRole</code></li>
+<li>Confirm that the role also exists in your payer account (the one with access to <code>organizations</code>) as it doesn&rsquo;t by default</li>
+<li>Assume a role in your payer account that has read access to <code>organizations</code> and write access to <code>s3</code></li>
+<li>Create an S3 bucket for storing our state:
+<code>aws s3api create-bucket --bucket terraform-state-${aws sts get-caller-identity | jq -r '.Account'}</code></li>
+<li>Ensure you have <code>pipenv</code> installed, <a href="https://pipenv.pypa.io/en/latest/install/">instructions here</a></li>
+<li>Create a new folder and open it in your IDE of choice</li>
+</ol>
+<h3 id="terraform-workspaces">Terraform Workspaces<a href="#terraform-workspaces" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>As we&rsquo;re using S3 as our remote state storage, we have access to Terraform Workspaces, they were initially pitched as a way of logically separating production and non-production infrastructure, but in this case we&rsquo;re going to create one per account to keep our state distinct.</p>
+<h3 id="setting-up-terraform">Setting up Terraform<a href="#setting-up-terraform" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>First we need to set up our Terraform so we can deploy the role to all accounts.</p>
+<p>Create a file called <code>main.tf</code> and paste the below content in.</p>
+<div class="highlight"><pre class="chroma"><code class="language-hcl" data-lang="hcl"><span class="k">terraform</span> {
+  <span class="k">backend</span> <span class="s2">&#34;s3&#34;</span> {
+<span class="n">    bucket</span> <span class="o">=</span> <span class="s2">&#34;terraform-stackset-&lt;payer-account-id&gt;&#34;</span>
+<span class="n">    key</span> <span class="o">=</span> <span class="s2">&#34;terraform&#34;</span>
+<span class="n">    region</span> <span class="o">=</span> <span class="s2">&#34;eu-west-2&#34;</span>
+  }
+  <span class="k">required_providers</span> {
+<span class="n">    aws</span> <span class="o">=</span> {
+<span class="n">      source</span>  <span class="o">=</span> <span class="s2">&#34;hashicorp/aws&#34;</span>
+<span class="n">      version</span> <span class="o">=</span> <span class="s2">&#34;~&gt; 3.27&#34;</span>
+    }
+  }
+}
+
+<span class="k">provider</span> <span class="s2">&#34;aws&#34;</span> {
+<span class="n">  region</span>  <span class="o">=</span> <span class="s2">&#34;eu-west-2&#34;</span>
+}
+
+<span class="k">provider</span> <span class="s2">&#34;aws&#34;</span> {
+<span class="n">  alias</span> <span class="o">=</span> <span class="s2">&#34;target&#34;</span>
+<span class="n">  region</span>  <span class="o">=</span> <span class="s2">&#34;eu-west-2&#34;</span>
+  <span class="k">assume_role</span> {
+<span class="n">    role_arn</span> <span class="o">=</span> <span class="s2">&#34;arn:aws:iam::${var.target_account_id}:role/OrganizationAccountAccessRole&#34;</span>
+  }
+}
+
+<span class="k">resource</span> <span class="s2">&#34;aws_iam_role&#34; &#34;cross_account_role&#34;</span> {
+<span class="n">  provider</span> <span class="o">=</span> <span class="k">aws</span><span class="p">.</span><span class="k">target</span>
+
+<span class="n">  name</span> <span class="o">=</span> <span class="s2">&#34;stackset_cross_account_role&#34;</span>
+
+<span class="n">  assume_role_policy</span> <span class="o">=</span> <span class="k">jsonencode</span><span class="p">(</span>{
+<span class="n">    Version</span> <span class="o">=</span> <span class="s2">&#34;2012-10-17&#34;</span>
+<span class="n">    Statement</span> <span class="o">=</span> <span class="p">[</span>
+      {
+<span class="n">        Action</span> <span class="o">=</span> <span class="s2">&#34;sts:AssumeRole&#34;</span>
+<span class="n">        Effect</span> <span class="o">=</span> <span class="s2">&#34;Allow&#34;</span>
+<span class="n">        Sid</span>    <span class="o">=</span> <span class="s2">&#34;&#34;</span>
+<span class="n">        Principal</span> <span class="o">=</span> {
+<span class="n">          AWS</span> <span class="o">=</span> <span class="s2">&#34;&lt;payer-account-id&gt;&#34;</span>
+        }
+      }<span class="p">,</span>
+    <span class="p">]</span>
+  }<span class="p">)</span>
+}
+
+<span class="k">variable</span> <span class="s2">&#34;target_account_id&#34;</span> {
+<span class="n">  type</span> <span class="o">=</span> <span class="k">string</span>
+}
+</code></pre></div><p>Make sure to replace the two <code>&lt;payer-account-id&gt;</code> statements with your payer account id.</p>
+<p>Now run <code>terraform init</code> and everything should come back clean.</p>
+<h3 id="initialising-the-python-environment">Initialising the python environment<a href="#initialising-the-python-environment" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Run <code>pipenv --three</code> to create a python virtualenv to run our code in</p>
+<p>Run <code>pipenv install boto3</code> so we have access to the excellent boto3 library for invoking AWS.</p>
+<p>Create a file called <code>stacksets.py</code> and copy the below content into it:</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="kn">import</span> <span class="nn">boto3</span>
+
+<span class="k">def</span> <span class="nf">init</span><span class="p">():</span>
+  <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;terraform init&#34;</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">get_accounts</span><span class="p">():</span>
+  <span class="n">organizations</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">&#39;organizations&#39;</span><span class="p">)</span>
+  <span class="n">paginator</span> <span class="o">=</span> <span class="n">organizations</span><span class="o">.</span><span class="n">get_paginator</span><span class="p">(</span><span class="s2">&#34;list_accounts&#34;</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="p">[</span>
+        <span class="n">account</span><span class="p">[</span><span class="s2">&#34;Id&#34;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">paginator</span><span class="o">.</span><span class="n">paginate</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">account</span> <span class="ow">in</span> <span class="n">page</span><span class="p">[</span><span class="s2">&#34;Accounts&#34;</span><span class="p">]</span>
+  <span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">workspace_exists</span><span class="p">(</span><span class="n">account</span><span class="p">):</span>
+  <span class="n">completed_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;terraform workspace list | grep {account}&#34;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">completed_process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span>
+
+<span class="k">def</span> <span class="nf">create_workspace</span><span class="p">(</span><span class="n">account</span><span class="p">):</span>
+  <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;terraform workspace new {account}&#34;</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">switch_to_workspace</span><span class="p">(</span><span class="n">account</span><span class="p">):</span>
+  <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;terraform workspace select {account}&#34;</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">plan</span><span class="p">(</span><span class="n">account</span><span class="p">):</span>
+  <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;terraform plan -var target_account_id={account}&#34;</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="n">account</span><span class="p">):</span>
+  <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">f</span><span class="s2">&#34;terraform apply -var target_account_id={account} -auto-approve&#34;</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
+  <span class="n">init</span><span class="p">()</span>
+  <span class="k">for</span> <span class="n">account</span> <span class="ow">in</span> <span class="n">get_accounts</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">workspace_exists</span><span class="p">(</span><span class="n">account</span><span class="p">):</span>
+      <span class="n">create_workspace</span><span class="p">(</span><span class="n">account</span><span class="p">)</span>
+    <span class="n">switch_to_workspace</span><span class="p">(</span><span class="n">account</span><span class="p">)</span>
+    <span class="n">plan</span><span class="p">(</span><span class="n">account</span><span class="p">)</span>
+    <span class="nb">apply</span><span class="p">(</span><span class="n">account</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
+  <span class="n">run</span><span class="p">()</span>
+</code></pre></div><h3 id="stepping-through-the-python">Stepping through the python<a href="#stepping-through-the-python" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Lets quickly break down what the python code is doing:</p>
+<ol>
+<li>We initialise terraform to ensure our environment is set up to work</li>
+<li>We query AWS for a list of all accounts in the organization</li>
+<li>We check whether a Terraform workspace exists for that account</li>
+<li>If not, we create one</li>
+<li>We select the approrpriate workspace for the account</li>
+<li>We plan the changes against the account</li>
+<li>We apply the changes to the account</li>
+</ol>
+<h3 id="apply-our-changes">Apply our changes<a href="#apply-our-changes" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>If we now run <code>pipenv run python stacksets.py</code> the code will now iterate through every account and deploy our role.</p>
+<h3 id="confirm-we-can-assume-the-role">Confirm we can assume the role<a href="#confirm-we-can-assume-the-role" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Lets test our new role by picking an account id and invoking <code>aws sts assume-role --role-arn arn:aws:iam::&lt;your-account-id&gt;:role/stackset_cross_account_role --role-session-name terraform-stacksets</code></p>
+<p>You should see that you&rsquo;re sent back a set of credentials, and if so we have succeeded!</p>
+<h2 id="where-are-we-now">Where are we now<a href="#where-are-we-now" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>So now we have a skeleton that allows us to rapidly deploy resources across all our AWS accounts that allows us to stay purely in terraform.</p>
+<p>Hopefully, one of these days Terraform Cloud might provide us with a fully managed version of this so we don&rsquo;t have to maintain and extend this code ourselves. Until then, I think this will do nicely.</p>
+
+			</div>
+			<hr class="post-end">
+			<footer class="post-info">
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-feather"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>Josh Armitage</p>
+				<p>
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg><span class="tag"><a href="https://josharmi.github.io/tags/terraform">Terraform</a></span><span class="tag"><a href="https://josharmi.github.io/tags/cloud">Cloud</a></span><span class="tag"><a href="https://josharmi.github.io/tags/cloudformation">CloudFormation</a></span><span class="tag"><a href="https://josharmi.github.io/tags/stacksets">Stacksets</a></span><span class="tag"><a href="https://josharmi.github.io/tags/infrastructure-as-code">Infrastructure as Code</a></span>
+				</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>833 Words</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2021-02-28 00:00 &#43;0000</p>
+			</footer>
+		</article>
+		<div class="post-nav thin">
+			<a class="prev-post" href="https://josharmi.github.io/posts/terraform-module-ux/">
+				<span class="post-nav-label">Older&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>Terraform Module UX</span>
+			</a>
+		</div>
+		<div id="comments" class="thin">
+</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2021 <a href="https://josharmi.github.io">Josh Armitage</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://josharmi.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="https://josharmi.github.io/js/bundle.min.4a9a0ac3d2217822c7865b4161e6c2a71de1d70492264337755427898dd718f6.js" integrity="sha256-SpoKw9IheCLHhltBYebCpx3h1wSSJkM3dVQniY3XGPY=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>

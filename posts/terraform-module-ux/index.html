@@ -8,31 +8,25 @@
 	<meta name="theme-color" content="#494f5c">
 	<meta name="msapplication-TileColor" content="#494f5c">
 <meta itemprop="name" content="Terraform Module UX">
-<meta itemprop="description" content="UX Is Everyone&rsquo;s Responsibility Nearly every job posting I&rsquo;ve ever seen about UX is UI focused, yet the skills are needed everywhere. UX is often thought about as a vehicle for user acquisition and retention:
-Better UX =&gt; More Users
-Whilst true, this is short-sighted. We&rsquo;re going to use Terraform module design to show how UX principles are crucial everywhere.
-Why Terraform Modules? In my day job at Contino, one thing we&rsquo;re known for are Cloud Landing Zones, with the chief aim of expediting their digital transformation and cloud adoption journey.">
-<meta itemprop="datePublished" content="2020-10-07T00:00:00&#43;00:00" />
-<meta itemprop="dateModified" content="2020-10-07T00:00:00&#43;00:00" />
-<meta itemprop="wordCount" content="448">
+<meta itemprop="description" content="In this post you will learn the power of Terraform modules at scale across an organisation, the importance of user experience for Terraform modules, and heuristics for improving their UX. By the end you will see modules in a new light and be able to support your colleagues in building higher quality modules in the future.
+UX is more than skin deep When you say the words User Experience to someone, their mind flits straight to visuals, but user experience, like love, is more than just skin deep.">
+<meta itemprop="datePublished" content="2021-02-28T00:00:00&#43;00:00" />
+<meta itemprop="dateModified" content="2021-02-28T00:00:00&#43;00:00" />
+<meta itemprop="wordCount" content="1620">
 
 
 
 <meta itemprop="keywords" content="Terraform,Cloud,Infrastructure,IaC," /><meta property="og:title" content="Terraform Module UX" />
-<meta property="og:description" content="UX Is Everyone&rsquo;s Responsibility Nearly every job posting I&rsquo;ve ever seen about UX is UI focused, yet the skills are needed everywhere. UX is often thought about as a vehicle for user acquisition and retention:
-Better UX =&gt; More Users
-Whilst true, this is short-sighted. We&rsquo;re going to use Terraform module design to show how UX principles are crucial everywhere.
-Why Terraform Modules? In my day job at Contino, one thing we&rsquo;re known for are Cloud Landing Zones, with the chief aim of expediting their digital transformation and cloud adoption journey." />
+<meta property="og:description" content="In this post you will learn the power of Terraform modules at scale across an organisation, the importance of user experience for Terraform modules, and heuristics for improving their UX. By the end you will see modules in a new light and be able to support your colleagues in building higher quality modules in the future.
+UX is more than skin deep When you say the words User Experience to someone, their mind flits straight to visuals, but user experience, like love, is more than just skin deep." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://josharmi.github.io/posts/terraform-module-ux/" />
-<meta property="article:published_time" content="2020-10-07T00:00:00+00:00" />
-<meta property="article:modified_time" content="2020-10-07T00:00:00+00:00" />
+<meta property="article:published_time" content="2021-02-28T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-02-28T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Terraform Module UX"/>
-<meta name="twitter:description" content="UX Is Everyone&rsquo;s Responsibility Nearly every job posting I&rsquo;ve ever seen about UX is UI focused, yet the skills are needed everywhere. UX is often thought about as a vehicle for user acquisition and retention:
-Better UX =&gt; More Users
-Whilst true, this is short-sighted. We&rsquo;re going to use Terraform module design to show how UX principles are crucial everywhere.
-Why Terraform Modules? In my day job at Contino, one thing we&rsquo;re known for are Cloud Landing Zones, with the chief aim of expediting their digital transformation and cloud adoption journey."/>
+<meta name="twitter:description" content="In this post you will learn the power of Terraform modules at scale across an organisation, the importance of user experience for Terraform modules, and heuristics for improving their UX. By the end you will see modules in a new light and be able to support your colleagues in building higher quality modules in the future.
+UX is more than skin deep When you say the words User Experience to someone, their mind flits straight to visuals, but user experience, like love, is more than just skin deep."/>
 
 	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -75,29 +69,108 @@ Why Terraform Modules? In my day job at Contino, one thing we&rsquo;re known for
 	<main class="site-main section-inner animated fadeIn faster">
 		<article class="thin">
 			<header class="post-header">
-				<div class="post-meta"><span>Oct 7, 2020</span></div>
+				<div class="post-meta"><span>Feb 28, 2021</span></div>
 				<h1>Terraform Module UX</h1>
 			</header>
 			<div class="content">
-				<h2 id="ux-is-everyones-responsibility">UX Is Everyone&rsquo;s Responsibility<a href="#ux-is-everyones-responsibility" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
-<p>Nearly every job posting I&rsquo;ve ever seen about UX is UI focused, yet the skills are needed everywhere. UX is often thought about as a vehicle for user acquisition and retention:</p>
-<p>Better UX =&gt; More Users</p>
-<p>Whilst true, this is short-sighted. We&rsquo;re going to use Terraform module design to show how UX principles are crucial everywhere.</p>
-<h2 id="why-terraform-modules">Why Terraform Modules?<a href="#why-terraform-modules" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
-<p>In my day job at Contino, one thing we&rsquo;re known for are Cloud Landing Zones, with the chief aim of expediting their digital transformation and cloud adoption journey. As a heavy terraform shop this normally results in us helping platform teams produce a module library to accelerate their development teams.</p>
-<p>Through this process, UX is often forgotten about. This, unfortunately, results in a long tail of negative consquences.</p>
-<p>It is imperative that you keep in mind who your users are, and also what they&rsquo;re trying to achieve.</p>
-<p>In this case, they&rsquo;re your fellow engineers and they&rsquo;re trying to <strong>move faster</strong> and <strong>simplify</strong>.</p>
-<h2 id="the-principles">The Principles<a href="#the-principles" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
-<h3 id="1-dont-make-me-think">1. Don&rsquo;t make me think<a href="#1-dont-make-me-think" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
-<p>A classic book in many UX designers library, <a href="https://www.amazon.com/Dont-Make-Me-Think-Usability/dp/0321344758">Don&rsquo;t Make Me Think</a>&rsquo;s core principle can be applied to modules. Make your modules self-evident and logical, favour explicitness. For example, .</p>
-<h3 id="2-avoid-analysis-paralysis">2. Avoid Analysis Paralysis<a href="#2-avoid-analysis-paralysis" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
-<p>Humans generally do better with fewer choices than more. A good heuristic for module design is the size of the variables file, the smaller the number of variables the easier your module is to use. An additional benefit is a significantly reducing testing scope, as the amount of possibile variable combinations is smaller.</p>
-<p>This is analagous to designing interfaces in general programming languages, as espoused in <a href="https://www.amazon.co.uk/Philosophy-Software-Design-John-Ousterhout/dp/1732102201/ref=sr_1_1?crid=2UFB7X7G4FEER&amp;dchild=1&amp;keywords=a+philosophy+of+software+design&amp;qid=1602114073&amp;sprefix=a+phil%2Caps%2C140&amp;sr=8-1">A Philosophy of Software Design</a>, reducing the size of your interface simplifies usage, which is directly one of the goals we&rsquo;re trying to support.</p>
-<h3 id="3-build-to-current-requirements-not-the-future">3. Build To Current Requirements Not The Future<a href="#3-build-to-current-requirements-not-the-future" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
-<p>A common pitfall people fall into is designing for every usecase they can imagine, not every validated usecase they have. Taking the example of an AWS module for RDS databases, it requires an IAM role to enable detailed monitoring, often they allow for the injection of a custom IAM role, which exists purely as a maintenance burden. Adding a variable is close to a one way decision, it&rsquo;s much harder to take back than it is to add later.</p>
-<h3 id="4-use-constraints-to-force-behaviour">4. Use Constraints to Force Behaviour<a href="#4-use-constraints-to-force-behaviour" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
-<p>In UX we want people to either do or not do particular things, in the realm of websites we have Calls to Action, in Terraform module design we are able to embed good practices. Taking S3 buckets as the example, we can as the standard case deploy CIS compliant buckets, once a module is publicly released the effort to</p>
+				<p>In this post you will learn the power of Terraform modules at scale across an organisation, the importance of user experience for Terraform modules, and heuristics for improving their UX. By the end you will see modules in a new light and be able to support your colleagues in building higher quality modules in the future.</p>
+<h2 id="ux-is-more-than-skin-deep">UX is more than skin deep<a href="#ux-is-more-than-skin-deep" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>When you say the words <strong>User Experience</strong> to someone, their mind flits straight to visuals, but user experience, like love, is more than just skin deep. Hashicorp are one company that understand this better than most, as you can see Mitchell Hashimoto explain ever so eloquently:</p>
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="https://www.youtube.com/embed/usyIitVshzU" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+
+<blockquote>
+<p>User experience defines your demographic, and your success within the demographic</p>
+</blockquote>
+<p>In my experience, when people write Terraform modules they become laser focused on the now at the expense of the future.</p>
+<h2 id="the-power-of-terraform-modules">The power of Terraform modules<a href="#the-power-of-terraform-modules" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>People often talk of the power of Terraform modules through the lens of reuse, if I write this module I can stop people having to write the code again. I can <strong>abstract</strong> away the complexity. This is a first-order advantage, this is the thin end of the wedge on what modules can help us achieve.</p>
+<h3 id="second-order-advantages">Second-order advantages<a href="#second-order-advantages" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<h4 id="developers-are-lightning">Developers are lightning<a href="#developers-are-lightning" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>My favourite analogy for developers in this context is that they are lightning, they seek and follow the path of least resistance. To stretch the metaphor too far, Terraform modules are a lightning rod. In the quest for speed, if we make modules the least resistance path, we can leverage that to achieve other objectives.</p>
+<h4 id="secure-by-default">Secure by default<a href="#secure-by-default" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>The most common objective to achieve through modules is a secure by default approach, we can abstract away the security based complexities, baking in correct configurations. Ensuring that the principle of least privilege is applied at scale is generally incredibly difficult, but modules give you a fantastic platform for ensuring this.</p>
+<p>Other common things to bake into modules from a security perspective are correct KMS configurations, blocking publicly accessible resources and setting up conformant VPCs that have correct routing by default.</p>
+<blockquote>
+<p>With a healthy, heavily leveraged module ecosystem you enable options that are otherwise impossible.</p>
+</blockquote>
+<h3 id="premature-optimisation-is-the-root-of-all-evil">Premature optimisation is the root of all evil<a href="#premature-optimisation-is-the-root-of-all-evil" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>A common adage in programming circles is that <em>&ldquo;Premature optimisation is the root of all evil&rdquo;</em> and abstractions are a form of optimisation. To look at this in more detail we need to understand two things, the difference between <strong>deep</strong> modules and <strong>wide</strong> modules, and the nature of public interfaces over time.</p>
+<h4 id="deep-vs-wide-modules">Deep vs Wide modules<a href="#deep-vs-wide-modules" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>In the book <a href="https://www.amazon.co.uk/Philosophy-Software-Design-John-Ousterhout/dp/1732102201/ref=sr_1_1?crid=2UFB7X7G4FEER&amp;dchild=1&amp;keywords=a+philosophy+of+software+design&amp;qid=1602114073&amp;sprefix=a+phil%2Caps%2C140&amp;sr=8-1">A Philosophy of Software Design</a>, John Ousterhout introduces the concept of having a deep abstraction and a wide abstraction.</p>
+<blockquote>
+<p>Deep abstractions hide complexity below the surface, wide abstractions expose more complexity at the surface</p>
+</blockquote>
+<p><img src="/static/images/deep-vs-wide-2.png" alt="Deep vs Wide Module" title="Deep vs Wide Modules"></p>
+<p>There is a minimum width that a module must have to serve its purpose, the close to that I can get, the better the abstraction. The less the consumer <strong>needs to know</strong> to use my module. The more likely they are to use my module. The more positive impact I can have at scale.</p>
+<h4 id="public-interfaces-over-time">Public interfaces over time<a href="#public-interfaces-over-time" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>Public interfaces as a general rule <strong>grow over time</strong>. Think back to the last time you deprecated an API endpoint, or removed a public method from a class relied upon by another team. It was hard wasn&rsquo;t it?</p>
+<p>Contrast this against adding a new API endpoint. That was relatively trivial wasn&rsquo;t it?</p>
+<blockquote>
+<p>Removing items from a public interface is <strong>at least 100 times harder</strong> than adding them</p>
+</blockquote>
+<p>So when&rsquo;s the easiest time to set a minimally wide interface?</p>
+<blockquote>
+<p>When we first write the module</p>
+</blockquote>
+<h4 id="the-impact-of-premature-optimisation">The impact of premature optimisation<a href="#the-impact-of-premature-optimisation" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>Now we can see in the quest for deep modules, the initial interface we write has an outsized impact in our success. Once people are using the modules we write it&rsquo;s very hard to make backwards incompatible changes, and in doing so we erode the trust and the value that teams get from them. Interestingly enough, this is the same logic the AWS CloudFormation team often use for not supporting resources on the day of release, once they set out the resource definition, they&rsquo;re stuck with it. It&rsquo;s a 1-way decision, and needs to be taken with a lot of care.</p>
+<h3 id="the-public-interface-of-modules">The public interface of modules<a href="#the-public-interface-of-modules" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>In other system domains the public interface is very obvious, do we have a publicly accessible API? What methods are exposed when someone imports our library? For a terraform module, the public interface is the <strong>variables</strong>. Which leads us to our heuristics of module design:</p>
+<h2 id="heuristics-of-module-design">Heuristics of module design<a href="#heuristics-of-module-design" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<h3 id="less-variables-is-better">Less variables is better<a href="#less-variables-is-better" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>If you were presented a module that had 400 variables, would you know where to start? How long would it take you to understand how to achieve your goal? Would you ever feel completely confident that you had everything configured correctly?</p>
+<p>Looking at some numbers, it can get quite scary.</p>
+<p>If you have 5 binary variables, i.e. they only have two valid options</p>
+<p>There are 32 possible combinations of those variables</p>
+<p>If you have 5 variables that each have 5 valid options</p>
+<blockquote>
+<p>There are <strong>3,125</strong> possible combinations!</p>
+</blockquote>
+<h3 id="build-only-for-todays-requirements">Build only for today&rsquo;s requirements<a href="#build-only-for-todays-requirements" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Now we understand the exponential impact of adding variables, it is critical that we develop for <strong>only</strong> today&rsquo;s usecases. Often I see people implementing options that no one has yet asked for. The two key reasons for avoiding this are:</p>
+<ol>
+<li>The additional variables increases the cognitive load on the consumer</li>
+<li>We will know more tomorrow than we do today, the central tenet of agile.</li>
+</ol>
+<h4 id="agile-as-the-counter-to-arrogance">Agile as the counter to arrogance<a href="#agile-as-the-counter-to-arrogance" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>For me, agile is all about becoming comfortable with uncertainty and humility over arrogance. Now we understand that removing variables is much harder than taking them away, adding unneeded options is just inserting pain into the future.</p>
+<h3 id="challenge-new-default-variables">Challenge new default variables<a href="#challenge-new-default-variables" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Default variables can be a wonderful thing, they allow you to open up new options in a module whilst easily preserving the existing functionality. However, they are worth examining to see if they are truly required or are a future requirement creeping into today&rsquo;s module. Is there a way you hide that complexity from your consumer?</p>
+<h3 id="embed-sensible-defaults">Embed sensible defaults<a href="#embed-sensible-defaults" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Lets take an S3 bucket module, as a consumer what I want is the bucket so I can deliver on my feature, in a compliant, secure way. What I don&rsquo;t want is having to understand the minutae of what makes the bucket secure and compliant. Modules are the vector by which we can embed systemic changes across our estate.</p>
+<p>It is not realistic to expect all engineers be able to write perfect KMS policies, if we can bake such things into the module that is how secure by default can be achieved.</p>
+<h3 id="documentation-is-king">Documentation is king<a href="#documentation-is-king" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Tools such as <a href="https://terraform-docs.io/">Terraform Docs</a> automatically produce documentation for your modules. Great documentation is a key driver of user experience, nothing turns engineers off quicker than subpar documentation. It can be hard for the person making the change to write documentation at the right level, so this is where pairing and PR reviews are worth their weight in gold.</p>
+<h3 id="version-modules-as-you-would-anything-else">Version modules as you would anything else<a href="#version-modules-as-you-would-anything-else" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>Especially since the pandemic hit, the shift to remote work has stretched communication pathways. This has led to a focus on how to communicate effectively asynchronously, and module versioning along with documentation is key to this.</p>
+<p>The most common versioning strategy in the industry currently is <a href="https://semver.org/">semver</a>, so we&rsquo;ll use that as our example.</p>
+<p>In semver you have three numbers: <code>major</code>.<code>minor</code>.<code>patch</code></p>
+<p><code>Major</code> indicates a breaking change, and sets an expectation that a significant amount of effort will be needed to migrate</p>
+<p><code>Minor</code> indicates new functionality has been added, migrating should not have any impact</p>
+<p><code>Patch</code> indicates a non-observable change has occurred, potentially a bug fix, and similarly to <code>minor</code>, migrating should be simple</p>
+<p>By embedding this versioning into your modules you can explicitly communicate and set expectations with your consumers so they understand the scope and impact of moving versions.</p>
+<p>As a side benefit, this also allows you to observe where people are still using old versions of modules, building a critical feedback loop to understand why they have stalled there.</p>
+<h3 id="thoroughly-test-your-modules">Thoroughly test your modules<a href="#thoroughly-test-your-modules" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>There exists many options for testing module code, a powerful combination is <a href="https://terratest.gruntwork.io/">Terratest</a> and <a href="https://terraform-compliance.com/">Terraform Compliance</a></p>
+<p>Much like you shouldn&rsquo;t accept a pull request for code that doesn&rsquo;t have tests, nor should you accept module pull requests without appropriate tests. Terratest allows you to quickly instantiate modules and run post-apply validations. Going back to the variable permutation explosion from <code>Less variables is better</code> you should have a test that confirms that the changes being made enable the wanted outcome.</p>
+<p>Terraform Compliance allows you to define your compliance requirements in plain English and have them operate as an executable specification against your infrastructure. When developing modules it is critical that you confirm it is possible to use the module to produce compliant infrastructure, and that as new controls are developed and added to the suite that this continues to be the case.</p>
+<h2 id="contributions">Contributions<a href="#contributions" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>As we now see user experience is not something you can neglect when authoring Terraform modules. Without it you cannot hope to extract even 1/10th of the possible value. A mature internal module ecosystem is a foundation that enables systemic change that is otherwise impossible.</p>
+<p>We&rsquo;ve learnt with the great power of abstraction comes great responsibility.</p>
+<p>We&rsquo;ve explored some heuristics and techniques for improving the UX of all modules:</p>
+<ul>
+<li>Less variables is better</li>
+<li>Build only for today&rsquo;s requirements</li>
+<li>Challenge new default variables</li>
+<li>Embed sensible defaults</li>
+<li>Documentation is king</li>
+<li>Version modules as you would anything else</li>
+<li>Thoroughly test your modules</li>
+</ul>
+<p>Now, using these heuristics you can have better conversations, build better modules and enable systemic change.</p>
 
 			</div>
 			<hr class="post-end">
@@ -106,16 +179,16 @@ Why Terraform Modules? In my day job at Contino, one thing we&rsquo;re known for
 				<p>
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg><span class="tag"><a href="https://josharmi.github.io/tags/terraform">Terraform</a></span><span class="tag"><a href="https://josharmi.github.io/tags/cloud">Cloud</a></span><span class="tag"><a href="https://josharmi.github.io/tags/infrastructure">Infrastructure</a></span><span class="tag"><a href="https://josharmi.github.io/tags/iac">IaC</a></span>
 				</p>
-				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>448 Words</p>
-				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2020-10-07 01:00 &#43;0100</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>1620 Words</p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2021-02-28 00:00 &#43;0000</p>
 			</footer>
 		</article>
 		<div class="post-nav thin">
-			<a class="next-post" href="https://josharmi.github.io/posts/not-so-safe/">
-				<span class="post-nav-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>&nbsp;Newer</span><br><span>SAFety From Cloud Native</span>
+			<a class="next-post" href="https://josharmi.github.io/posts/terraform-stacksets/">
+				<span class="post-nav-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>&nbsp;Newer</span><br><span>DIY Stacksets for Terraform</span>
 			</a>
-			<a class="prev-post" href="https://josharmi.github.io/posts/serverless-event-sourcing/">
-				<span class="post-nav-label">Older&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>Beginning The Quest For Serverless CQRS &amp; Event Sourcing</span>
+			<a class="prev-post" href="https://josharmi.github.io/posts/pointing-the-way-serverless-python/">
+				<span class="post-nav-label">Older&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>Pointing the Way to Serverless Python</span>
 			</a>
 		</div>
 		<div id="comments" class="thin">
